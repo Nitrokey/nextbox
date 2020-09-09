@@ -1,0 +1,25 @@
+type: model
+authority-id: jldUw2FwxI5cCWiDPA3Xr0tPtE3DkLD5
+series: 16
+brand-id: jldUw2FwxI5cCWiDPA3Xr0tPtE3DkLD5
+model: ubuntu-core-18-pi-arm64
+architecture: arm64
+base: core18
+display-name: Nitrokey Nextbox
+gadget: pi=18-pi
+kernel: pi-kernel=18-pi
+required-snaps:
+  - nextcloud-nextbox
+timestamp: 2020-09-09T11:53:18+00:00
+sign-key-sha3-384: 97n7XNuabu2fCHhKTIKpawN2IxZrNUUCFW24PjbSaYpXFNqjtGcH1B25Rc5j68IC
+
+AcLBcwQAAQoAHRYhBGKDRGCiX5ut6Rf8iiHV7NunBJHxBQJfWMI9AAoJECHV7NunBJHxdKsQAI2I
+L4s9dDLSCx5hW9fBf3gJ+lfp1nmPwmn1UnfgqvaO9BByFC283WAgZLbJav/Wdipn3U+V8z6nU8Cg
+bm3Na1+ShBosTyjM9MAkcURZ7whSyXDlhOw0qjPmqbp0O94JPRULkksVcZ9/iteRMqz7RF8dJTqG
+j129jRmhY5drBs+z36yQ+Rw9SyYN1U1DgYRsWw3qZSQ+mDFuphIhmtxkmN6o5RLPu5BePMMSn2NX
+NLllYuDAUv0R1cgrjUyZxWUHXfaxg/f4KXu/LLSkNitZ7d+ZqEed7XpLl3BqQ3smeWM2k3UvPVdp
+FdPWs6gjzz199p1kxDCZvCgN1MuF2g3TOP8jYVDdyLDOxBEo175RnERAlfUNvRpDEFU7N5iKoUzR
+KM3wdC2ichz7KKv4XLioEaW2r57sn8NXNrRTje5LJnrd85K5VUxr87eRT8+A4P1Y1YagDerwTVwd
+1bIPZE6YB49L0Xvbw6b39PNbhu3Rgvnrv0FljKdb3fQC4BinfHXMn1htuE8hssDA+Iw9q9giOIn9
+cbU1GpdOp6DnlLvVNfJsrCiGuiZFNzUxLASHq0Q/qzPIAldgPrCnMz7yzh7ydmPhMRNloB/A1si5
+FOAxVDZJGqpTFVhKj9Y9lC4zIJj/etXzHzylklR3gjFTRA9ET0ftxrOehi+qT2ZmARwJxJVJ

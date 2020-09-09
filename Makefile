@@ -19,18 +19,20 @@ DAEMONIZE=-d
 
 SIGNED_MODEL=$(BINDDIR)/my.model
 INSIDE_SIGNED_MODEL=$(DOCKER_SRCDIR)/my.model
-drun=docker exec $(CONT_NAME)
+drun=docker exec -it $(CONT_NAME)
 
 
-# start not as dep, or we need some hack to show make it's running...
 create: $(MODEL_PATH) startup 
 	cp -r $(MODEL_PATH) $(SIGNED_MODEL)
 	$(drun) snap install snapcraft --classic
 	$(drun) ubuntu-image snap $(INSIDE_SIGNED_MODEL)
+	$(drun) mv /pi.img $(DOCKER_SRCDIR)/$(NAME).img
+	mv $(BINDDIR)/$(NAME).img .
+
 
 startup: clean
 	
-	mkdir -p $(WORKDIR)
+	mkdir -p $(BINDDIR)
 
 	docker run -ti \
 		--user $(DOCKERUSER) \
@@ -55,16 +57,14 @@ clean:
 model: secrets
 	bash create_model.sh secrets
 
-	echo "---"
-	echo "--- to use the model, copy it manually to $(MODEL_PATH) ---"
-	echo "---"
-
 image:
 	docker build -t $(NAME)-builder --force-rm=true --rm=true $(DOCKERFILEDIR)
 
 secrets:
-	echo "Missing: './secrets' directory"
+	@echo "Missing: './secrets' directory"
+	@false
 
 $(MODEL_PATH):
-	echo "Missing: $(MODEL_PATH)"
-	echo "run 'make model' to create a model file"
+	@echo "Missing: $(MODEL_PATH)"
+	@echo "run 'make model' to create a model file"
+	@false

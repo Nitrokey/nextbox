@@ -58,12 +58,15 @@ sed -e "s@%%snaps%%@${snaps}@g" \
 ${inside_exec} snap sign -k ${KEY_NAME} ${inside_model_json_path}
 
 # running a 2nd time, no need for pass, thus output can be redirected
-new_model_path=${MODEL_PATH}.$(date +%s)
-${inside_exec} snap sign -k ${KEY_NAME} ${inside_model_json_path} > ${new_model_path}
+tmp_new_model_path=${MODEL_PATH}.$(date +%s)
+${inside_exec} snap sign -k ${KEY_NAME} ${inside_model_json_path} > ${tmp_new_model_path}
+tr -d '\r' < ${tmp_new_model_path} > ${MODEL_PATH}
+rm ${tmp_new_model_path}
 
 echo
 echo "json model assertion:              ${model_json_path}"
-echo "signed model assertion:            ${new_model_path}"
+echo "signed model assertion:            ${MODEL_PATH}"
 echo "secrets in workdir (delete them!): ${workdir}/secrets"
-
+echo
+echo "run 'make' to build the image"
 
