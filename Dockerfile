@@ -23,29 +23,10 @@ VOLUME ["/sys/fs/cgroup"]
 
 STOPSIGNAL SIGRTMIN+3
 
-#RUN useradd -ms /bin/bash -u 1000 builder 
-#RUN useradd -m -N -s /bin/bash -u 1000 -p '$1$HMjfTD9w$7Fv/HmXJhSat..0MLBAxF/' builder && 
-#    usermod -aG sudo builder && 
-
 # set trivial root-password + auto-login (passwd gen: openssl passwd -1 "123456")
 RUN	usermod -p '$1$HMjfTD9w$7Fv/HmXJhSat..0MLBAxF/' root && \
 		sed -i -e 's/--noclear %I/--noclear -a root %I/g' /usr/lib/systemd/system/getty@.service
 
-#RUN snap install snapcraft --classic
-
-#USER builder
 
 CMD ["/sbin/init"]
-
-
-#VOLUME heads
-#
-##RUN git clone https://github.com/osresearch/heads ~/heads
-#
-#RUN cd /heads && \
-#    echo "master" && \
-#    git pull && \
-#	make
-
-#RUN make BOARD=x220
 
