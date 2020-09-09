@@ -1,0 +1,5 @@
+
+CONT_NAME=nextbox_image_builder
+MODEL_PATH=nk-nextcloud.model
+SNAP_LOGIN_FILE=snapcraft-credentials.txt
+KEY_NAME=nextcloud
