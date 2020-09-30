@@ -41,7 +41,7 @@ ${inside_exec} snapcraft login --with ${inside_creds}
 
 # create base .json model
 developer_id=$(${inside_exec} snapcraft whoami | tail -n1 | cut -d " " -f 2 | xargs)
-snaps='["nextcloud-nextbox", "udisks2"]'
+snaps='["nextcloud-nextbox"]'
 timestamp=$(date -Iseconds --utc)
 
 model_json_tmpl=model.json.tmpl
