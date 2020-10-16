@@ -16,6 +16,7 @@ DOCKERUSER=root:root
 
 #DAEMONIZE=
 DAEMONIZE=-d
+#DAEMONIZE="-v `pwd`/../:/nextbox-dev"
 
 SIGNED_MODEL=$(BINDDIR)/my.model
 INSIDE_SIGNED_MODEL=$(DOCKER_SRCDIR)/my.model

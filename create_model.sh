@@ -2,7 +2,7 @@
 
 source shared_vars.txt
 
-if [[ "$1" == "" ]]; then
+if [[ "$1" == "" || "$2" != "" ]]; then
 	echo "usage: $0 <secrets-dir>"
 	echo
 	echo "referenced <secrets-dir> shall contain:"
@@ -11,6 +11,7 @@ if [[ "$1" == "" ]]; then
 	echo
 	exit 1
 fi
+
 
 # outside container (on host)
 secretsdir=$1
@@ -41,7 +42,7 @@ ${inside_exec} snapcraft login --with ${inside_creds}
 
 # create base .json model
 developer_id=$(${inside_exec} snapcraft whoami | tail -n1 | cut -d " " -f 2 | xargs)
-snaps='["nextcloud-nextbox"]'
+snaps='["nextcloud-nextbox", "nextbox"]'
 timestamp=$(date -Iseconds --utc)
 
 model_json_tmpl=model.json.tmpl
