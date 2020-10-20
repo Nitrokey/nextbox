@@ -1,0 +1,12 @@
+[Unit]
+Description=NextBox System Daemon 
+After=network.target
+
+[Service]
+ExecStart=/snap/nextbox/current/bin/start.sh 
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+

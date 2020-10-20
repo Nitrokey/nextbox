@@ -1,0 +1,11 @@
+[Unit]
+Description=external harddisk mount
+
+[Mount]
+What=/dev/sda1
+Where=/media/nextcloud
+Type=auto
+
+[Install]
+WantedBy=multi-user.target
+
