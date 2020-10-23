@@ -32,8 +32,10 @@
 
 ### do all this above before first login into nextcloud
 
-- define needed directory structure
-
+- define needed directory structure (+chmod)
+  - /config
+	- /extra-apps
+	-
 
 does mDNS work ?1 need zeroconf daemon on bender for this...
 
