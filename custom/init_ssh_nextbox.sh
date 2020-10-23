@@ -9,17 +9,17 @@ if [[ "$1" == "" || "$2" == "" || "$3" != "" ]]; then
 fi
 
 
-sec_dir=$2
-ssh_url=$3
+sec_dir=$1
+ssh_url=$2
 
 function scpit
 {
-	scp -i \"$sec_dir/nk_id_rsa\" ${1} ${ssh_url}:${2}
+	scp -i $sec_dir/nk_id_rsa ${1} ${ssh_url}:${2}
 }
 
 function sshrun
 {
-	ssh -i \"$sec_dir/nk_id_rsa\" -- "$@"
+	ssh -i $sec_dir/nk_id_rsa $ssh_url -- "$@"
 }
 
 # ssh-copy files
@@ -29,18 +29,18 @@ scpit hostname /tmp
 
 # copy files locally (as root)
 sshrun sudo mv /tmp/hostname /etc/writable
-sshrun sudo mv /tmp/media-nextbox.mount /etc/systemd/system
+sshrun sudo mv /tmp/media-nextcloud.mount /etc/systemd/system
 sshrun sudo mv /tmp/nextbox-daemon.service /etc/systemd/system
 
 # reload systemd-units
 sshrun sudo systemctl daemon-reload
 
 # enable & start media-nextbox + nextbox-daemon
-sshrun sudo systemctl enable media-nextbox.mount
+sshrun sudo systemctl enable media-nextcloud.mount
 sshrun sudo systemctl enable nextbox-daemon.service 
 
-sshrun sudo systemctl start media-nextbox.mount
-sshrun sudo systemctl start nextbox-daemon.service 
+sshrun sudo systemctl restart media-nextcloud.mount
+sshrun sudo systemctl restart nextbox-daemon.service 
 
 # snap connection(s)
 sshrun sudo snap connect nextcloud-nextbox:removable-media
