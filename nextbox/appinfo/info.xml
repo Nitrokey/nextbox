@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>nextbox</id>
+    <name>NextBox</name>
+    <summary>NextBox Configuration App</summary>
+    <description><![CDATA[NextBox Exclusive App that enables configuration of the Nitrokey Nextbox through a native Nextcloud App]]></description>
+    <version>0.0.1</version>
+    <licence>agpl</licence>
+    <author mail="meissner@nitrokey.com" >Nitrokey GmbH</author>
+    <namespace>Nextbox</namespace>
+    <category>tools</category>
+    <bugs>https://github.com/Nitrokey/nextbox-app/issues</bugs>
+    <dependencies>
+        <nextcloud min-version="12" max-version="20"/>
+    </dependencies>
+    <navigations>
+        <navigation>
+            <name>Next Box App</name>
+            <route>nextbox.page.index</route>
+        </navigation>
+    </navigations>
+</info>
