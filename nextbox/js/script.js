@@ -46,7 +46,7 @@ function set_content(details, items) {
 	`);*/
 
 	$("#app-content-wrapper").html(`
-	<div class="app-content-list">${details}</div>
+			<div class="app-content-list">${details}</div>
 	`);
 
 }
@@ -66,7 +66,8 @@ $(function() {
 		contentType: "application/json"
 	}).done(function(resp) {
 
-		let details = "";
+		let details = "<h2>NextBox Overview</h2>"
+		details += "<h1>Backup / Restore Status</h1>";
 		if(resp["backup"]["running"] === false) 
 			details += `<a href="#" class="app-content-list-item">
             <div class="app-content-list-item-icon" style="background-color: rgb(41, 97, 156);">N</div>
@@ -83,6 +84,8 @@ $(function() {
             <!--span class="app-content-list-item-details">8 hours ago</span-->
             <!--div class="icon-delete"></div-->
         </a>`;
+
+		details += "<h1>Mounted Storage(s)</h1>";
 
 		Object.keys(resp["storage"]["mounted"]).map(x => {
 			 let map = resp["storage"]["mounted"];
