@@ -5,6 +5,7 @@ use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\JSONResponse;
 
 class PageController extends Controller {
 	private $userId;
@@ -15,17 +16,22 @@ class PageController extends Controller {
 	}
 
 	/**
-	 * CAUTION: the @Stuff turns off security checks; for this page no admin is
-	 *          required and no CSRF check. If you don't know what CSRF is, read
-	 *          it up in the docs or you might create a security hole. This is
-	 *          basically the only required method to add this exemption, don't
-	 *          add it to any other method if you don't exactly know what it does
-	 *
-	 * @NoAdminRequired
+	 * NoAdminRequired (deactivated, thus need admin)
 	 * @NoCSRFRequired
 	 */
 	public function index() {
 		return new TemplateResponse('nextbox', 'index');  // templates/index.php
+	}
+
+	public function token() {
+		$token = md5(rand() + uniqid());
+
+		// @todo: maybe reuse sessios-saved or cookie-saved token instead of creating a new one
+
+		$out = file_get_contents("http://127.0.0.1:18585/token/" . $token . 
+			"/" . $this->request->getRemoteAddress());
+
+		return new JSONResponse(array('token' => $token));
 	}
 
 }

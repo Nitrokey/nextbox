@@ -1,6 +1,7 @@
 <?php
 script('nextbox', 'script');
 style('nextbox', 'style');
+
 ?>
 
 <div id="app">
