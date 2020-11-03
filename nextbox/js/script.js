@@ -5,9 +5,7 @@ var token_max_age = 55 * 5 * 1e3;
 var progress_interval = null;
 var requested_host = null;
 
-function request(url, method, on_done) {
-	return request_raw(requested_host ":18585" + url + "?token=" + token, method, on_done);
-}
+
 
 function request_raw(raw_url, method, on_done) {
 	let req = function() {
@@ -18,7 +16,7 @@ function request_raw(raw_url, method, on_done) {
 		})
 		.done(on_done)
 		.fail(function(resp, code) {
-			console.error([url, resp, code]);
+			console.error([raw_url, resp, code]);
 		});
 	};
 	
@@ -28,6 +26,10 @@ function request_raw(raw_url, method, on_done) {
 		request_token(req);
 	else
 		req();
+}
+
+function request(url, method, on_done) {
+	return request_raw(requested_host + ":18585" + url + "?token=" + token, method, on_done);
 }
 
 
@@ -127,6 +129,7 @@ function set_content(details, items) {
 						$("span.backup-progress-percent").text("100.0%");
 						window.clearInterval(progress_interval);
 						progress_interval = null;
+						$("progress.backup-progress").delay(3000, render_backup);
 					}
 				});
 			}, 1000);
@@ -261,14 +264,14 @@ function assemble_backup_available(data) {
 			bg: "rgb(125, 225, 225)",
 			one: item.name,
 		  two: new Date(item.created*1e3).toLocaleString(),
-			details: item.size,
+			details: item.size + "B",
 		  menu: [{icon: "download", name: "restore this backup", cls: "start-restore"}]
 	}));
 }
 
 
 function render_overview() {
-	request("http://192.168.10.129:18585/overview", "GET", function(resp) {
+	request("/overview", "GET", function(resp) {
 		let backup = render_list("Backup / Restore Overview", assemble_backup_overview(resp.backup));
 		let storage = render_list("Mounted Storage(s)", assemble_storage(resp.storage, true));
 		set_content(backup + storage);
@@ -278,7 +281,7 @@ function render_overview() {
 
 function render_storage() {
 
-	request("http://192.168.10.129:18585/storage", "GET", function(resp) {
+	request("/storage", "GET", function(resp) {
 		let mounted = render_list("Mounted Storages",	assemble_storage(resp.data, true));
 		let available = render_list("Available Storages",	assemble_storage(resp.data, false));
 		set_content(mounted + available);
@@ -287,7 +290,7 @@ function render_storage() {
 
 
 function render_backup() {
-		request("http://192.168.10.129:18585/backup", "GET", function(resp) {
+		request("/backup", "GET", function(resp) {
 		let backup = render_list("Backup / Restore Overview", assemble_backup_overview(resp.data));
 		let available = render_list("Available Backups", assemble_backup_available(resp.data.found));
 		set_content(backup + available);
