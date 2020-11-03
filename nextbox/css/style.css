@@ -1,6 +1,12 @@
 #app-content {
-	padding-left: 2em;
+	/*padding-left: 2em;*/
 	padding-top: 1em;
+}
 
+
+
+h2 {
+	margin-left: 0.5em;
+	width: 300px;
 
 }
