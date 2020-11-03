@@ -3,11 +3,16 @@ var token = null;
 var token_created = null;
 var token_max_age = 55 * 5 * 1e3;
 var progress_interval = null;
+var requested_host = null;
 
 function request(url, method, on_done) {
+	return request_raw(requested_host ":18585" + url + "?token=" + token, method, on_done);
+}
+
+function request_raw(raw_url, method, on_done) {
 	let req = function() {
 		$.ajax({
-			url: url + "?token=" + token,
+			url: raw_url,
 			type: method, 
 			ContentType: "application/json"
 		})
@@ -62,7 +67,7 @@ function set_content(details, items) {
 			.children(".app-content-list-item-line-two")
 			.text().split("/")[2];
 
-		request(`http://192.168.10.129:18585/storage/umount/${name}`, "GET", function(resp) {
+		request(`/storage/umount/${name}`, "GET", function(resp) {
 			render_storage();
 		});
 	});
@@ -80,7 +85,7 @@ function set_content(details, items) {
 			.children(".app-content-list-item-details")
 			.text().split("/")[2];
 
-		request(`http://192.168.10.129:18585/storage/mount/${dev}/${name}`, "GET", function(resp) {
+		request(`/storage/mount/${dev}/${name}`, "GET", function(resp) {
 			render_storage();
 		});
 		return false;
@@ -88,16 +93,26 @@ function set_content(details, items) {
 
 	// click event for backup, fire backup-start & delay reload for 1000ms
 	$("button.start-backup").click(function(ev) {
-		request("http://192.168.10.129:18585/backup/start", "GET", function(resp) {
+		request("/backup/start", "GET", function(resp) {
 			$("button.start-backup").delay(1000, render_backup);
 		});
 	});
+
+	// click event for restore, fire restore-start & delay for 1000ms
+	$("button.start-restore").click(function(ev) {
+		let name = $(ev.target).parents(".app-content-list-item").first()
+			.children(".app-content-list-item-line-one").text();
+		request(`/backup/restore/${name}`, "GET", function(resp) {
+			$("button.start-restore").delay(1000, render_backup);
+		});
+	});
+
 
 	// timeout reload for backup progress-bar
 	if ($("progress.backup-progress").length > 0) {
 		if(progress_interval === null) {
 			progress_interval = window.setInterval(function() {
-				request("http://192.168.10.129:18585/overview", "GET", function(resp) {
+				request("/overview", "GET", function(resp) {
 					if (resp.backup.running) {
 						$("progress.backup-progress").val(resp.backup.progress);
 						let step = (resp.backup.step === undefined) ? "init" : resp.backup.step;
@@ -230,7 +245,7 @@ function assemble_backup_overview(data) {
 		out.push({
 			icon: "!",
 			bg: "rgb(125, 225, 225)",
-			one: `<span class="backup-progress-step"></span>`,
+			one: `<span class="backup-progress-step">starting operation</span>`,
 			two: `<progress value=0 max=100 class="backup-progress"></progress>`,
 			details: `<span class="backup-progress-percent"></span>`
 		});
@@ -246,7 +261,8 @@ function assemble_backup_available(data) {
 			bg: "rgb(125, 225, 225)",
 			one: item.name,
 		  two: new Date(item.created*1e3).toLocaleString(),
-			details: item.size
+			details: item.size,
+		  menu: [{icon: "download", name: "restore this backup", cls: "start-restore"}]
 	}));
 }
 
@@ -285,6 +301,8 @@ function render_dyndns() {
 
 
 $(function() {
+
+	requested_host = document.location.origin;
 
 	$("#nav_overview").click(render_overview);
 	$("#nav_storage").click(render_storage);
