@@ -16,7 +16,7 @@
     </dependencies>
     <navigations>
         <navigation>
-            <name>Next Box App</name>
+            <name>NextBox App</name>
             <route>nextbox.page.index</route>
         </navigation>
     </navigations>

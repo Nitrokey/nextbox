@@ -6,7 +6,6 @@ var progress_interval = null;
 var requested_host = null;
 
 
-
 function request_raw(raw_url, method, on_done) {
 	let req = function() {
 		$.ajax({
@@ -29,7 +28,7 @@ function request_raw(raw_url, method, on_done) {
 }
 
 function request(url, method, on_done) {
-	return request_raw(requested_host + ":18585" + url + "?token=" + token, method, on_done);
+	return request_raw("http://" + requested_host + ":18585" + url + "?token=" + token, method, on_done);
 }
 
 
@@ -305,7 +304,7 @@ function render_dyndns() {
 
 $(function() {
 
-	requested_host = document.location.origin;
+	requested_host = document.location.host;
 
 	$("#nav_overview").click(render_overview);
 	$("#nav_storage").click(render_storage);
