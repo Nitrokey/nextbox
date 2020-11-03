@@ -44,7 +44,7 @@ sshrun sudo systemctl restart nextbox-daemon.service
 
 # snap connection(s)
 sshrun sudo snap connect nextcloud-nextbox:removable-media
-
+sshrun sudo snap connect nextcloud-nextbox:network-observe
 
 
 
