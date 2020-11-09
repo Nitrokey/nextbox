@@ -11,5 +11,10 @@ return [
     'routes' => [
 			['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
 			['name' => 'page#token', 'url' => '/token', 'verb' => 'GET'],
+			['name' => 'page#forward', 'url' => '/forward/{path}', 'verb' => 'GET', 
+			 'requirements' => array('path' => '.+')],
+			['name' => 'page#post', 'url' => '/forward/{path}', 'verb' => 'POST', 
+			 'requirements' => array('path' => '.+')],
+
     ]
 ];

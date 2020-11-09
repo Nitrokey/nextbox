@@ -23,7 +23,7 @@ class PageController extends Controller {
 		return new TemplateResponse('nextbox', 'index');  // templates/index.php
 	}
 
-	public function token() {
+	/*public function token() {
 		$token = md5(rand() + uniqid());
 
 		// @todo: maybe reuse sessios-saved or cookie-saved token instead of creating a new one
@@ -32,6 +32,30 @@ class PageController extends Controller {
 			"/" . $this->request->getRemoteAddress());
 
 		return new JSONResponse(array('token' => $token));
+	}*/
+
+	public function forward($path) {
+		return new JSONResponse(
+			json_decode(file_get_contents("http://127.0.0.1:18585/" . $path))
+		);
 	}
 
+	public function post($path) {
+		$data = array("content" => $_POST["content"]);
+
+		$options = array(
+    	'http' => array(
+      	  'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+        	'method'  => 'POST',
+	        'content' => http_build_query($data)
+  	  )
+		);
+		$context  = stream_context_create($options);
+		$result = file_get_contents("http://127.0.0.1:18585/" . $path, false, $context);
+		return new JSONResponse(json_decode($result));
+
+			#http_post_data("http://127.0.0.1:18585/" . $path, $_POST)
+			#json_decode();
+		#);
+	}
 }

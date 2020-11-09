@@ -4,6 +4,31 @@
 }
 
 
+.grayout {
+  position: relative;
+	opacity: 0.45;
+	background-color: rgb(245, 245, 245);
+}
+.grayout .overlay {
+  position: absolute;
+  width: 100% !important;
+  height: 100% !important;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.log-date {
+	font-weight: 600;
+}
+
+
+textarea {
+	height: 10em;
+	width: -webkit-fill-available;
+	/*width: 60vw;*/
+	font-family: monospace;
+}
 
 h2 {
 	margin-left: 0.5em;
