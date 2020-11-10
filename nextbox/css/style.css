@@ -23,7 +23,7 @@
 }
 
 
-textarea {
+textarea, input.ddclient-domain, input.ddclient-email {
 	height: 10em;
 	width: -webkit-fill-available;
 	/*width: 60vw;*/

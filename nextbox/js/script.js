@@ -47,22 +47,56 @@ function add_content(data) {
 			$("#app-content-wrapper").append(`<div class="app-content-details">${data.details}</div>`);
 }
 
-function add_text_edit(txt) {
-	add_content({details: `
-	    <h2>DDClient Configuration</h2>
+function add_ddclient_edit(data) {
+
+	let domain = (data.domain === null) ? "" : data.domain;
+  let email = (data.email === null) ? "" : data.email;
+	let details = `
+	    <h2>Configuration</h2>
 	    <form>
-				<textarea class="ddclient-edit" name="content">${txt}</textarea><br />
-				<button class="ddclient-edit-save">Save</button>
-				<button class="ddclient-edit-reset">Reset</button>
-				<button class="ddclient-edit-test">Test</button><br />
+				<h1>Edit Dynamic DNS Client Configuration (ddclient.conf)</h1> 
+				<textarea class="ddclient-edit" name="conf">${data.conf.join("\n")}</textarea><br />
+				<button class="ddclient-edit-test">Test DDClient Configuration</button><br />
+				<h1>External Domain</h1>
+				<input type=text class="ddclient-domain" name="domain" value="${domain}" /><br /><br />
+				<h1>Let's Crypt E-Mail Address</h1>
+				<input type=text class="ddclient-email" name="email" value="${email}" /><br /><br />
+				<button class="ddclient-edit-save">Save Configuration</button>
+				<button class="ddclient-edit-reset">Reset Configuration</button><br />
+				<button class="ddclient-enable-https">Enable HTTPS & Let's Crypt</button>
+				<button class="ddclient-disable-https">Disable HTTPS</button>
 			</form>
-		`});
+		`;
+
+	add_content({details: details});
+
+	if (data.domain === null) {
+		$("button.ddclient-enable-https").prop("disabled", true);		
+		$("button.ddclient-disable-https").prop("disabled", true);		
+	} else {
+		if (data.https_port === null) {
+			$("button.ddclient-enable-https").prop("enabled", true);		
+			$("button.ddclient-disable-https").prop("disabled", true);		
+		} else {
+			$("button.ddclient-enable-https").prop("disabled", true);		
+			$("button.ddclient-disable-https").prop("enabled", true);		
+		}
+	}
+
 
 	$("button.ddclient-edit-save").click(function(ev) {
-		$data = {
-			content: $("textarea.ddclient-edit").val()
-		};
-		request("/ddclient/config", "POST", function(resp) { }, $data);
+		let domain = $("input.ddclient-domain").val().trim();
+		let conf = $("textarea.ddclient-edit").val().trim();
+		let email = $("input.ddclient-email").val().trim();
+		let data = Object();
+		if (domain.length > 0)
+			data.domain = domain;
+		if (conf.length > 0)
+			data.conf = conf;
+		if (email.length > 0)
+			data.email = email;
+		
+		request("/ddclient/config", "POST", function(resp) { }, data);
 		return false;
 	});
 
@@ -391,7 +425,7 @@ function render_dyndns() {
 		set_content({list: render_list("Service Status", assemble_ddclient_status(resp))});
 		set_list_callbacks();
 		request("/ddclient/config", "GET", function(resp) {
-			add_text_edit(resp.data.join("\n"));
+			add_ddclient_edit(resp.data);
 		});
 	});
 }

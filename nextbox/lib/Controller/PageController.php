@@ -41,7 +41,10 @@ class PageController extends Controller {
 	}
 
 	public function post($path) {
-		$data = array("content" => $_POST["content"]);
+		$data = array();
+		foreach($_POST as $key => $value) {
+				$data[$key] = $value;
+		}
 
 		$options = array(
     	'http' => array(
