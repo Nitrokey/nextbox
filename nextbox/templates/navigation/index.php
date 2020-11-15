@@ -16,11 +16,6 @@
 		</a>
 	</li>
 	<li>
-		<a href="#" id="nav_http" class="icon-password">
-			<span>HTTP / HTTPS</span>
-		</a>
-	</li>
-	<li>
 		<a href="#" id="nav_dyndns" class="icon-category-integration">
 			<span>Dynamic DNS</span>
 		</a>

@@ -6,7 +6,7 @@
 
 .grayout {
   position: relative;
-	opacity: 0.45;
+	opacity: 0.65;
 	background-color: rgb(245, 245, 245);
 }
 .grayout .overlay {
@@ -20,6 +20,15 @@
 
 .log-date {
 	font-weight: 600;
+}
+
+.notify-error {
+	color: #ff4242;
+	font-weight: 400;
+}
+.toast-close {
+	margin-left: 5px;
+	border: 1px;
 }
 
 
