@@ -28,9 +28,9 @@ scpit nextbox-daemon.service /tmp
 scpit hostname /tmp
 
 # copy files locally (as root)
-sshrun sudo mv /tmp/hostname /etc/writable
-sshrun sudo mv /tmp/media-nextcloud.mount /etc/systemd/system
-sshrun sudo mv /tmp/nextbox-daemon.service /etc/systemd/system
+sshrun sudo install -m 644 -o root -g root /tmp/hostname /etc/writable
+sshrun sudo install -m 644 -o root -g root /tmp/media-nextcloud.mount /etc/systemd/system
+sshrun sudo install -m 644 -o root -g root /tmp/nextbox-daemon.service /etc/systemd/system
 
 # reload systemd-units
 sshrun sudo systemctl daemon-reload
