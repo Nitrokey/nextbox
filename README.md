@@ -10,7 +10,7 @@ ready to be flashed on an SD-card for the Raspberry PI4.
 * Customize the initialized image   
 
 
-## Building and flashing the raw image
+### Building and flashing the raw image
 
 Make sure you have the docker daemon running and your current user has permissions to interact
 with the daemon. To build the flashable image run:
@@ -27,7 +27,7 @@ $ dd if=nextbox.img of=/dev/sdc
 **ATTENTION:** double check that this is the correct device you write to, or you might
 end up writing on your system's harddisk.
 
-## Booting into the system
+### Booting into the system
 
 After flashing the SD-card, plug it into the Raspberry PI4, connect a display, keyboard and power
 supply to boot the device up. You will be asked for the network configuration (Nitrokey devices 
@@ -39,7 +39,7 @@ stock configuration. You are free to use your own Snapcraft account here.
 The key-pair registered at Snapcraft for the provided account can be used to login via ssh into 
 the NextBox.
 
-## Customize the initialized image
+### Customize the initialized image
 
 Once the image is initialized, make sure you know the IP of the device (e.g., 192.168.123.55).
 
