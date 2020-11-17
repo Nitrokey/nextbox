@@ -1,0 +1,8 @@
+## Create a new model-assertion
+
+To create a new signed model-assertion:
+* special docker image has to be prepared / build
+* snap(s) placed inside the image must be available on snapcraft (in stable state)
+* cryptographic key (for signing) has to be created and registered at snap(craft)
+* a model assertion has to be created and signed
+* the signed model assertion can be used to build the appliance
