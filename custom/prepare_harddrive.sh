@@ -14,6 +14,11 @@ fi
 
 dev=$1
 
+if [[ ! -a "$dev" ]]; then
+	echo "device: $dev does not exist, exiting..."
+	exit 1
+fi
+
 
 # create harddisk partition
 sfdisk ${dev} --delete
