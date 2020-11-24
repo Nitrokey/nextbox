@@ -4,7 +4,7 @@
     <id>nextbox</id>
     <name>NextBox</name>
     <summary>NextBox Configuration App</summary>
-    <description><![CDATA[NextBox Exclusive App that enables configuration of the Nitrokey Nextbox through a native Nextcloud App]]></description>
+    <description><![CDATA[NextBox-exclusive App that enables configuration of the Nitrokey Nextbox through a native Nextcloud App]]></description>
     <version>0.0.1</version>
     <licence>agpl</licence>
     <author mail="meissner@nitrokey.com" >Nitrokey GmbH</author>
