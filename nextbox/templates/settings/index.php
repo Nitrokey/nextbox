@@ -5,6 +5,10 @@
 		></button>
 	</div>
 	<div id="app-settings-content">
-		<!-- Your settings in here -->
+	<ul> <li>
+		<input type="checkbox" id="expert_mode" class="checkbox">
+        <label for="test1">Expert Mode</label><br>
+    </li></ul>
 	</div>
 </div>
+
