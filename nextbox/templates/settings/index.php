@@ -7,7 +7,7 @@
 	<div id="app-settings-content">
 	<ul> <li>
 		<input type="checkbox" id="expert_mode" class="checkbox">
-        <label for="test1">Expert Mode</label><br>
+        <label for="expert_mode">Expert Mode</label><br>
     </li></ul>
 	</div>
 </div>
