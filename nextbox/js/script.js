@@ -78,6 +78,8 @@ function add_content(data) {
 			$("#app-content-wrapper").append(`<div class="app-content-list">${data.list}</div>`);
 		if ("details" in data)
 			$("#app-content-wrapper").append(`<div class="app-content-details">${data.details}</div>`);
+		if ("raw" in data)
+		    $("#app-content-wrapper").append(data.raw);
 }
 
 function add_ddclient_edit(data) {
@@ -425,6 +427,9 @@ function render_list(headline, data) {
 	return pre + inner + post;
 }
 
+
+
+
 function assemble_storage(data, is_mounted) {
 
 	let mounted = data.mounted;
@@ -617,6 +622,74 @@ function render_log() {
 }
 
 
+function render_settings_section(id, content, headline, hint, warning) {
+
+    let _hint = (hint) ? `<p class="settings-hint">${hint}</div>` : "";
+    let _warning = (warning) ? `<p class="warning">${warning}</div>` : "";
+    let _headline = (headline) ? `<h2>${headline}</h2>` : "";
+    return `<div id="${id}" class="section">
+        ${_headline}
+        ${_hint}
+        <p>${content}</p>
+        ${_warning}
+    </div>`;
+}
+
+function set_system_callbacks() {
+
+}
+
+function render_button(text, cls, icon) {
+    if (icon)
+       cls += ` icon-${icon}`;
+
+    return `<button class="${cls}">${text}</button>`;
+}
+
+function render_text_input(name, cls, val, id, label) {
+    let _label = (label) ? `<label>${label}</label>` : "";
+    let _id = (id) ? ` id="${id}"` : "";
+    return `${_label}<input type=text${_id} class="${cls}" name="${name}" value="${val}" />`;
+}
+
+function render_radio_input(headline, label, name, options) {
+
+    let _opts = options.map(
+        (opt) => `
+            <input type="radio" name="${name}" value="${opt.value}" id="${opt.id}" />
+            <label for="${opt.id}">${opt.label}</label>
+    `).join("");
+
+    let _label = (label) ? `<em>${label}</em>` : "";
+    let _headline = (headline) ? `<h2>${headline}</h2>` : "";
+
+    return `${_headline}${_label}${_opts}`;
+}
+
+
+function render_form() {
+
+}
+
+
+function render_system() {
+    request("/system", "GET", function(resp) {
+        clear_loading();
+
+        let _lvls = [{id: "log_lvl_20", label: "Regular Logging", value: 20},
+                     {id: "log_lvl_10", label: "Verbose Logging", value: 10}];
+        let _expert = [{id: "expert_on", label: "Expert mode active", value: "on"},
+                       {id: "expert_off", label: "Expert mode inactive", value: "off"}];
+
+        set_content({raw: render_settings_section("system-config-log-lvl",
+            render_radio_input("Logging Level", "log_lvl", _lvls)
+        )});
+        add_content({raw: render_settings_section("system-config-expert-mode",
+            render_radio_input("Expert Mode", "expert_mode", _expert)
+        )});
+
+    });
+}
 
 
 $(function() {
@@ -628,6 +701,7 @@ $(function() {
 	$("#nav_backup").click(render_backup);
 	$("#nav_dyndns").click(render_dyndns);
 	$("#nav_log").click(render_log);
+	$("#nav_system").click(render_system);
 
 	render_overview();
 

@@ -21,6 +21,11 @@
 		</a>
 	</li>
 	<li>
+		<a href="#" id="nav_system" class="icon-settings">
+			<span>System Settings</span>
+		</a>
+	</li>
+	<li>
 		<a href="#" id="nav_log" class="icon-info">
 			<span>Daemon Logs</span>
 		</a>
