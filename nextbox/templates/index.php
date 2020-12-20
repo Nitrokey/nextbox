@@ -1,5 +1,15 @@
 <?php
+
+// tools
+script('nextbox', 'utils');
+script('nextbox', 'callbacks');
+script('nextbox', 'render');
+script('nextbox', 'assembly');
+script('nextbox', 'pages');
+
+// main
 script('nextbox', 'script');
+
 style('nextbox', 'style');
 
 ?>
