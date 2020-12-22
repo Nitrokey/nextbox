@@ -26,9 +26,42 @@ function render_radio_input(headline, label, name, options) {
     return `${_headline}${_label}${_opts}`;
 }
 
+function render_input(data) {
+
+}
+
+
 
 function render_form() {
 
+}
+
+function render_menu(menu_items) {
+    let pre = `<div class="icon-more"></div><div class="popovermenu"><ul>`;
+
+    let content = menu_items.map(function(menu_item) {
+        let tag_class = (menu_item.cls) ? `${menu_item.cls} ` : "";
+        tag_class += `icon-${menu_item.icon} `;
+        if (menu_item.input_value) {
+            tag_class += "icon";
+            return `<li><span class="menuitem"><span class="${tag_class}"></span>
+                    <form>
+                        <input type="text" value="${menu_item.input_value}" class="menu-mount-text">
+                        <input type="submit" value=" " class="primary icon-checkmark-white menu-mount-submit">
+                    </form></span>
+                </li>`;
+        } else {
+            return `<li>
+                        <button class="${tag_class}">
+                            <span>${menu_item.name}</span>
+                        </button>
+                    </li>`;
+        }
+    }).join("");
+
+    let post = `</ul></div>`;
+
+    return pre + content + post;
 }
 
 function render_list(headline, data) {
@@ -48,22 +81,12 @@ function render_list(headline, data) {
 			out += `<div class="app-content-list-item-line-two">${item.two}</div>`;
 		if (item.details)
 			out += `<span class="app-content-list-item-details">${item.details}</span>`;
+
 		/** add options menu here **/
 		if(item.menu) {
-				out += `<div class="app-content-list-item-menu"><div class="icon-more"></div><div class="popovermenu"><ul>`;
-
-				out += item.menu.map(function(menu_item) {
-					let tag_class = (menu_item.cls) ? `${menu_item.cls} ` : "";
-					tag_class += `icon-${menu_item.icon} `;
-					if (menu_item.input_value) {
-						tag_class += "icon";
-						return `<li><span class="menuitem"><span class="${tag_class}"></span><form><input type="text" value="${menu_item.input_value}" class="menu-mount-text"><input type="submit" value=" " class="primary icon-checkmark-white menu-mount-submit"></form></span></li>`;
-					} else {
-						return `<li><button class="${tag_class}"><span>${menu_item.name}</span></button></li>`;
-					}
-				}).join("");
-
-				out += `</ul></div></div>`;
+				out += `<div class="app-content-list-item-menu">`;
+				out += render_menu(item.menu);
+				out += `</div>`;
 		}
 		out += "</a>";
 		return out;
