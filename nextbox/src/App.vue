@@ -11,6 +11,10 @@
 			</ul>
 		</AppNavigation>
 		<AppContent>
+			<Storage v-if="page === 'storage'" />
+			<Backup v-if="page === 'backup'" />
+			<DynDNS v-if="page === 'dyndns'" />
+			<System v-if="page === 'system'" />
 			<Logs v-if="page === 'logs'" />
 		</AppContent>
 	</div>
@@ -28,6 +32,10 @@ import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 
 import Logs from './Logs'
+import System from './System'
+import DynDNS from './DynDNS'
+import Backup from './Backup'
+import Storage from './Storage'
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
@@ -37,11 +45,14 @@ import axios from '@nextcloud/axios'
 export default {
 	name: 'App',
 	components: {
-		// ActionButton, AppNavigationNew,
 		AppContent,
 		AppNavigation,
 		AppNavigationItem,
 		Logs,
+		System,
+		DynDNS,
+		Backup,
+		Storage
 	},
 	data() {
 		return {
