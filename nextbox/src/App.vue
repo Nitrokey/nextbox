@@ -1,5 +1,5 @@
 <template>
-	<div id="content" class="nextbox">
+	<div id="content" class="app-nextbox">
 		<AppNavigation>
 			<ul>
 				<AppNavigationItem :title="t('nextbox', 'Overview')" icon="icon-home" @click="set_page('overview')" />
@@ -10,8 +10,9 @@
 				<AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" />
 			</ul>
 		</AppNavigation>
+
 		<AppContent>
-			<Storage v-if="page === 'storage'" />
+			<Storage v-if="page === 'storage'" is-mounted />
 			<Backup v-if="page === 'backup'" />
 			<DynDNS v-if="page === 'dyndns'" />
 			<System v-if="page === 'system'" />
@@ -62,15 +63,6 @@ export default {
 		}
 	},
 	computed: {
-		/**
-		 * Return the currently selected note object
-		 * @returns {Object|null}
-		 */
-		pageaa() {
-			const foo = 123
-			return false //this.currentPage
-
-		},
 	},
 	/**
 	 * Fetch list of notes when the component is loaded
@@ -78,9 +70,6 @@ export default {
 	async mounted() {
 		try {
 			const response = await axios.get(generateUrl('/apps/nextbox/overview'))
-			// alert(response.toString())
-			// his.notes = response.data
-
 		} catch (e) {
 			console.error(e)
 			showError(t('nextbox', 'Could not fetch overview'))
@@ -95,13 +84,14 @@ export default {
 }
 </script>
 <style scoped>
-	#app-content > div {
+	.app-content > div {
 		width: 100%;
 		height: 100%;
 		padding: 20px;
 		display: flex;
 		flex-direction: column;
 		flex-grow: 1;
+		top: 30px;
 	}
 
 	input[type='text'] {
