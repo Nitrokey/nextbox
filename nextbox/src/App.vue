@@ -10,9 +10,19 @@
 				<AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" />
 			</ul>
 		</AppNavigation>
-
+			
 		<AppContent>
-			<Storage v-if="page === 'storage'" is-mounted />
+			<Storage v-if="page === 'storage'" 
+				title="Mounted Storages" 
+				is-mounted 
+				v-bind:data="storageData" 
+				v-on:refresh-storage="refresh_storage" />
+			
+			<Storage v-if="page === 'storage'" 
+				title="Available Storages" 
+				v-bind:data="storageData" 
+				@refresh-storage="refresh_storage" />
+
 			<Backup v-if="page === 'backup'" />
 			<DynDNS v-if="page === 'dyndns'" />
 			<System v-if="page === 'system'" />
@@ -53,13 +63,14 @@ export default {
 		System,
 		DynDNS,
 		Backup,
-		Storage
+		Storage,
 	},
 	data() {
 		return {
 			page: 'overview',
 			updating: false,
 			loading: true,
+			storageData: {},
 		}
 	},
 	computed: {
@@ -75,11 +86,24 @@ export default {
 			showError(t('nextbox', 'Could not fetch overview'))
 		}
 		this.loading = false
+
 	},
+
 	methods: {
 		set_page(what) {
 			this.page = what
 		},
+		
+		async refresh_storage() {
+			const res = await axios
+				.get(generateUrl('/apps/nextbox/forward/storage'))
+				.catch((e) => {
+					showError('Could not load Storage data')
+					console.error(e)
+				})
+			this.storageData = res.data.data
+		},
+		
 	},
 }
 </script>

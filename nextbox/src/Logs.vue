@@ -22,7 +22,7 @@ export default {
 	name: 'Logs',
 	// props: ['items'],
 	components: {
-		AppContentDetails
+		AppContentDetails,
 	},
 	data() {
 		return {

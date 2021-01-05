@@ -1,13 +1,27 @@
 <template>
-	<div>
-		<AppContentList show-details>
-			<ListItemIcon v-for="item in items"
-				:key="item.two"
-				:title="item.one"
-				:subtitle="item.two"
-				:icon="item.icon" />
-		</AppContentList>
-	</div>
+	<AppContentList class="storage-list" show-details>
+		<h2>
+			{{ title }}
+		</h2>
+
+		<ListItemIcon v-for="item in items"
+			:key="item.two"
+			:title="item.one"
+			:subtitle="item.two"
+			:display-name="item.icon"
+			:icon-class="icon-add"
+			:avatar-size="36">
+			<Actions>
+				<ActionButton v-for="menuitem in item.menu"
+					:key="menuitem.name"
+					:close-after-click="true"
+					:icon="menuitem.icon" 
+					@click="action(menuitem)">
+					{{ menuitem.name }}
+				</ActionButton>
+			</Actions>
+		</ListItemIcon>
+	</AppContentList>
 </template>
 
 
@@ -15,91 +29,136 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-import { showError, showSuccess } from '@nextcloud/dialogs'
+import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
 import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 
 export default {
 	name: 'Storage',
+
 	components: {
-		AppContentList, ListItemIcon
+		AppContentList, ListItemIcon, Actions, ActionButton,
 	},
-	props: { isMounted: Boolean },
+
+	props: { 
+		isMounted: Boolean,
+		title: String,
+		data: Object
+	},
 
 	data() {
 		return {
 			loading: true,
-			items: [],
+			msg: '',
 		}
 	},
+	computed: {
+		mountedDevs() {
+			return Object.keys(this.data.mounted)
+		},
 
-	async mounted() {
-		try {
-			const res = await axios.get(generateUrl('/apps/nextbox/forward/storage'))
-			const data = res.data.data
-			const mounted = data.mounted
-			const mountedDevs = Object.keys(data.mounted)
+		mounted() {
+			return this.data.mounted
+		},
 
-			this.items = data.available
-				.filter(dev => (!(this.isMounted ^ mountedDevs.includes(dev))))
+		items() { 
+			if (!this.data.available) {
+				return []
+			}
+
+			return this.data.available
+				.filter(dev => (!(this.isMounted ^ this.mountedDevs.includes(dev))))
 				.map(dev => {
 					const blockDev = dev.split('/').slice(-1)[0].slice(0, 3)
-					const desc = data.block_devs[blockDev].name
-					const two = (mounted[dev]) ? mounted[dev] + ` (${data.type[dev]})` : '(not mounted)'
+					const desc = this.data.block_devs[blockDev].name
+					const two = (this.mounted[dev]) ? this.mounted[dev] + ` (${this.data.type[dev]})` : '(not mounted)'
 					const ret = {
 						icon: 'HD',
-						two,
-						details: dev
+						two: `${dev} @ ${two}`,
 					}
 
 					ret.bg = 'rgb(100, 155, 155)'
-					if (!this.isMounted && mountedDevs.includes(dev)) {
+					if (!this.isMounted && this.mountedDevs.includes(dev)) {
 						ret.bg = 'rgb(220, 220, 220)'
 					}
 
 					ret.one = desc
-					if (mountedDevs.includes(dev)) {
+					if (this.mountedDevs.includes(dev)) {
 						ret.one = `Extra (${desc})`
-						if (data.main === dev) {
+						if (this.data.main === dev) {
 							ret.one = `Main (${desc})`
-						} else if (data.backup === dev) {
+						} else if (this.data.backup === dev) {
 							ret.one = `Backup (${desc})`
 						}
 					}
 
-					if (data.main !== dev) {
-						if (mountedDevs.includes(dev)) {
+					const devFn = dev.split('/').slice(-1)[0]
+					const UmountTarget = dev in this.mounted ? this.mounted[dev].split('/').slice(-1)[0] : ''
+					if (this.data.main !== dev) {
+						if (this.mountedDevs.includes(dev)) {
 							ret.menu = [
-								{ icon: 'close', name: 'Unmount Partition', cls: 'storage-umount' }
+								{ icon: 'icon-close', name: 'Unmount Partition', target: UmountTarget, act: 'umount' },
 							]
 						} else {
 
-							ret.menu = [{ icon: 'add', name: 'Mount as Extra Storage', cls: 'storage-extra-mount' }]
-							if (data.backup === null) {
-								ret.menu.push({ icon: 'folder', name: 'Mount as Backup Storage', cls: 'storage-backup-mount' })
+							ret.menu = [{ icon: 'icon-add', name: 'Mount as Extra Storage', target: devFn, act: 'mount-extra' }]
+							if (this.data.backup === null) {
+								ret.menu.push({ icon: 'icon-folder', name: 'Mount as Backup Storage', target: devFn, act: 'mount-backup' })
 							}
-
-							//ret.menu.push({icon: 'folder', input_value: '[mount-name]'})
 						}
 					}
 					return ret
 				})
+		},
+	},
 
-		} catch (e) {
-			console.error(e)
-			showError(t('nextbox', 'Could not fetch logs'))
-		}
+	async mounted() {
+		this.loading = true
+		this.$emit('refresh-storage')
 		this.loading = false
 	},
+
 	methods: {
+		async action(obj) {
+			this.loading = true
+			
+			let url = ''
+			if (obj.act === 'mount-backup') {
+				url = `/apps/nextbox/forward/storage/mount/${obj.target}/backup`
+			} else if (obj.act === 'mount-extra') {
+				url = `/apps/nextbox/forward/storage/mount/${obj.target}`
+			} else if (obj.act === 'umount') {
+				url = `/apps/nextbox/forward/storage/umount/${obj.target}`
+			}
+
+			const res = await axios.get(generateUrl(url)).catch((e) => {
+				showError('Connection failed')
+				console.error(e)
+			})
+			
+			showMessage(res.data.msg)
+			this.$emit('refresh-storage')
+			this.loading = false
+		},
 	},
 }
 </script>
 
 
 <style scoped>
-.logline { color: black }
+.storage-list { 
+	top: 65px !important; 
+	display: flex;
+	width: 100%;
+	min-width: 0px;
+	min-height: 0px;
+	max-width: none;
+	height: fit-content !important;
+	
+}
 </style>
