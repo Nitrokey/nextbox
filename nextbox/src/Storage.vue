@@ -1,27 +1,35 @@
 <template>
-	<AppContentList class="storage-list" show-details>
-		<h2>
-			{{ title }}
-		</h2>
+	<div class="storage">
+		<AppContentList class="section storage-list" show-details>
+			<h2>
+				{{ title }}
+			</h2>
 
-		<ListItemIcon v-for="item in items"
-			:key="item.two"
-			:title="item.one"
-			:subtitle="item.two"
-			:display-name="item.icon"
-			:icon-class="icon-add"
-			:avatar-size="36">
-			<Actions>
-				<ActionButton v-for="menuitem in item.menu"
-					:key="menuitem.name"
-					:close-after-click="true"
-					:icon="menuitem.icon" 
-					@click="action(menuitem)">
-					{{ menuitem.name }}
-				</ActionButton>
-			</Actions>
-		</ListItemIcon>
-	</AppContentList>
+			<ListItemIcon v-for="item in items" 
+				class="list-item"
+				:key="item.two"
+				:title="item.one"
+				:subtitle="item.two"
+				:display-name="item.icon"
+				:icon-class="item.icon"
+				:avatar-size="36">
+				<Actions>
+					<ActionButton v-for="menuitem in item.menu"
+						:key="menuitem.name"
+						:close-after-click="true"
+						:icon="menuitem.icon" 
+						@click="action(menuitem)">
+						{{ menuitem.name }}
+					</ActionButton>
+				</Actions>
+			</ListItemIcon>
+
+			<EmptyContent v-if="items.length === 0 && !isMounted" icon="icon-close">
+				No Unmounted {{ title }}
+			</EmptyContent>
+		</AppContentList>
+		<div class="section empty" />
+	</div>
 </template>
 
 
@@ -37,18 +45,19 @@ import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 import Actions from '@nextcloud/vue/dist/Components/Actions'
 import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 
 export default {
 	name: 'Storage',
 
 	components: {
-		AppContentList, ListItemIcon, Actions, ActionButton,
+		AppContentList, ListItemIcon, Actions, ActionButton, EmptyContent,
 	},
 
 	props: { 
-		isMounted: Boolean,
-		title: String,
-		data: Object
+		isMounted: { type: Boolean },
+		title: { type: String, default: () => '' },
+		data: { type: Object, default: () => {} },
 	},
 
 	data() {
@@ -78,7 +87,7 @@ export default {
 					const desc = this.data.block_devs[blockDev].name
 					const two = (this.mounted[dev]) ? this.mounted[dev] + ` (${this.data.type[dev]})` : '(not mounted)'
 					const ret = {
-						icon: 'HD',
+						icon: 'icon-add',
 						two: `${dev} @ ${two}`,
 					}
 
@@ -152,13 +161,37 @@ export default {
 
 <style scoped>
 .storage-list { 
-	top: 65px !important; 
 	display: flex;
 	width: 100%;
 	min-width: 0px;
 	min-height: 0px;
 	max-width: none;
 	height: fit-content !important;
-	
 }
+
+.storage {
+	height: 47vh !important;
+}
+
+.section {
+	display: block;
+	padding: 30px;
+	margin: 0;
+	height: fit-content !important;
+}
+
+.section:not(:last-child) {
+	border-bottom: 1px solid var(--color-border) !important;
+}
+
+.empty {
+	height: 0px;
+	margin: 0;
+	padding: 0;
+}
+
+.list-item:not(:last-child) {
+	border-bottom: 1px solid var(--color-border) !important;
+}
+
 </style>

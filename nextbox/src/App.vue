@@ -15,12 +15,12 @@
 			<Storage v-if="page === 'storage'" 
 				title="Mounted Storages" 
 				is-mounted 
-				v-bind:data="storageData" 
-				v-on:refresh-storage="refresh_storage" />
+				:data="storageData" 
+				@refresh-storage="refresh_storage" />
 			
 			<Storage v-if="page === 'storage'" 
 				title="Available Storages" 
-				v-bind:data="storageData" 
+				:data="storageData" 
 				@refresh-storage="refresh_storage" />
 
 			<Backup v-if="page === 'backup'" />
@@ -108,22 +108,24 @@ export default {
 }
 </script>
 <style scoped>
-	.app-content > div {
-		width: 100%;
-		height: 100%;
-		padding: 20px;
-		display: flex;
-		flex-direction: column;
-		flex-grow: 1;
-		top: 30px;
-	}
+	
+input[type='text'] {
+	width: 100%;
+}
 
-	input[type='text'] {
-		width: 100%;
-	}
+textarea {
+	flex-grow: 1;
+	width: 100%;
+}
 
-	textarea {
-		flex-grow: 1;
-		width: 100%;
-	}
+
+.app-content > div {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	top: 30px;
+}
+
 </style>
