@@ -6,8 +6,8 @@
 			</h2>
 
 			<ListItemIcon v-for="item in items" 
-				class="list-item"
 				:key="item.two"
+				class="list-item"
 				:title="item.one"
 				:subtitle="item.two"
 				:display-name="item.icon"

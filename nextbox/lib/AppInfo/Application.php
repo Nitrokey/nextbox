@@ -28,6 +28,7 @@ class Application extends App {
 					$csp = new ContentSecurityPolicy();
 					$csp->addAllowedConnectDomain('127.0.0.1:18585');
 					$csp->addAllowedConnectDomain('192.168.10.129:18585');
+					$csp->addAllowedConnectDomain('192.168.10.47:18585');
 					$e->addPolicy($csp);
 				
 				});
