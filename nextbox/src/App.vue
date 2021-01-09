@@ -6,6 +6,7 @@
 				<AppNavigationItem :title="t('nextbox', 'Storage Management')" icon="icon-category-files" @click="set_page('storage')" />
 				<AppNavigationItem :title="t('nextbox', 'Backup / Restore')" icon="icon-download" @click="set_page('backup')" />
 				<AppNavigationItem :title="t('nextbox', 'Dynamic DNS')" icon="icon-category-integration" @click="set_page('dyndns')" />
+				<AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" />
 				<AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" />
 				<AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" />
 			</ul>
@@ -47,6 +48,7 @@ import System from './System'
 import DynDNS from './DynDNS'
 import Backup from './Backup'
 import Storage from './Storage'
+import TLS from './TLS'
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
@@ -64,6 +66,7 @@ export default {
 		DynDNS,
 		Backup,
 		Storage,
+		TLS,
 	},
 	data() {
 		return {

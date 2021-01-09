@@ -44,14 +44,17 @@ class PageController extends Controller {
 		$data = array();
 		foreach($_POST as $key => $value) {
 				$data[$key] = $value;
+				echo "key: " + $key + " val: " + $value;
 		}
 
+
+
 		$options = array(
-    	'http' => array(
-      	  'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-        	'method'  => 'POST',
-	        'content' => http_build_query($data)
-  	  )
+			'http' => array(
+				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+				'method'  => 'POST',
+				'content' => http_build_query($data)
+			)
 		);
 		$context  = stream_context_create($options);
 		$result = file_get_contents("http://127.0.0.1:18585/" . $path, false, $context);

@@ -11,14 +11,14 @@
 				:title="item.one"
 				:subtitle="item.two"
 				:display-name="item.icon"
-				:icon-class="item.icon"
+				:icon-class="(loading === item.two) ? 'icon-loading' : item.icon"
 				:avatar-size="36">
 				<Actions>
 					<ActionButton v-for="menuitem in item.menu"
 						:key="menuitem.name"
 						:close-after-click="true"
 						:icon="menuitem.icon" 
-						@click="action(menuitem)">
+						@click="action(item, menuitem)">
 						{{ menuitem.name }}
 					</ActionButton>
 				</Actions>
@@ -133,8 +133,9 @@ export default {
 	},
 
 	methods: {
-		async action(obj) {
-			this.loading = true
+		async action(listItem, obj) {
+			this.loading = listItem.two
+
 			
 			let url = ''
 			if (obj.act === 'mount-backup') {
@@ -192,6 +193,10 @@ export default {
 
 .list-item:not(:last-child) {
 	border-bottom: 1px solid var(--color-border) !important;
+}
+
+.avatar-class-icon {
+	background-color: none !important;
 }
 
 </style>

@@ -26,7 +26,7 @@
 			<div v-if="lastBackup">
 				Similar to the backup process, restoring the system from a 
 				backup will set Nextcloud into maintainance mode and you 
-				will be presented with a progress indicator. 
+				will be presented with a progress indicator.<br>
 				<br>
 				<Multiselect 
 					v-model="selectedBackup"
@@ -37,7 +37,7 @@
 				<ActionButton
 					:disabled="selectedBackup === false"
 					icon="icon-upload" 
-					@click="start_restore()">
+					@click="start_restore(selectedBackup)">
 					Start Restoring now
 				</ActionButton>
 			</div>
@@ -50,11 +50,10 @@
 			v-if="overlay.active"
 			v-model="overlay"
 			dark
-			@close="overlay.active = false">
+			@close="close_modal($event)">
 			<div class="modal-box">
 				<span class="bold">{{ overlay.text }}</span><br><br>
 				<ProgressBar 
-					v-if="overlay.mode == 'backup'" 
 					:value="overlay.progress"
 					:error="overlay.error" />
 				<br>
@@ -68,7 +67,7 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-import { showError, showSuccess, TOAST_PERMANENT_TIMEOUT } from '@nextcloud/dialogs'
+import { showError, showMessage, showSuccess, TOAST_PERMANENT_TIMEOUT } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
 import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
@@ -96,7 +95,6 @@ export default {
 			interval: false,
 			overlay: {
 				active: false,
-				title: '',
 				text: '',
 				mode: '',
 				error: false,
@@ -119,7 +117,7 @@ export default {
 					const myDate = new Date(item.created * 1e3).toLocaleString()
 					return {
 						label: `${item.name} | created: ${myDate} | size: ${item.size}B`,
-						id: item.created,
+						id: item.name,
 					}
 				})
 		},
@@ -139,15 +137,21 @@ export default {
 			this.backupData = res.data.data
 		},
 
+		async close_modal(ev) {
+			this.overlay.active = false
+		},
+
 		async start_backup() {
-			this.overlay = {
-				title: 'Running Full System Backup',
-				active: true,
-				mode: 'backup',
-				canClose: false,
-				error: false,
-				progress: 0,
-				text: 'Please wait, the backup operation is running...',
+			this.overlay = { 
+				...this.overlay, 
+				...{
+					active: true,
+					canClose: false,
+					error: false,
+					progress: 0,
+					text: 'Please wait, the backup operation is running...',
+					progressStep: 'Preparing....',
+				},
 			}
 
 			const url = '/apps/nextbox/forward/backup/start'
@@ -166,48 +170,89 @@ export default {
 				this.overlay.canClose = true
 				window.clearInterval(this.interval)
 			})
+
+			// fail getting overview
+			if (!('data' in res.data)) {
+				return
+			}
+
 			const data = res.data.data
 			
 			// something is wrong
 			if (data.backup.unable) {
 				window.clearInterval(this.interval)
-				this.overlay.error = true
-				this.overlay.canClose = true
-				this.overlay.text = `The operation failed during step: ${data.backup.unable}`
-				this.overlay.progressStep = 'Operation canceled due to error!'
+				this.overlay = { 
+					...this.overlay, 
+					...{
+						error: true,
+						canClose: true,
+						text: `The operation failed during step: ${data.backup.unable}`,
+						progressStep: 'Operation canceled due to error!',
+					},
+				}
 				return
 			}
+
 			// regular operation mode
 			if (data.backup.running) {
 				const step = (data.backup.step === undefined) ? 'init' : data.backup.step
+				let percent = '   0%'
+				if (data.backup.progress) {
+					this.overlay.progress = Math.round(data.backup.progress)
+					percent = `${this.overlay.progress}%`.padStart(5)
+				}
+				
 				switch (step) {
 				case 'init':
 					this.overlay.progressStep = 'Initializing...'
 					break
 				case 'apps':
-					this.overlay.progressStep = 'Copying: Applications'
+					this.overlay.progressStep = `Copying: Applications ${percent}`
 					break
 				case 'db':
-					this.overlay.progressStep = 'Copying: Database'
+					this.overlay.progressStep = `Copying: Database ${percent}`
 					break
 				case 'data':
-					this.overlay.progressStep = 'Copying: User Data'
+					this.overlay.progressStep = `Copying: User Data ${percent}`
 					break
 				}
-				if (data.backup.progress) {
-					this.overlay.progress = Math.round(data.backup.progress)
-				}
+				
 			// once regular mode is finished...
 			} else if (!data.backup.unable) {
 				window.clearInterval(this.interval)
-				this.overlay.progressStep = 'Finished successfully!'
-				this.overlay.canClose = true
-				this.overlay.text = ''
+				this.overlay = { 
+					...this.overlay, 
+					...{
+						progressStep: '',
+						canClose: true,
+						text: 'Finished successfully!',
+					},
+				}
+				this.refresh()
 			}
 		},
 
-		async start_restore() {
+		async start_restore(which) {
+			this.overlay = { 
+				...this.overlay, 
+				...{
+					active: true,
+					canClose: false,
+					error: false,
+					progress: 0,
+					text: 'Please wait, the restore operation is running...',
+					progressStep: 'Preparing....',
+				},
+			}
 
+			const url = `/apps/nextbox/forward/backup/restore/${which.id}`
+			const res = await axios.get(generateUrl(url)).catch((e) => {
+				showError('Connection failed')
+				console.error(e)
+			})
+		
+			this.interval = window.setInterval(this.update_progress, 1000)
+			this.selectedBackup = false
 		},
 	},
 }
@@ -238,7 +283,6 @@ export default {
 
 .section:not(:last-child) {
 	border-bottom: 1px solid var(--color-border) !important;
-	margin-bottom: 24px;
 }
 
 .modal-box {
@@ -246,5 +290,13 @@ export default {
 	text-align: center;
 	padding: 5vh;
 }
+
+.section {
+	display: block;
+	padding: 30px;
+	margin: 0;
+	height: fit-content !important;
+}
+
 
 </style>
