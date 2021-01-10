@@ -6,26 +6,26 @@
 			a (dynamic) domain. Your Nextcloud instance will afterwards be available using this domain.
 			<ActionRadio 
 				v-tooltip.bottom="ttDesec" 
-				@update:checked="update.dns_mode = 'desec'"
-				name="dns_mode" 
-				value="desec"
-				class="dns_radio">
+				name="dns_mode"
+				value="desec" 
+				class="dns_radio"
+				@update:checked="update.dns_mode = 'desec'">
 				Guided DynDNS Configuration (recommended)
 			</ActionRadio>
 			<ActionRadio  
 				v-tooltip.bottom="ttStatic"
-				@update:checked="update.dns_mode = 'static'"
+				value="static"
+				class="dns_radio" 
 				name="dns_mode" 
-				value="static" 
-				class="dns_radio">
+				@update:checked="update.dns_mode = 'static'">
 				Static Domain
 			</ActionRadio>
 			<ActionRadio 
 				v-tooltip.bottom="ttConfig" 
-				@update:checked="update.dns_mode = 'config'"
-				name="dns_mode" 
+				name="dns_mode"
 				value="config" 
-				class="dns_radio">
+				class="dns_radio" 
+				@update:checked="update.dns_mode = 'config'">
 				Raw DDClient Configuration
 			</ActionRadio>
 			<ActionButton
@@ -37,7 +37,7 @@
 
 		<div v-if="['static', 'config', 'desec'].includes(config.dns_mode)" class="section">
 			<h2>Domain for NextBox</h2>
-			Insert the designated (sub)domain for your NextBox.<br>
+			Insert the designated full domain for your NextBox.<br>
 			<!-- span class="icon icon-address" /-->
 			<input type="text" class="txt" :value="update.domain">
 			<button @click="update_domain()">
@@ -51,11 +51,11 @@
 			</ActionButton>
 		</div>
 
-		<div v-if="['static', 'config', 'desec'].includes(config.dns_mode)" class="section">
+		<div v-if="config.dns_mode === 'desec'" class="section">
 			<h2>E-Mail for DeSec Dynamic DNS Registration & Let's Encrypt</h2>
 			Insert the designated (sub)domain for your NextBox.<br>
 			<!-- span class="icon icon-address" /-->
-			<input type="text" class="txt" :value="update.domain">
+			<input type="text" class="txt" :value="update.email">
 			<button @click="update_email()">
 				<span class="icon icon-confirm" />
 				Save E-Mail
@@ -134,7 +134,7 @@ export default {
 					+ 'This is the recommended option for most users.',
 
 			// variables
-			update: {}
+			update: {},
 		}
 	},
 
@@ -229,10 +229,6 @@ export default {
 	padding: 30px;
 	margin: 0;
 	height: fit-content !important;
-}
-
-.icon {
-	/*padding-right: 2em;*/
 }
 
 .txt {
