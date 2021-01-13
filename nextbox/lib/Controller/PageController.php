@@ -44,11 +44,7 @@ class PageController extends Controller {
 		$data = array();
 		foreach($_POST as $key => $value) {
 				$data[$key] = $value;
-				echo "key: " + $key + " val: " + $value;
 		}
-
-
-
 		$options = array(
 			'http' => array(
 				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
