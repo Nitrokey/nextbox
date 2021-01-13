@@ -272,6 +272,17 @@ export default {
 	vertical-align: text-bottom;
 }
 
+.section {
+	display: block;
+	padding: 30px;
+	margin: 0;
+	height: fit-content !important;
+}
+
+.section:not(:last-child) {
+	border-bottom: 1px solid var(--color-border) !important;
+}
+
 .backup-restore {
 	display: flex;
 	width: 100%;
@@ -281,21 +292,11 @@ export default {
 	height: fit-content !important;
 }
 
-.section:not(:last-child) {
-	border-bottom: 1px solid var(--color-border) !important;
-}
 
 .modal-box {
 	width: 50vw;
 	text-align: center;
 	padding: 5vh;
-}
-
-.section {
-	display: block;
-	padding: 30px;
-	margin: 0;
-	height: fit-content !important;
 }
 
 

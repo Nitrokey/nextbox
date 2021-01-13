@@ -1,5 +1,6 @@
 <template>
 	<div class="dyndns">
+		<!-- MAIN MENU -->
 		<div v-if="config.dns_mode === 'off'" class="section">
 			<h2>Choose a Dynamic DNS Configuration Mode</h2>
 			To make your NextBox available outside of your internal network you need to configure
@@ -29,46 +30,86 @@
 				Raw DDClient Configuration
 			</ActionRadio>
 			<ActionButton
+				:disabled="noEmail && update.dns_mode == 'desec'"
 				:icon="(loading) ? 'icon-loading' : 'icon-confirm'"
 				@click="update_dns_mode()">
 				Continue
-			</ActionButton>
+			</ActionButton><br>
+			<span v-if="noEmail && update.dns_mode == 'desec'" class="error">
+				For guided dynamic DNS configuration, please first set a valid 
+				E-Mail address in the <span class="bold">System Settings</span>.
+			</span>
 		</div>
-
+		
+		<!-- Domain -->
 		<div v-if="['static', 'config', 'desec'].includes(config.dns_mode)" class="section">
 			<h2>Domain for NextBox</h2>
-			Insert the designated full domain for your NextBox.<br>
-			<!-- span class="icon icon-address" /-->
-			<input type="text" class="txt" :value="update.domain">
-			<button @click="update_domain()">
+			Insert the designated full domain for your NextBox. <br>
+			<span v-if="config.dns_mode == 'static'">
+				This is needed, if you configured a domain to point to your 
+				NextBox in e.g., with your internet router.<br>
+			</span>
+			<span v-if="config.dns_mode == 'desec'">
+				The domain always has to end with 
+				<span class="bold">dedyn.io</span>.<br>
+			</span>
+			<input v-model="update.domain" type="text" class="txt">
+			<button v-if="config.dns_mode !== 'desec'" type="button" @click="update_domain()">
 				<span class="icon icon-confirm" />
 				Save Domain
 			</button>
-			<ActionButton
+			<br><span v-if="userMessage.domain" class="error">{{ userMessage.domain.join(" ") }}</span><br>
+			<!--ActionButton v-if="config.dns_mode == 'desec'"
 				:icon="(loading) ? 'icon-loading' : 'icon-play'"
-				@click="false">
-				Test Domain
-			</ActionButton>
+				@click="check_desec_domain()">
+				Test Domain Availability
+			</ActionButton_ -->
 		</div>
 
+		<!-- Captcha deSEC & start registration... -->
 		<div v-if="config.dns_mode === 'desec'" class="section">
-			<h2>E-Mail for DeSec Dynamic DNS Registration & Let's Encrypt</h2>
-			Insert the designated (sub)domain for your NextBox.<br>
-			<!-- span class="icon icon-address" /-->
-			<input type="text" class="txt" :value="update.email">
-			<button @click="update_email()">
+			<h2>Captcha for DeSEC registration</h2>
+			Plase solve this Captcha to verify for the dynamic DNS service (deSEC) that you are a human.<br>
+			<img :src="update.captcha_png"><br>
+			<input v-model="update.captcha" type="text" class="captcha-txt"><br>
+			<span v-if="'captcha' in userMessage && userMessage.captcha.solution" class="error">
+				{{ userMessage.captcha.solution.join(" ") }}
+			</span><br>
+			<button type="button" @click="register_desec(update)">
 				<span class="icon icon-confirm" />
-				Save E-Mail
-			</button>
+				Start registration ...
+			</button><br>
 		</div>
 
+		<!-- deSEC token and finalize registration -->
+		<div v-if="config.dns_mode === 'desec_2'" class="section">
+			<h2>Token from deSEC Activation</h2>
+			<span class="bold">The registration using your provided E-Mail was successful</span>.<br>
+
+			You should have received an E-Mail with an activation link. Please 
+			click on this link and copy the presented token into this field:<br>
+
+			<input v-model="update.desec_token" type="text" class="txt"><br>
+			<button type="button" @click="update_token()">
+				<span class="icon icon-confirm" />
+				Finalize Dynamic DNS Configuration
+			</button><br>
+			<br>
+			If you have not received an E-Mail this means you have already 
+			been registered with this E-Mail at deSEC. If you know your password
+			you can <a href="https://desec.io/login">login here</a> and copy the 
+			token from your account settings. During NextBox' automated process no 
+			password is set, in order to acquire one you have to 
+			<a href="https://desec.io/reset-password">reset your password</a>.
+		</div>
+
+		<!-- Raw ddclient configuration -->
 		<div v-if="['config'].includes(config.dns_mode)" class="section">
-			<h2>Direct DDClient configuration</h2>
-			Here you can directly configure ddclient to use any supported DynDNS service. Please find 
+			<h2>Raw DDClient configuration</h2>
+			Here you can directly configure DDClient to use any supported DynDNS service. Please find 
 			the documentation for DDClient <a class="bold" href="https://ddclient.net/usage.html">here</a><br>
-			<!-- span class="icon icon-address" /-->
 			<textarea v-model="update.conf" class="txtmult" />
-			<button style="vertical-align: top" @click="update_conf()">
+			<button style="vertical-align: top" type="button" @click="update_conf()">
 				<span class="icon icon-confirm" />
 				Save Configuration
 			</button>
@@ -79,6 +120,7 @@
 			</ActionButton>
 		</div>
 
+		<!-- Restart dynamic dns configuration -->
 		<div v-if="config.dns_mode !== 'off'" class="section">
 			<ActionButton
 				class="bold"
@@ -123,7 +165,14 @@ export default {
 		return {
 			// generics
 			loading: false,
-			config: null,
+			userMessage: {},
+
+			config: {
+				dns_mode: 'off',
+				conf: '',
+				domain: '',
+				email: '',
+			},
 			
 			// consts/texts
 			ttConfig: 'Choose this, if you have a custom ddclient configuration you want to be used. '
@@ -134,8 +183,21 @@ export default {
 					+ 'This is the recommended option for most users.',
 
 			// variables
-			update: {},
+			update: {
+				dns_mode: 'off',
+				conf: '',
+				domain: '',
+				captcha_png: '',
+				captcha_id: '',
+				captcha: '',
+			},
 		}
+	},
+
+	computed: {
+		noEmail() {
+			return this.config.email === ''
+		},
 	},
 
 	async mounted() {
@@ -145,54 +207,97 @@ export default {
 
 	methods: {
 		async refresh() {
-			const url = '/apps/nextbox/forward/dyndns/config'
+			const url = '/apps/nextbox/forward/config'
 			const res = await axios.get(generateUrl(url)).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 			})
 			this.config = res.data.data
-			this.update = {
-				dns_mode: this.config.dns_mode,
-				conf: this.config.conf,
-				domain: this.config.domain,
-				email: this.config.email,
+			this.update.dns_mode = this.config.dns_mode
+			this.update.domain = this.config.domain
+			this.update.conf = this.config.conf.join('\n')
+			this.update.desec_token = this.config.desec_token
+
+			if (this.config.dns_mode === 'desec') {
+				const captchaUrl = generateUrl('/apps/nextbox/forward/dyndns/captcha')
+				const captchaRes = await axios.post(captchaUrl).catch((e) => {
+					showError('Cannot aquire captch from deSEC')
+					console.error(e)
+				})
+				this.update.captcha_png = `data:image/png;base64,${captchaRes.data.data.challenge}`
+				this.update.captcha_id = captchaRes.data.data.id
 			}
 		},
 
 		async restart_config() {
-			const url = '/apps/nextbox/forward/dyndns/config'
-			const options = {
-				headers: { 'content-type': 'application/x-www-form-urlencoded' },
-			}
-			const res = await axios.post(generateUrl(url), qs.stringify({ dns_mode: 'off' }), options)
-				.catch((e) => {
-					showError('Connection failed')
-					console.error(e)
-				})
+			this.update.dns_mode = 'off'
+			this.update_dns_mode()
 			this.refresh()
 		},
 
-
 		async update_dns_mode() {
-			console.error(this.update.dns_mode)
+			this.userMessage = {}
 			this.update_config({ dns_mode: this.update.dns_mode })
 		},
 		async update_domain() {
-			this.update_config({ email: this.update.email })
-		},
-		async update_email() {
+			//showMessage(this.update.domain)
 			this.update_config({ domain: this.update.domain })
+
 		},
 		async update_conf() {
 			this.update_config({ conf: this.update.conf })
 		},
+		async update_token() {
+			if (this.update.desec_token.length !== 28) {
+				showError('The token is not valid')
+				return
+			}
 
-		async update_config(update) {
-			const url = '/apps/nextbox/forward/dyndns/config'
+			const ddclientConfig = 'protocol=dyndns2\n'
+			+ 'use=web, web=https://checkipv4.dedyn.io/\n'
+			+ 'ssl=yes\n'
+			+ 'server=update.dedyn.io\n'
+			+ `login='${this.config.domain}'\n`
+			+ `password='${this.update.desec_token}'\n`
+			+ `${this.config.domain}\n`
+
+			this.update_config({ 
+				desec_token: this.update.desec_token, 
+				dns_mode: 'done',
+				conf: ddclientConfig,
+			})
+		},
+		async register_desec(update) {
+			const url = '/apps/nextbox/forward/dyndns/register'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
-			
+			const res = await axios.post(generateUrl(url), qs.stringify(update), options)
+				.catch((e) => {
+					showError('Connection failed')
+					console.error(e)
+				})
+
+			if (res.data.result !== 'success') {
+				this.userMessage = res.data.data
+				if (this.userMessage.detail) {
+					showError(this.userMessage.detail)
+				}
+				showError(res.data.msg)
+			} else {
+				this.update.dns_mode = 'desec_2'
+				this.update_config({
+					dns_mode: this.update.dns_mode,
+					domain: this.update.domain,
+				})
+			}
+		},
+
+		async update_config(update) {
+			const url = '/apps/nextbox/forward/config'
+			const options = {
+				headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			}
 			const res = await axios.post(generateUrl(url), qs.stringify(update), options)
 				.catch((e) => {
 					showError('Connection failed')
@@ -235,9 +340,17 @@ export default {
 	width: 25vw;
 }
 
+.captcha-txt {
+	width: 160px;
+}
+
 .txtmult {
 	width: 25vw;
 	height: 10em;
+}
+
+.error {
+	color: var(--color-error)
 }
 
 </style>

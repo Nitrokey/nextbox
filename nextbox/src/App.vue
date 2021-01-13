@@ -13,6 +13,7 @@
 		</AppNavigation>
 			
 		<AppContent>
+			<Overview v-if="page === 'overview'" />
 			<Storage v-if="page === 'storage'" 
 				title="Mounted Storages" 
 				is-mounted 
@@ -49,6 +50,8 @@ import DynDNS from './DynDNS'
 import Backup from './Backup'
 import Storage from './Storage'
 import TLS from './TLS'
+import Overview from './Overview'
+
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
@@ -61,6 +64,7 @@ export default {
 		AppContent,
 		AppNavigation,
 		AppNavigationItem,
+		Overview,
 		Logs,
 		System,
 		DynDNS,
@@ -78,9 +82,7 @@ export default {
 	},
 	computed: {
 	},
-	/**
-	 * Fetch list of notes when the component is loaded
-	 */
+
 	async mounted() {
 		try {
 			const response = await axios.get(generateUrl('/apps/nextbox/overview'))

@@ -1,16 +1,22 @@
 <template>
-	<div class="system">
-		<!-- E-Mail Configuration -->
+	<div class="overview">
+		<!-- External availability  -->
 		<div class="section">
-			<h2>E-Mail Address</h2>
-			Insert a valid E-Mail for the registrations to be used. You need access to this E-Mail 
-			to complete the guided registration process for the deSEC dynamic DNS service and 
-			Let's encrypt certificate acquisition.<br>
-			<input v-model="email" type="text" class="txt">
-			<button type="button" @click="update_email()">
-				<span class="icon icon-confirm" />
-				Save
-			</button>
+			<h2>External Reachability of Your NextBox</h2>
+			Show information about: dyndns-working (ddclient active), nextcloud reachable through configured domain
+		</div>
+
+		<!-- Last Backup  -->
+		<div class="section">
+			<h2>Last Backup</h2>
+			<span v-if="lastBackup">Your last backup was done at: 
+				<span class="bold">{{ new Date(lastBackup * 1e3).toLocaleString() }}</span>
+			</span>
+			<span v-else class="bold">
+				<span class="icon icon-error" />
+				You have not yet run a backup - please do so
+				<span class="icon icon-error" />
+			</span>
 		</div>
 	</div>
 </template>
@@ -29,7 +35,7 @@ import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 
 export default {
-	name: 'System',
+	name: 'Overview',
 	components: {
 		AppContentDetails,
 	},
@@ -37,7 +43,7 @@ export default {
 	data() {
 		return {
 			loading: true,
-			email: '',
+			config: {},
 		}
 	},
 
@@ -50,37 +56,10 @@ export default {
 		async refresh() {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/config'))
-				this.email = res.data.data.email
+				this.config = res.data.data
 			} catch (e) {
 				console.error(e)
 				//showError(t('nextbox', 'Could not fetch logs'))
-			}
-		},
-		async update_email() {
-			if (!this.email.includes('.') || !this.email.includes('@')) {
-				showError('Please insert a valid E-Mail address')
-				return
-			}
-
-			if (!this.update_config({ email: this.email })) {
-				showError('Failed setting E-Mail')
-			} else {
-				showSuccess('Updated E-Mail')
-			}
-		},
-
-		async update_config(what) {
-			const url = '/apps/nextbox/forward/config'
-			const options = {
-				headers: { 'content-type': 'application/x-www-form-urlencoded' },
-			}
-			try {
-				const res = await axios.post(generateUrl(url), qs.stringify(what), options)
-				return res.data.result === 'success'
-			} catch (e) {
-				showError('Connection failed')
-				console.error(e)
-				return false
 			}
 		},
 	},
@@ -98,6 +77,17 @@ export default {
 	height: fit-content !important;
 }
 
+.icon {
+	width: 44px;
+	height: 44px;
+	opacity: 1;
+	background-position: 14px bottom;
+	background-size: 16px;
+	background-repeat: no-repeat;
+	display: inline-block;
+	vertical-align: text-bottom;
+}
+
 .section {
 	display: block;
 	padding: 30px;
@@ -108,7 +98,6 @@ export default {
 .section:not(:last-child) {
 	border-bottom: 1px solid var(--color-border) !important;
 }
-
 
 .txt {
 	width: 25vw;
