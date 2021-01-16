@@ -35,7 +35,7 @@
 				@click="update_dns_mode()">
 				Continue
 			</ActionButton><br>
-			<span v-if="noEmail && update.dns_mode == 'desec'" class="error">
+			<span v-if="noEmail && update.dns_mode == 'desec'" class="error-txt">
 				For guided dynamic DNS configuration, please first set a valid 
 				E-Mail address in the <span class="bold">System Settings</span>.
 			</span>
@@ -54,26 +54,30 @@
 				<span class="bold">dedyn.io</span>.<br>
 			</span>
 			<input v-model="update.domain" type="text" class="txt">
-			<button v-if="config.dns_mode !== 'desec'" type="button" @click="update_domain()">
+			<!-- button v-if="config.dns_mode !== 'desec'" type="button" @click="update_domain()">
 				<span class="icon icon-confirm" />
 				Save Domain
-			</button>
-			<br><span v-if="userMessage.domain" class="error">{{ userMessage.domain.join(" ") }}</span><br>
+			</button -->
+			<br><span v-if="userMessage.domain" class="error-txt">{{ userMessage.domain.join(" ") }}</span><br>
 			<!--ActionButton v-if="config.dns_mode == 'desec'"
 				:icon="(loading) ? 'icon-loading' : 'icon-play'"
 				@click="check_desec_domain()">
 				Test Domain Availability
 			</ActionButton_ -->
+			<button v-if="config.dns_mode === 'static'" type="button" @click="finalize_static()">
+				<span class="icon icon-confirm" />
+				Finalize Static Domain Configuration
+			</button>
 		</div>
 
 		<!-- Captcha deSEC & start registration... -->
 		<div v-if="config.dns_mode === 'desec'" class="section">
 			<h2>Captcha for DeSEC registration</h2>
 			Plase solve this Captcha to verify for the dynamic DNS service (deSEC) that you are a human.<br>
-			<img :src="update.captcha_png"><br>
+			<img :src="update.captcha_png"><span class="icon icon-history" @click="refresh_captcha()" /><br>
 			<input v-model="update.captcha" type="text" class="captcha-txt"><br>
-			<span v-if="'captcha' in userMessage && userMessage.captcha.solution" class="error">
-				{{ userMessage.captcha.solution.join(" ") }}
+			<span v-if="userMessageCaptcha" class="error-txt">
+				{{ userMessageCaptcha }}
 			</span><br>
 			<button type="button" @click="register_desec(update)">
 				<span class="icon icon-confirm" />
@@ -83,14 +87,14 @@
 
 		<!-- deSEC token and finalize registration -->
 		<div v-if="config.dns_mode === 'desec_2'" class="section">
-			<h2>Token from deSEC Activation</h2>
+			<h2>deSEC Activation Token</h2>
 			<span class="bold">The registration using your provided E-Mail was successful</span>.<br>
 
 			You should have received an E-Mail with an activation link. Please 
 			click on this link and copy the presented token into this field:<br>
 
 			<input v-model="update.desec_token" type="text" class="txt"><br>
-			<button type="button" @click="update_token()">
+			<button type="button" @click="finalize_desec()">
 				<span class="icon icon-confirm" />
 				Finalize Dynamic DNS Configuration
 			</button><br>
@@ -108,16 +112,64 @@
 			<h2>Raw DDClient configuration</h2>
 			Here you can directly configure DDClient to use any supported DynDNS service. Please find 
 			the documentation for DDClient <a class="bold" href="https://ddclient.net/usage.html">here</a><br>
-			<textarea v-model="update.conf" class="txtmult" />
-			<button style="vertical-align: top" type="button" @click="update_conf()">
+			<textarea v-model="update.conf" class="txtmult" /><br>
+			<!-- button style="vertical-align: top" type="button" @click="update_conf()">
 				<span class="icon icon-confirm" />
 				Save Configuration
+			</button -->
+			<button type="button" @click="finalize_config()">
+				<span class="icon icon-confirm" />
+				Finalize Raw DDClient Configuration
 			</button>
-			<ActionButton
+			<!--ActionButton
 				:icon="(loading) ? 'icon-loading' : 'icon-play'"
 				@click="false">
 				Test DDClient Configuration
-			</ActionButton>
+			</ActionButton -->
+		</div>
+
+		<!-- Done View -->
+		<div v-if="config.dns_mode.endsWith('_done')" class="section">
+			<h2>{{ statusTitle }} - Status</h2>
+			
+			<div v-if="['config_done', 'desec_done'].includes(config.dns_mode)">
+				<span v-if="status.ddclientService" class="tag success"><span class="icon icon-checkmark" />The DDClient Service is Active</span>
+				<span v-else>
+					<span class="tag error"><span class="icon icon-error" />DDClient Service not running</span>
+				</span>
+			</div>
+
+			<div v-if="['config_done', 'desec_done', 'static_done'].includes(config.dns_mode)">
+				<span v-if="status.domain === null" class="tag neutral"><span class="icon icon-info" />Not available via <a :href="'http://' + config.domain">{{ config.domain }}</a> - testing DDClient...</span>
+				<span v-else-if="status.domain" class="tag success"><span class="icon icon-checkmark" />Your NextBox is available via <a :href="'http://' + config.domain">{{ config.domain }}</a></span>
+				<span v-else>
+					<span class="tag error"><span class="icon icon-error" />Your NextBox is currently not available via <a :href="'http://' + config.domain">{{ config.domain }}</a></span>
+				</span>
+			</div>
+
+			<div v-if="['config_done', 'desec_done', 'static_done'].includes(config.dns_mode)">
+				<span v-if="status.resolve === null" class="tag neutral"><span class="icon icon-info" />
+					Domain: <span class="bold">{{ config.domain }}</span> not resolving to external IP: <span class="bold">{{ status.ip }}</span> - testing DDClient...
+				</span>
+				<span v-else-if="status.resolve" class="tag success"><span class="icon icon-checkmark" />
+					Your configured Domain: <span class="bold">{{ config.domain }}</span> correctly resolves to your external IP: <span class="bold">{{ status.ip }}</span>
+				</span>
+				<span v-else>
+					<span class="tag error"><span class="icon icon-error" />
+						Your configured Domain: <span class="bold">{{ config.domain }}</span> does not resolve to your external IP: <span class="bold">{{ status.ip }}</span>
+					</span>
+				</span>
+			</div>
+
+			<div v-if="['config_done', 'desec_done'].includes(config.dns_mode)">
+				<span v-if="status.ddclientTest === null" class="tag neutral"><span class="icon icon-info" />DDClient Configuration Test - Not Needed</span>
+				<span v-else-if="status.ddclientTest" class="tag success"><span class="icon icon-checkmark" />DDClient Configuration Test Successful</span>
+				<span v-else>
+					<span class="tag error"><span class="icon icon-error" />
+						DDClient Configuration Test has failed! {{ status.ddclientTestDetails && status.ddclientTestDetails.desc }}
+					</span>
+				</span>
+			</div>
 		</div>
 
 		<!-- Restart dynamic dns configuration -->
@@ -174,6 +226,15 @@ export default {
 				email: '',
 			},
 			
+			status: {
+				ddclientTest: null,
+				ddclientTestDetails: {},
+				ddclientService: false,
+				domain: false,
+				resolve: false,
+				ip: '',
+			},
+
 			// consts/texts
 			ttConfig: 'Choose this, if you have a custom ddclient configuration you want to be used. '
 					+ 'This enables the use of any Dynamic DNS provider supported by ddclient.',
@@ -196,12 +257,37 @@ export default {
 
 	computed: {
 		noEmail() {
-			return this.config.email === ''
+			return !this.config.email
+		},
+		userMessageCaptcha() {
+			console.error('userMessageCaptcha', this.userMessage)
+			if (this.userMessage.captcha) {
+				const out = Object.keys(this.userMessage.captcha).map((key) => 
+					this.userMessage.captcha[key].join(' ')).join('<br>')
+				console.error(out)
+				return out
+			}
+
+			return ''
+		},
+		statusTitle() {
+			if (this.config.dns_mode === 'desec_done') {
+				return 'deSEC Dynamic DNS Configuration'
+			} else if (this.config.dns_mode === 'static_done') {
+				return 'Static Domain Configuration'
+			} else if (this.config.dns_mode === 'config_done') {
+				return 'Raw DDClient Configurtation'
+			} else {
+				return ''
+			}
 		},
 	},
 
 	async mounted() {
 		await this.refresh()
+		if (this.config.dns_mode.endsWith('_done')) {
+			await this.refresh_status()
+		}
 		this.loading = false
 	},
 
@@ -219,14 +305,99 @@ export default {
 			this.update.desec_token = this.config.desec_token
 
 			if (this.config.dns_mode === 'desec') {
-				const captchaUrl = generateUrl('/apps/nextbox/forward/dyndns/captcha')
-				const captchaRes = await axios.post(captchaUrl).catch((e) => {
-					showError('Cannot aquire captch from deSEC')
-					console.error(e)
-				})
-				this.update.captcha_png = `data:image/png;base64,${captchaRes.data.data.challenge}`
-				this.update.captcha_id = captchaRes.data.data.id
+				this.refresh_captcha()
 			}
+		},
+
+		async refresh_captcha() {
+			const captchaUrl = generateUrl('/apps/nextbox/forward/dyndns/captcha')
+			const captchaRes = await axios.post(captchaUrl).catch((e) => {
+				showError('Cannot aquire captch from deSEC')
+				console.error(e)
+			})
+			this.update.captcha_png = `data:image/png;base64,${captchaRes.data.data.challenge}`
+			this.update.captcha_id = captchaRes.data.data.id
+			this.update.captcha = ''
+		},
+
+		async refresh_status() {
+			await this.refresh_status_test_domain()
+			await this.refresh_status_test_service()
+			await this.refresh_status_test_resolve()
+			if (!this.status.resolve) {
+				this.status.resolve = null
+				this.status.domain = null
+				await this.refresh_status_test_ddclient()
+				if (!this.status.ddclientTest) {
+					await this.refresh_status_test_resolve()
+					await this.refresh_status_test_domain()
+				}
+			}
+		},
+
+		async refresh_status_test_ddclient() {
+			const url1 = '/apps/nextbox/forward/dyndns/test/ddclient'
+			await axios.get(generateUrl(url1))
+				.then((res) => {
+					this.status.ddclientTest = res.data.result === 'success'
+					this.status.ddclientTestDetails = res.data.data
+				}).catch((e) => {
+					showError('Connection failed')
+					console.error(e)
+					this.status.ddclientTest = false
+				})
+
+			if (!this.status.ddclientTest) {
+				window.setTimeout(function() {
+					axios.get(generateUrl(url1))
+						.then((res) => {
+							this.status.ddclientTest = res.data.result === 'success'
+							this.status.ddclientTestDetails = res.data.data
+						}).catch((e) => {
+							showError('Connection failed')
+							console.error(e)
+							this.status.ddclientTest = false
+						})
+				}, 1000)
+			}
+				
+
+
+		},
+		async refresh_status_test_domain() {
+			const url2 = '/apps/nextbox/forward/dyndns/test/domain'
+			await axios.get(generateUrl(url2))
+				.then((res) => {
+					this.status.domain = res.data.result === 'success'
+				}).catch((e) => {
+					showError('Connection failed')
+					console.error(e)
+					this.status.domain = false
+				})
+		},
+		async refresh_status_test_service() {
+			const url3 = '/apps/nextbox/forward/service/ddclient/is-active'
+			await axios.get(generateUrl(url3))
+				.then((res) => {
+					this.status.ddclientService = res.data.data.output[0] === 'active'
+				}).catch((e) => {
+					showError('Connection failed')
+					console.error(e)
+					this.status.ddclientService = false
+				})
+		},
+		async refresh_status_test_resolve() {
+			const url4 = '/apps/nextbox/forward/dyndns/test/resolve'
+			await axios.get(generateUrl(url4))
+				.then((res) => {
+					this.status.resolve = res.data.result === 'success'
+					this.status.ip = res.data.data.ip  
+				}).catch((e) => {
+					showError('Connection failed')
+					console.error(e)
+					this.status.resolve = false
+					this.status.ip = ''
+				})
 		},
 
 		async restart_config() {
@@ -239,15 +410,24 @@ export default {
 			this.userMessage = {}
 			this.update_config({ dns_mode: this.update.dns_mode })
 		},
-		async update_domain() {
-			//showMessage(this.update.domain)
-			this.update_config({ domain: this.update.domain })
 
+		async finalize_static() {
+			this.update_config({ 
+				domain: this.update.domain,
+				dns_mode: 'static_done',
+			})
 		},
-		async update_conf() {
-			this.update_config({ conf: this.update.conf })
+
+		async finalize_config() {
+			this.update_config({ 
+				conf: this.update.conf,
+				domain: this.update.domain,
+				dns_mode: 'config_done',
+			})
+			this.restart_ddclient()
 		},
-		async update_token() {
+
+		async finalize_desec() {
 			if (this.update.desec_token.length !== 28) {
 				showError('The token is not valid')
 				return
@@ -263,10 +443,29 @@ export default {
 
 			this.update_config({ 
 				desec_token: this.update.desec_token, 
-				dns_mode: 'done',
+				dns_mode: 'desec_done',
 				conf: ddclientConfig,
 			})
+			await this.restart_ddclient()
+			this.refresh_status()
 		},
+
+		async restart_ddclient() {
+			const url = '/apps/nextbox/forward/service/ddclient/restart'
+			axios.get(generateUrl(url))
+				.then((res) => {
+					if (res.data.result === 'success') {
+						showSuccess('DDClient Service restarted')
+					} else {
+						showError('DDClient Service restart failed!')
+					}
+				}).catch((e) => {
+					showError('Connection failed')
+					console.error(e)
+					
+				})
+		},
+
 		async register_desec(update) {
 			const url = '/apps/nextbox/forward/dyndns/register'
 			const options = {
@@ -285,9 +484,8 @@ export default {
 				}
 				showError(res.data.msg)
 			} else {
-				this.update.dns_mode = 'desec_2'
 				this.update_config({
-					dns_mode: this.update.dns_mode,
+					dns_mode: 'desec_2',
 					domain: this.update.domain,
 				})
 			}
@@ -325,21 +523,6 @@ export default {
 	height: fit-content !important;
 }
 
-.section:not(:last-child) {
-	border-bottom: 1px solid var(--color-border) !important;
-}
-
-.section {
-	display: block;
-	padding: 30px;
-	margin: 0;
-	height: fit-content !important;
-}
-
-.txt {
-	width: 25vw;
-}
-
 .captcha-txt {
 	width: 160px;
 }
@@ -349,8 +532,11 @@ export default {
 	height: 10em;
 }
 
-.error {
-	color: var(--color-error)
+.icon-history {
+	min-height: 24px !important;
+	min-width: 24px !important;
+	background-size: 24px !important;
+	vertical-align: unset !important;
 }
 
 </style>

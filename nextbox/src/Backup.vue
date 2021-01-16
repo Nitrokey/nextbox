@@ -1,24 +1,41 @@
 <template>
 	<div class="backup-restore">
 		<div class="section">
+			<h2>Choose Backup Device</h2>
+			Select the device you would like to use for backups here. 
+			<span class="bold">Please note that a device can only be mounted either for backups or for extra storage</span>
+			<br>
+			<Multiselect 
+				v-model="selectedDevice"
+				:options="devices"
+				:disabled="storages.backup"
+				track-by="id" 
+				label="label" />
+			<br>
+			<button type="button" :disabled="selectedDevice === false" @click="deviceAction()">
+				<span class="icon icon-confirm" />
+				{{ (storages.backup) ? "Unmount Backup Drive" : "Mount as Backup Drive" }}
+			</button>
+		</div>
+
+		<div class="section">
 			<h2>Full System Backup</h2>
 			You can start a full backup here. Nextcloud will change into maintainance mode 
 			and will not be available during the backup operation. Once the backup is started 
 			you will see a progress indicator, if you reload you won't be able to see the 
-			progress until the operation finished.
-			<ActionButton
+			progress until the operation finished.<br>
+			<!-- ActionButton
 				icon="icon-download" 
 				@click="start_backup()">
 				Start Backup now
-			</ActionButton>
-			<span v-if="lastBackup">Your last backup was done at: 
-				<span class="bold">{{ new Date(lastBackup * 1e3).toLocaleString() }}</span>
-			</span>
-			<span v-else class="bold">
-				<span class="icon icon-error" />
-				You have not yet run a backup - please do so
-				<span class="icon icon-error" />
-			</span>
+			</ActionButton -->
+			<span v-if="lastBackup" class="tag success"><span class="icon icon-checkmark" />Your last backup was done at: <span class="bold">{{ new Date(lastBackup * 1e3).toLocaleString() }}</span></span>
+			<span v-else class="tag warning"><span class="icon icon-close" />You have not yet run a backup - please do so</span>
+			<br>
+			<button type="button" :disabled="!storages.backup" @click="start_backup()">
+				<span class="icon icon-download" />
+				Start Backup now
+			</button>
 		</div>
 
 		<div class="section">
@@ -32,14 +49,17 @@
 					v-model="selectedBackup"
 					:options="backups"
 					track-by="id" 
-					label="label"
-					style="width: 100%" />
-				<ActionButton
+					label="label" />
+				<!-- ActionButton
 					:disabled="selectedBackup === false"
 					icon="icon-upload" 
 					@click="start_restore(selectedBackup)">
 					Start Restoring now
-				</ActionButton>
+				</ActionButton -->
+				<button type="button" :disabled="selectedBackup === false" @click="start_restore(selectedBackup)">
+					<span class="icon icon-upload" />
+					Start Restoring now
+				</button>
 			</div>
 			<EmptyContent v-if="!lastBackup" icon="icon-close">
 				No Backup to restore available yet...
@@ -62,6 +82,7 @@
 		</Modal>
 	</div>
 </template>
+
 
 <script>
 
@@ -90,8 +111,13 @@ export default {
 	data() {
 		return {
 			loading: true,
+
 			selectedBackup: false,
 			backupData: [],
+			
+			selectedDevice: false,
+			storages: {},
+
 			interval: false,
 			overlay: {
 				active: false,
@@ -121,7 +147,21 @@ export default {
 					}
 				})
 		},
+
+		devices() {
+			if (!('available' in this.storages)) return []
+			
+			return this.storages.available
+				.filter((dev) => !(dev in this.storages.mounted))
+				.map((dev) => {
+					return {
+						label: this.getDevLabel(dev),
+						id: dev,
+					}
+				})
+		},
 	},
+
 	async beforeMount() {
 		await this.refresh()
 		this.loading = false
@@ -130,11 +170,58 @@ export default {
 	methods: {
 		async refresh() {
 			const url = '/apps/nextbox/forward/backup'
-			const res = await axios.get(generateUrl(url)).catch((e) => {
+			await axios.get(generateUrl(url)).then((res) => {
+				this.backupData = res.data.data
+			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 			})
-			this.backupData = res.data.data
+			
+			await axios.get(generateUrl('/apps/nextbox/forward/storage'))
+				.then((res) => {
+					this.storages = res.data.data
+					if (this.storages.backup) {
+						this.selectedDevice = {
+							label: this.getDevLabel(this.storages.backup),
+							id: this.storages.backup,
+						}
+					}
+				}).catch((e) => {
+					showError('Could not load Storage data')
+					console.error(e)
+				})
+		},
+
+		getDevLabel(dev) {
+			const blockDev = dev.split('/').slice(-1)[0].slice(0, 3)
+			const desc = this.storages.block_devs[blockDev].name
+			return `${desc} | ${dev}`
+		},
+
+		async deviceAction() {
+			const dev = (this.storages.backup) ? this.storages.backup : this.selectedDevice.id
+			const devFn = dev.split('/').slice(-1)[0]
+			const UmountTarget = dev in this.storages.mounted 
+				? this.storages.mounted[dev].split('/').slice(-1)[0] 
+				: ''
+
+			const url = (!this.storages.backup)
+				? `/apps/nextbox/forward/storage/mount/${devFn}/backup`
+				: `/apps/nextbox/forward/storage/umount/${UmountTarget}`
+			
+			axios.get(generateUrl(url)).then((res) => {
+				const what = (this.storages.backup) ? 'Unmounting' : 'Mounting'
+				if (res.data.result === 'success') {
+					showSuccess(`${what} completed`)
+					this.refresh()
+				} else {
+					showError(`${what} failed`)
+				}
+
+			}).catch((e) => {
+				showError('Connection failed')
+				console.error(e)
+			})
 		},
 
 		async close_modal(ev) {
@@ -261,28 +348,6 @@ export default {
 
 <style scoped>
 
-.icon {
-	width: 44px;
-	height: 44px;
-	opacity: 1;
-	background-position: 14px bottom;
-	background-size: 16px;
-	background-repeat: no-repeat;
-	display: inline-block;
-	vertical-align: text-bottom;
-}
-
-.section {
-	display: block;
-	padding: 30px;
-	margin: 0;
-	height: fit-content !important;
-}
-
-.section:not(:last-child) {
-	border-bottom: 1px solid var(--color-border) !important;
-}
-
 .backup-restore {
 	display: flex;
 	width: 100%;
@@ -297,6 +362,11 @@ export default {
 	width: 50vw;
 	text-align: center;
 	padding: 5vh;
+}
+
+.multiselect {
+	width: 90%;
+	min-height: 36px;
 }
 
 

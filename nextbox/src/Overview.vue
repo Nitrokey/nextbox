@@ -7,16 +7,21 @@
 		</div>
 
 		<!-- Last Backup  -->
-		<div class="section">
+		<div v-if="running" class="section">
 			<h2>Last Backup</h2>
-			<span v-if="lastBackup">Your last backup was done at: 
-				<span class="bold">{{ new Date(lastBackup * 1e3).toLocaleString() }}</span>
-			</span>
-			<span v-else class="bold">
-				<span class="icon icon-error" />
-				You have not yet run a backup - please do so
-				<span class="icon icon-error" />
-			</span>
+			<span v-if="config.last_backup" class="tag success"><span class="icon icon-checkmark" />Your last backup was done at: <span class="bold">{{ new Date(config.last_backup * 1e3).toLocaleString() }}</span></span>
+			<span v-else class="tag warning"><span class="icon icon-close" />You have not yet run a backup - please do so</span>
+		</div>
+
+		<!-- NextBox System Daemon -->
+		<div class="section">
+			<h2>NextBox System Daemon Status</h2>
+
+			<span v-if="running" class="tag success"><span class="icon icon-checkmark" />The Backend is up and running</span>
+			<span v-else class="tag error"><span class="icon icon-error" />Cannot connect to the Backend</span>
+			
+			<span v-if="apiMatch" class="tag success"><span class="icon icon-checkmark" />The Backend & Frontend API versions match</span>
+			<span v-else class="tag error"><span class="icon icon-error" />The Backend & Frontend API version <span class="bold">do not match</span> - update both!</span>
 		</div>
 	</div>
 </template>
@@ -44,6 +49,9 @@ export default {
 		return {
 			loading: true,
 			config: {},
+			apiMatch: false,
+			expectedApi: 1,
+			running: false,
 		}
 	},
 
@@ -57,9 +65,14 @@ export default {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/config'))
 				this.config = res.data.data
+				this.apiMatch = res.data.api === this.expectedApi
+				this.running = true
 			} catch (e) {
 				console.error(e)
 				//showError(t('nextbox', 'Could not fetch logs'))
+				this.config = {}
+				this.apiMatch = false
+				this.running = false
 			}
 		},
 	},
@@ -69,7 +82,7 @@ export default {
 
 <style scoped>
 
-.system {
+.overview {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;
@@ -77,30 +90,34 @@ export default {
 	height: fit-content !important;
 }
 
-.icon {
-	width: 44px;
-	height: 44px;
-	opacity: 1;
-	background-position: 14px bottom;
-	background-size: 16px;
-	background-repeat: no-repeat;
-	display: inline-block;
-	vertical-align: text-bottom;
-}
-
-.section {
-	display: block;
-	padding: 30px;
-	margin: 0;
-	height: fit-content !important;
-}
-
-.section:not(:last-child) {
-	border-bottom: 1px solid var(--color-border) !important;
-}
+/*
 
 .txt {
 	width: 25vw;
 }
+
+.tag {
+	margin-top: 8px;
+	padding: 5px;
+	border-radius: var(--border-radius);
+	color: var(--color-primary-text);
+	width: 50vw;
+	display: block;
+	height: fit-content;
+}
+
+.warning {
+	background-color: var(--color-warning);
+}
+
+.success {
+	background-color: var(--color-success);
+}
+
+.error {
+	background-color: var(--color-error);
+}
+
+*/
 
 </style>

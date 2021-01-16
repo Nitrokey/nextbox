@@ -14,21 +14,18 @@
 			
 		<AppContent>
 			<Overview v-if="page === 'overview'" />
-			<Storage v-if="page === 'storage'" 
-				title="Mounted Storages" 
-				is-mounted 
-				:data="storageData" 
-				@refresh-storage="refresh_storage" />
+			<Storage v-if="page === 'storage'" />
 			
-			<Storage v-if="page === 'storage'" 
+			<!-- Storage v-if="page === 'storage'" 
 				title="Available Storages" 
 				:data="storageData" 
-				@refresh-storage="refresh_storage" />
+				@refresh-storage="refresh_storage" /-->
 
 			<Backup v-if="page === 'backup'" />
 			<DynDNS v-if="page === 'dyndns'" />
 			<System v-if="page === 'system'" />
 			<Logs v-if="page === 'logs'" />
+			<TLS v-if="page === 'tls'" />
 		</AppContent>
 	</div>
 </template>
@@ -77,7 +74,6 @@ export default {
 			page: 'overview',
 			updating: false,
 			loading: true,
-			storageData: {},
 		}
 	},
 	computed: {
@@ -98,30 +94,50 @@ export default {
 		set_page(what) {
 			this.page = what
 		},
-		
-		async refresh_storage() {
-			const res = await axios
-				.get(generateUrl('/apps/nextbox/forward/storage'))
-				.catch((e) => {
-					showError('Could not load Storage data')
-					console.error(e)
-				})
-			this.storageData = res.data.data
-		},
-		
 	},
 }
 </script>
-<style scoped>
+
+<style>
 	
 input[type='text'] {
 	width: 100%;
 }
 
-textarea {
+.tag {
+	margin-top: 8px;
+	padding: 5px;
+	border-radius: var(--border-radius);
+	color: var(--color-primary-text);
+	width: 50vw;
+	display: block;
+	height: fit-content;
+}
+
+.warning {
+	background-color: var(--color-warning);
+}
+
+.success {
+	background-color: var(--color-success);
+}
+
+.error {
+	background-color: var(--color-error);
+}
+
+.neutral {
+	background-color: var(--color-placeholder-dark);
+}
+
+.error-txt {
+	color: var(--color-error)
+}
+
+/*textarea {
 	flex-grow: 1;
 	width: 100%;
-}
+}*/
 
 
 .app-content > div {
@@ -132,5 +148,36 @@ textarea {
 	flex-grow: 1;
 	top: 30px;
 }
+
+.section:not(:last-child) {
+	border-bottom: 1px solid var(--color-border) !important;
+}
+
+.section {
+	display: block;
+	padding: 30px;
+	margin: 0;
+	height: fit-content !important;
+}
+
+.txt {
+	width: 25vw;
+}
+
+
+.icon {
+	/*width: 44px;
+	height: 44px;*/
+	opacity: 1;
+	/*background-position: 14px bottom;*/
+	margin-right: 8px;
+	margin-left: 8px;
+	background-size: 16px;
+	background-repeat: no-repeat;
+	display: inline-block;
+	vertical-align: middle !important;
+}
+
+
 
 </style>

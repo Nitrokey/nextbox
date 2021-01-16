@@ -1,34 +1,52 @@
 <template>
 	<div class="storage">
 		<AppContentList class="section storage-list" show-details>
-			<h2>
-				{{ title }}
-			</h2>
+			<h2>Mounted Storages</h2>
 
-			<ListItemIcon v-for="item in items" 
-				:key="item.two"
+			<ListItemIcon v-for="dev in mountedDevs" 
+				:key="dev"
 				class="list-item"
-				:title="item.one"
-				:subtitle="item.two"
-				:display-name="item.icon"
-				:icon-class="(loading === item.two) ? 'icon-loading' : item.icon"
+				:title="getListName(dev)"
+				:subtitle="getListDesc(dev)"
+				display-name="icon-add"
+				:icon-class="(loading === dev) ? 'icon-loading-small' : 'icon-add'"
 				:avatar-size="36">
 				<Actions>
-					<ActionButton v-for="menuitem in item.menu"
+					<ActionButton v-for="menuitem in getActions(dev)"
 						:key="menuitem.name"
 						:close-after-click="true"
 						:icon="menuitem.icon" 
-						@click="action(item, menuitem)">
+						@click="action(dev, menuitem)">
 						{{ menuitem.name }}
 					</ActionButton>
 				</Actions>
 			</ListItemIcon>
+		</AppContentList>
 
-			<EmptyContent v-if="items.length === 0 && !isMounted" icon="icon-close">
-				No Unmounted {{ title }}
+		<AppContentList class="section storage-list" show-details>
+			<h2>Available Storages</h2>
+			<ListItemIcon v-for="dev in availableDevs" 
+				:key="dev"
+				class="list-item"
+				:title="getListName(dev)"
+				:subtitle="getListDesc(dev)"
+				display-name="icon-add"
+				:icon-class="(loading === dev) ? 'icon-loading-small' : 'icon-add'"
+				:avatar-size="36">
+				<Actions>
+					<ActionButton v-for="menuitem in getActions(dev)"
+						:key="menuitem.name"
+						:close-after-click="true"
+						:icon="menuitem.icon" 
+						@click="action(dev, menuitem)">
+						{{ menuitem.name }}
+					</ActionButton>
+				</Actions>
+			</ListItemIcon>
+			<EmptyContent v-if="!available" icon="icon-close">
+				No Unmounted Available
 			</EmptyContent>
 		</AppContentList>
-		<div class="section empty" />
 	</div>
 </template>
 
@@ -51,90 +69,96 @@ export default {
 	name: 'Storage',
 
 	components: {
-		AppContentList, ListItemIcon, Actions, ActionButton, EmptyContent,
+		AppContentList, 
+		ListItemIcon, 
+		Actions, 
+		ActionButton, 
+		EmptyContent,
 	},
 
-	props: { 
+	/*props: { 
 		isMounted: { type: Boolean },
 		title: { type: String, default: () => '' },
 		data: { type: Object, default: () => {} },
-	},
+	},*/
 
 	data() {
 		return {
 			loading: true,
 			msg: '',
+			storages: {},
 		}
 	},
 	computed: {
 		mountedDevs() {
-			return Object.keys(this.data.mounted)
+			return ('mounted' in this.storages) ? Object.keys(this.storages.mounted) : []
 		},
-
+		availableDevs() {
+			return ('available' in this.storages) 
+				? this.storages.available.filter((x) => !(x in this.storages.mounted)) 
+				: []
+		},
 		mounted() {
-			return this.data.mounted
+			return this.storages.mounted 
 		},
 
-		items() { 
-			if (!this.data.available) {
-				return []
-			}
-
-			return this.data.available
-				.filter(dev => (!(this.isMounted ^ this.mountedDevs.includes(dev))))
-				.map(dev => {
-					const blockDev = dev.split('/').slice(-1)[0].slice(0, 3)
-					const desc = this.data.block_devs[blockDev].name
-					const two = (this.mounted[dev]) ? this.mounted[dev] + ` (${this.data.type[dev]})` : '(not mounted)'
-					const ret = {
-						icon: 'icon-add',
-						two: `${dev} @ ${two}`,
-					}
-
-					ret.bg = 'rgb(100, 155, 155)'
-					if (!this.isMounted && this.mountedDevs.includes(dev)) {
-						ret.bg = 'rgb(220, 220, 220)'
-					}
-
-					ret.one = desc
-					if (this.mountedDevs.includes(dev)) {
-						ret.one = `Extra (${desc})`
-						if (this.data.main === dev) {
-							ret.one = `Main (${desc})`
-						} else if (this.data.backup === dev) {
-							ret.one = `Backup (${desc})`
-						}
-					}
-
-					const devFn = dev.split('/').slice(-1)[0]
-					const UmountTarget = dev in this.mounted ? this.mounted[dev].split('/').slice(-1)[0] : ''
-					if (this.data.main !== dev) {
-						if (this.mountedDevs.includes(dev)) {
-							ret.menu = [
-								{ icon: 'icon-close', name: 'Unmount Partition', target: UmountTarget, act: 'umount' },
-							]
-						} else {
-
-							ret.menu = [{ icon: 'icon-add', name: 'Mount as Extra Storage', target: devFn, act: 'mount-extra' }]
-							if (this.data.backup === null) {
-								ret.menu.push({ icon: 'icon-folder', name: 'Mount as Backup Storage', target: devFn, act: 'mount-backup' })
-							}
-						}
-					}
-					return ret
-				})
+		available() {
+			return this.storages.available
 		},
 	},
 
 	async mounted() {
 		this.loading = true
-		this.$emit('refresh-storage')
+		await this.refreshStorage()
 		this.loading = false
 	},
 
 	methods: {
-		async action(listItem, obj) {
-			this.loading = listItem.two
+		getListName(dev) {
+			const blockDev = dev.split('/').slice(-1)[0].slice(0, 3)
+			const desc = this.storages.block_devs[blockDev].name
+			if (!this.mountedDevs.includes(dev)) {
+				return desc
+			}
+			if (this.storages.main === dev) {
+				return `Main (${desc})`
+			} else if (this.storages.backup === dev) {
+				return `Backup (${desc})`
+			}
+			return `Extra (${desc})`
+		},
+
+		getListDesc(dev) {
+			const two = (this.mounted[dev]) ? this.mounted[dev] + ` (${this.storages.type[dev]})` : '(not mounted)'
+			return `${dev} @ ${two}`
+		},
+
+		getActions(dev) {
+			const devFn = dev.split('/').slice(-1)[0]
+			const UmountTarget = dev in this.mounted ? this.mounted[dev].split('/').slice(-1)[0] : ''
+			if (this.storages.main !== dev) {
+				if (this.mountedDevs.includes(dev)) {
+					if (this.storages.backup !== dev) {
+						return [{ icon: 'icon-close', name: 'Unmount Partition', target: UmountTarget, act: 'umount' }]
+					}
+				} else {
+					return [{ icon: 'icon-add', name: 'Mount as Extra Storage', target: devFn, act: 'mount-extra' }]
+				}
+			}
+		},
+
+		async refreshStorage() {
+			const res = await axios
+				.get(generateUrl('/apps/nextbox/forward/storage'))
+				.catch((e) => {
+					showError('Could not load Storage data')
+					console.error(e)
+				})
+			this.storages = res.data.data
+		},
+
+		async action(dev, obj) {
+			this.loading = dev
 
 			
 			let url = ''
@@ -152,7 +176,7 @@ export default {
 			})
 			
 			showMessage(res.data.msg)
-			this.$emit('refresh-storage')
+			this.refreshStorage()
 			this.loading = false
 		},
 	},
@@ -167,22 +191,11 @@ export default {
 	min-width: 0px;
 	min-height: 0px;
 	max-width: none;
-	height: fit-content !important;
+	/*height: fit-content !important;*/
 }
 
 .storage {
-	height: 47vh !important;
-}
-
-.section {
-	display: block;
-	padding: 30px;
-	margin: 0;
-	height: fit-content !important;
-}
-
-.section:not(:last-child) {
-	border-bottom: 1px solid var(--color-border) !important;
+	/*height: 45vh;*/
 }
 
 .empty {
