@@ -3,7 +3,8 @@
 		<!-- External availability  -->
 		<div class="section">
 			<h2>External Reachability of Your NextBox</h2>
-			Show information about: dyndns-working (ddclient active), nextcloud reachable through configured domain
+			Work in progress....<br>
+			Show information about: dyndns-working (ddclient active), nextcloud reachable through configured domain<br>
 		</div>
 
 		<!-- Last Backup  -->
@@ -89,35 +90,5 @@ export default {
 	max-width: none;
 	height: fit-content !important;
 }
-
-/*
-
-.txt {
-	width: 25vw;
-}
-
-.tag {
-	margin-top: 8px;
-	padding: 5px;
-	border-radius: var(--border-radius);
-	color: var(--color-primary-text);
-	width: 50vw;
-	display: block;
-	height: fit-content;
-}
-
-.warning {
-	background-color: var(--color-warning);
-}
-
-.success {
-	background-color: var(--color-success);
-}
-
-.error {
-	background-color: var(--color-error);
-}
-
-*/
 
 </style>

@@ -7,8 +7,8 @@
 				<AppNavigationItem :title="t('nextbox', 'Backup / Restore')" icon="icon-download" @click="set_page('backup')" />
 				<AppNavigationItem :title="t('nextbox', 'Remote Access')" icon="icon-timezone" @click="set_page('dyndns')" />
 				<!-- AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" /-->
-				<AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" />
-				<AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" />
+				<!-- AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" /-->
+				<!-- AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" /-->
 			</ul>
 		</AppNavigation>
 			
@@ -25,8 +25,6 @@
 </template>
 
 <script>
-// import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
-// import AppNavigationNew from '@nextcloud/vue/dist/Components/AppNavigationNew'
 
 import AppContent from '@nextcloud/vue/dist/Components/AppContent'
 import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'

@@ -26,9 +26,11 @@ class Application extends App {
 				$dispatcher->addListener(AddContentSecurityPolicyEvent::class, function (AddContentSecurityPolicyEvent $e) {
 
 					$csp = new ContentSecurityPolicy();
+					// allow to connect to localhost
 					$csp->addAllowedConnectDomain('127.0.0.1:18585');
-					$csp->addAllowedConnectDomain('192.168.10.129:18585');
-					$csp->addAllowedConnectDomain('192.168.10.47:18585');
+					// allow to connect to localhost via ethernet ip
+					$local_ip = getHostByName(getHostName()) + ':18585';
+					$csp->addAllowedConnectDomain($local_ip);
 					$e->addPolicy($csp);
 				
 				});

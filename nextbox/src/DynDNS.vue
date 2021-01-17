@@ -453,7 +453,7 @@ export default {
 						this.status.mode = (what === 'http') ? 'https' : 'done'
 					} else {
 						this.status[what].state = 'warning'
-						this.status[what].content = `Your Nextcloud is NOT reachable using: ${what}://${this.config.domain} - retrying in 10secs`
+						this.status[what].content = `Your Nextcloud is NOT reachable using: ${what}://${this.config.domain}`
 						this.status[what].icon = 'icon-loading-small'
 						
 						// failed reachability for http
@@ -461,7 +461,7 @@ export default {
 							this.status.nextMode = 'http'
 							this.status.waitFor = 10
 							this.status.mode = 'wait'
-							this.status.http.waitCallback = function(myThis, secs) {
+							this.status.waitCallback = function(myThis, secs) {
 								myThis.status.http.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
 							}
 						} else {
@@ -476,7 +476,7 @@ export default {
 								this.status.nextMode = 'https'
 								this.status.waitFor = 10
 								this.status.mode = 'wait'
-								this.status.https.waitCallback = function(myThis, secs) {
+								this.status.waitCallback = function(myThis, secs) {
 									myThis.status.https.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
 								}
 							}
@@ -538,7 +538,7 @@ export default {
 						this.status.nextMode = 'resolve'
 						this.status.waitFor = 10
 						this.status.mode = 'wait'
-						this.status.resolve.waitCallback = function(myThis, secs) {
+						this.status.waitCallback = function(myThis, secs) {
 							myThis.status.resolve.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
 						}
 					}
@@ -566,7 +566,7 @@ export default {
 					this.status.https.content = 'Enabling HTTPS done - reload pending...'
 					showMessage('Switching from HTTP to HTTPS done')
 					showMessage('Reloading in 30 secs')
-					this.status.resolve.waitCallback = function(myThis, secs) {
+					this.status.waitCallback = function(myThis, secs) {
 						myThis.status.https.extra = (secs <= 0) ? '' : `reload in ${secs} secs`
 					}
 				})
@@ -585,7 +585,7 @@ export default {
 					this.status.https.content = 'Disabling HTTPS done - reload pending...'
 					showMessage('Switching from HTTPS to HTTP done')
 					showMessage('Reloading in 30 secs')
-					this.status.resolve.waitCallback = function(myThis, secs) {
+					this.status.waitCallback = function(myThis, secs) {
 						myThis.status.https.extra = (secs <= 0) ? '' : `reload in ${secs} secs`
 					}
 				})
