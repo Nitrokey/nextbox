@@ -29,7 +29,7 @@ class Application extends App {
 					// allow to connect to localhost
 					$csp->addAllowedConnectDomain('127.0.0.1:18585');
 					// allow to connect to localhost via ethernet ip
-					$local_ip = getHostByName(getHostName()) + ':18585';
+					$local_ip = getHostByName(getHostName()) . ':18585';
 					$csp->addAllowedConnectDomain($local_ip);
 					$e->addPolicy($csp);
 				

@@ -28,12 +28,11 @@
 				class="dns_radio" 
 				@update:checked="update.dns_mode = 'config'">
 				Raw DDClient Configuration
-			</ActionRadio>
-			<ActionButton
-				:icon="(loading) ? 'icon-loading' : 'icon-confirm'"
-				@click="update_dns_mode()">
+			</ActionRadio><br>
+			<button type="button" @click="update_dns_mode()">
+				<span class="icon icon-confirm" />
 				Continue
-			</ActionButton><br>
+			</button>
 		</div>
 
 		<!-- E-Mail Configuration -->
@@ -177,7 +176,7 @@
 		<!-- Restart dynamic dns configuration -->
 		<div v-if="config.dns_mode !== 'off'" class="section">
 			<ActionButton
-				class="bold"
+				class="bold restart-button"
 				:icon="(loading) ? 'icon-loading' : 'icon-close'"
 				@click="restart_config()">
 				Restart Dynamic DNS Configuration
@@ -740,6 +739,7 @@ export default {
 
 .dns_radio {
 	width: fit-content;
+	display: block !important;
 }
 
 .dyndns {
@@ -748,6 +748,10 @@ export default {
 	min-height: 0px;
 	max-width: none;
 	height: fit-content !important;
+}
+
+.restart-button {
+	display: block !important;
 }
 
 .captcha-txt {
