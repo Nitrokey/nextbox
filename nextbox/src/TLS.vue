@@ -95,38 +95,6 @@ export default {
 			}
 			this.overlay = false
 		},
-
-		async enable() {
-			this.overlay = true
-			this.overlayText = 'Enabling HTTPS - please wait...'
-			const url = '/apps/nextbox/forward/https/enable'
-			/*const options = {
-				headers: { 'content-type': 'application/x-www-form-urlencoded' },
-			}*/
-			const res = await axios.post(generateUrl(url)) //, qs.stringify(update)) //, options)
-				.then((res) => {
-					this.overlayText = 'Enabled HTTPS, please reload your browser'
-				}).catch((e) => {
-					showError('Connection failed')
-					console.error(e)
-				})
-		},
-
-		async disable() {
-			this.overlay = true
-			this.overlayText = 'Disable HTTPS - please wait...'
-			const url = '/apps/nextbox/forward/https/disable'
-			/*const options = {
-				headers: { 'content-type': 'application/x-www-form-urlencoded' },
-			}*/
-			const res = await axios.post(generateUrl(url)) //, qs.stringify(update)) //, options)
-				.then((res) => {
-					this.overlayText = 'Enabled HTTPS, please reload your browser'
-				}).catch((e) => {
-					showError('Connection failed')
-					console.error(e)
-				})
-		},
 	},
 }
 </script>

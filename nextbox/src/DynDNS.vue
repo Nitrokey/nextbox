@@ -359,9 +359,13 @@ export default {
 					break
 				case 'wait':
 					this.status.waitFor -= 1
-					if (this.status.waitFor <= 0) this.status.mode = this.status.nextMode
-					//showError(`waiting ${this.status.waitFor} + nextmode: ${this.status.nextMode}`)
 					if (this.status.waitCallback) this.status.waitCallback(this, this.status.waitFor)
+					
+					if (this.status.waitFor <= 0) {
+						this.status.mode = this.status.nextMode
+						this.status.waitCallback = null
+					}
+					
 					break
 				case 'service':
 					await this.refresh_status_test_service()
@@ -416,9 +420,7 @@ export default {
 							this.status.mode = 'wait'
 							this.status.nextMode = 'init'
 							this.status.waitCallback = function(myThis, secs) {
-								myThis.status.ddclientTest.extra = (secs <= 0) 
-									? '' 
-									: `throttled, retry in ${secs} secs`
+								myThis.status.ddclientTest.extra = (secs <= 0) ? '' : `throttled, retry in ${secs} secs`
 							}
 						} else {
 							this.status.ddclientTest.content = 'Unknown error during DDClient test'
@@ -459,6 +461,9 @@ export default {
 							this.status.nextMode = 'http'
 							this.status.waitFor = 10
 							this.status.mode = 'wait'
+							this.status.http.waitCallback = function(myThis, secs) {
+								myThis.status.http.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
+							}
 						} else {
 						
 							// we fail https, so activate it now:
@@ -471,9 +476,13 @@ export default {
 								this.status.nextMode = 'https'
 								this.status.waitFor = 10
 								this.status.mode = 'wait'
+								this.status.https.waitCallback = function(myThis, secs) {
+									myThis.status.https.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
+								}
 							}
 						}
 					}
+
 				}).catch((e) => {
 					showError('Connection failed')
 					console.error(e)
@@ -529,6 +538,9 @@ export default {
 						this.status.nextMode = 'resolve'
 						this.status.waitFor = 10
 						this.status.mode = 'wait'
+						this.status.resolve.waitCallback = function(myThis, secs) {
+							myThis.status.resolve.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
+						}
 					}
 				}).catch((e) => {
 					showError('Connection failed')
@@ -549,10 +561,14 @@ export default {
 				}).catch((e) => {
 					this.status.nextMode = 'reload'
 					this.status.mode = 'wait'
-					this.status.waitFor = 10
+					this.status.waitFor = 30
 					this.config.https = 443
+					this.status.https.content = 'Enabling HTTPS done - reload pending...'
 					showMessage('Switching from HTTP to HTTPS done')
-					showMessage('Reloading in 10 secs')
+					showMessage('Reloading in 30 secs')
+					this.status.resolve.waitCallback = function(myThis, secs) {
+						myThis.status.https.extra = (secs <= 0) ? '' : `reload in ${secs} secs`
+					}
 				})
 		},
 
@@ -564,10 +580,14 @@ export default {
 				}).catch((e) => {
 					this.status.nextMode = 'reload'
 					this.status.mode = 'wait'
-					this.status.waitFor = 10
+					this.status.waitFor = 30
 					this.config.https = false
+					this.status.https.content = 'Disabling HTTPS done - reload pending...'
 					showMessage('Switching from HTTPS to HTTP done')
-					showMessage('Reloading in 10 secs')
+					showMessage('Reloading in 30 secs')
+					this.status.resolve.waitCallback = function(myThis, secs) {
+						myThis.status.https.extra = (secs <= 0) ? '' : `reload in ${secs} secs`
+					}
 				})
 		},
 
