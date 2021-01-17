@@ -5,8 +5,8 @@
 				<AppNavigationItem :title="t('nextbox', 'Overview')" icon="icon-home" @click="set_page('overview')" />
 				<AppNavigationItem :title="t('nextbox', 'Storage Management')" icon="icon-category-files" @click="set_page('storage')" />
 				<AppNavigationItem :title="t('nextbox', 'Backup / Restore')" icon="icon-download" @click="set_page('backup')" />
-				<AppNavigationItem :title="t('nextbox', 'Dynamic DNS')" icon="icon-category-integration" @click="set_page('dyndns')" />
-				<AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" />
+				<AppNavigationItem :title="t('nextbox', 'Remote Access')" icon="icon-timezone" @click="set_page('dyndns')" />
+				<!-- AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" /-->
 				<AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" />
 				<AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" />
 			</ul>
@@ -15,17 +15,11 @@
 		<AppContent>
 			<Overview v-if="page === 'overview'" />
 			<Storage v-if="page === 'storage'" />
-			
-			<!-- Storage v-if="page === 'storage'" 
-				title="Available Storages" 
-				:data="storageData" 
-				@refresh-storage="refresh_storage" /-->
-
 			<Backup v-if="page === 'backup'" />
 			<DynDNS v-if="page === 'dyndns'" />
 			<System v-if="page === 'system'" />
 			<Logs v-if="page === 'logs'" />
-			<TLS v-if="page === 'tls'" />
+			<!-- TLS v-if="page === 'tls'" /-->
 		</AppContent>
 	</div>
 </template>
@@ -46,7 +40,6 @@ import System from './System'
 import DynDNS from './DynDNS'
 import Backup from './Backup'
 import Storage from './Storage'
-import TLS from './TLS'
 import Overview from './Overview'
 
 
@@ -67,7 +60,6 @@ export default {
 		DynDNS,
 		Backup,
 		Storage,
-		TLS,
 	},
 	data() {
 		return {
@@ -112,6 +104,38 @@ input[type='text'] {
 	width: 50vw;
 	display: block;
 	height: fit-content;
+}
+
+.tag-content {
+	width: 100px; 
+	overflow: hidden;
+}
+
+.tag-middle {
+	width: 1px;
+}
+
+.tag-extra {
+	/*width: 100px; */
+	float: right; 
+	text-align: right;
+	padding-right: 10px;
+}
+
+.tag-action {
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.tag-icon {
+	opacity: 1;
+	/*background-position: 2px bottom;*/
+	margin-right: 8px;
+	margin-left: 4px;
+	background-size: 16px;
+	background-repeat: no-repeat;
+	display: inline-block;
+	vertical-align: middle !important;
 }
 
 .warning {
@@ -171,7 +195,7 @@ input[type='text'] {
 	opacity: 1;
 	/*background-position: 14px bottom;*/
 	margin-right: 8px;
-	margin-left: 8px;
+	margin-left: 4px;
 	background-size: 16px;
 	background-repeat: no-repeat;
 	display: inline-block;

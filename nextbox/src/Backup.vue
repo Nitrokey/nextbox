@@ -4,11 +4,12 @@
 			<h2>Choose Backup Device</h2>
 			Select the device you would like to use for backups here. 
 			<span class="bold">Please note that a device can only be mounted either for backups or for extra storage</span>
-			<br>
+			<br><br>
 			<Multiselect 
 				v-model="selectedDevice"
 				:options="devices"
 				:disabled="storages.backup"
+				placeholder="Select Available Device as Backup Drive..."
 				track-by="id" 
 				label="label" />
 			<br>
@@ -43,11 +44,11 @@
 			<div v-if="lastBackup">
 				Similar to the backup process, restoring the system from a 
 				backup will set Nextcloud into maintainance mode and you 
-				will be presented with a progress indicator.<br>
-				<br>
+				will be presented with a progress indicator.<br><br>
 				<Multiselect 
 					v-model="selectedBackup"
 					:options="backups"
+					placeholder="Select Backup for Restore Operation..."
 					track-by="id" 
 					label="label" />
 				<!-- ActionButton
@@ -172,6 +173,7 @@ export default {
 			const url = '/apps/nextbox/forward/backup'
 			await axios.get(generateUrl(url)).then((res) => {
 				this.backupData = res.data.data
+				this.selectedBackup = false
 			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)

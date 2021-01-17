@@ -30,17 +30,31 @@
 				Raw DDClient Configuration
 			</ActionRadio>
 			<ActionButton
-				:disabled="noEmail && update.dns_mode == 'desec'"
 				:icon="(loading) ? 'icon-loading' : 'icon-confirm'"
 				@click="update_dns_mode()">
 				Continue
 			</ActionButton><br>
-			<span v-if="noEmail && update.dns_mode == 'desec'" class="error-txt">
-				For guided dynamic DNS configuration, please first set a valid 
-				E-Mail address in the <span class="bold">System Settings</span>.
-			</span>
 		</div>
-		
+
+		<!-- E-Mail Configuration -->
+		<div v-if="['static', 'config', 'desec'].includes(config.dns_mode)" class="section">
+			<h2>E-Mail Address</h2>
+			Insert a valid E-Mail for the registrations to be used. You need access to this E-Mail 
+			to complete Let's encrypt certificate acquisition, thus setting up TLS. 
+			<span v-if="config.dns_mode === 'desec'">
+				The guided registration process for the deSEC dynamic DNS service.
+			</span>
+			<br>
+			<input v-model="update.email" type="text" class="txt">
+			<br><span v-if="userMessage.email" class="error-txt">
+				{{ userMessage.email.join(" ") }}
+			</span><br>
+			<!--button type="button" @click="update_email()">
+				<span class="icon icon-confirm" />
+				Save
+			</button -->
+		</div>
+
 		<!-- Domain -->
 		<div v-if="['static', 'config', 'desec'].includes(config.dns_mode)" class="section">
 			<h2>Domain for NextBox</h2>
@@ -54,16 +68,7 @@
 				<span class="bold">dedyn.io</span>.<br>
 			</span>
 			<input v-model="update.domain" type="text" class="txt">
-			<!-- button v-if="config.dns_mode !== 'desec'" type="button" @click="update_domain()">
-				<span class="icon icon-confirm" />
-				Save Domain
-			</button -->
 			<br><span v-if="userMessage.domain" class="error-txt">{{ userMessage.domain.join(" ") }}</span><br>
-			<!--ActionButton v-if="config.dns_mode == 'desec'"
-				:icon="(loading) ? 'icon-loading' : 'icon-play'"
-				@click="check_desec_domain()">
-				Test Domain Availability
-			</ActionButton_ -->
 			<button v-if="config.dns_mode === 'static'" type="button" @click="finalize_static()">
 				<span class="icon icon-confirm" />
 				Finalize Static Domain Configuration
@@ -113,19 +118,11 @@
 			Here you can directly configure DDClient to use any supported DynDNS service. Please find 
 			the documentation for DDClient <a class="bold" href="https://ddclient.net/usage.html">here</a><br>
 			<textarea v-model="update.conf" class="txtmult" /><br>
-			<!-- button style="vertical-align: top" type="button" @click="update_conf()">
-				<span class="icon icon-confirm" />
-				Save Configuration
-			</button -->
+
 			<button type="button" @click="finalize_config()">
 				<span class="icon icon-confirm" />
 				Finalize Raw DDClient Configuration
 			</button>
-			<!--ActionButton
-				:icon="(loading) ? 'icon-loading' : 'icon-play'"
-				@click="false">
-				Test DDClient Configuration
-			</ActionButton -->
 		</div>
 
 		<!-- Done View -->
@@ -133,42 +130,47 @@
 			<h2>{{ statusTitle }} - Status</h2>
 			
 			<div v-if="['config_done', 'desec_done'].includes(config.dns_mode)">
-				<span v-if="status.ddclientService" class="tag success"><span class="icon icon-checkmark" />The DDClient Service is Active</span>
-				<span v-else>
-					<span class="tag error"><span class="icon icon-error" />DDClient Service not running</span>
+				<span :class="'tag ' + status.ddclientService.state"><span :class="'tag-icon ' + status.ddclientService.icon" />
+					<span class="tag-content">{{ status.ddclientService.content }}</span>
+					<span class="tag-middle" />
+					<span class="tag-extra">{{ status.ddclientService.extra }}</span>
 				</span>
 			</div>
 
 			<div v-if="['config_done', 'desec_done', 'static_done'].includes(config.dns_mode)">
-				<span v-if="status.domain === null" class="tag neutral"><span class="icon icon-info" />Not available via <a :href="'http://' + config.domain">{{ config.domain }}</a> - testing DDClient...</span>
-				<span v-else-if="status.domain" class="tag success"><span class="icon icon-checkmark" />Your NextBox is available via <a :href="'http://' + config.domain">{{ config.domain }}</a></span>
-				<span v-else>
-					<span class="tag error"><span class="icon icon-error" />Your NextBox is currently not available via <a :href="'http://' + config.domain">{{ config.domain }}</a></span>
-				</span>
-			</div>
-
-			<div v-if="['config_done', 'desec_done', 'static_done'].includes(config.dns_mode)">
-				<span v-if="status.resolve === null" class="tag neutral"><span class="icon icon-info" />
-					Domain: <span class="bold">{{ config.domain }}</span> not resolving to external IP: <span class="bold">{{ status.ip }}</span> - testing DDClient...
-				</span>
-				<span v-else-if="status.resolve" class="tag success"><span class="icon icon-checkmark" />
-					Your configured Domain: <span class="bold">{{ config.domain }}</span> correctly resolves to your external IP: <span class="bold">{{ status.ip }}</span>
-				</span>
-				<span v-else>
-					<span class="tag error"><span class="icon icon-error" />
-						Your configured Domain: <span class="bold">{{ config.domain }}</span> does not resolve to your external IP: <span class="bold">{{ status.ip }}</span>
-					</span>
+				<span :class="'tag ' + status.ddclientTest.state"><span :class="'tag-icon ' + status.ddclientTest.icon" />
+					<span class="tag-content">{{ status.ddclientTest.content }}</span>
+					<span class="tag-middle" />
+					<span class="tag-extra">{{ status.ddclientTest.extra }}</span>
 				</span>
 			</div>
 
 			<div v-if="['config_done', 'desec_done'].includes(config.dns_mode)">
-				<span v-if="status.ddclientTest === null" class="tag neutral"><span class="icon icon-info" />DDClient Configuration Test - Not Needed</span>
-				<span v-else-if="status.ddclientTest" class="tag success"><span class="icon icon-checkmark" />DDClient Configuration Test Successful</span>
-				<span v-else>
-					<span class="tag error"><span class="icon icon-error" />
-						DDClient Configuration Test has failed! {{ status.ddclientTestDetails && status.ddclientTestDetails.desc }}
-					</span>
+				<span :class="'tag ' + status.resolve.state"><span :class="'tag-icon ' + status.resolve.icon" />
+					<span class="tag-content">{{ status.resolve.content }}</span>
+					<span class="tag-middle" />
+					<span class="tag-extra">{{ status.resolve.extra }}</span>
 				</span>
+			</div>
+
+			<div v-if="['config_done', 'desec_done', 'static_done'].includes(config.dns_mode)">
+				<span :class="'tag ' + status.http.state"><span :class="'tag-icon ' + status.http.icon" />
+					<span class="tag-content">{{ status.http.content }}</span>
+					<span class="tag-middle" />
+					<span class="tag-extra">{{ status.http.extra }}</span>
+				</span>
+			</div>
+
+			<div v-if="['config_done', 'desec_done', 'static_done'].includes(config.dns_mode)">
+				<span :class="'tag ' + status.https.state"><span :class="'tag-icon ' + status.https.icon" />
+					<span class="tag-content">{{ status.https.content }}</span>
+					<span class="tag-middle" />
+					<span class="tag-extra">{{ status.https.extra }}</span>
+				</span>
+			</div>
+
+			<div v-if="status.help">
+				{{ status.help }}
 			</div>
 		</div>
 
@@ -218,7 +220,7 @@ export default {
 			// generics
 			loading: false,
 			userMessage: {},
-
+			
 			config: {
 				dns_mode: 'off',
 				conf: '',
@@ -227,12 +229,20 @@ export default {
 			},
 			
 			status: {
-				ddclientTest: null,
-				ddclientTestDetails: {},
-				ddclientService: false,
-				domain: false,
-				resolve: false,
-				ip: '',
+				ddclientTest: { state: 'neutral', icon: 'icon-info', content: 'DDClient test pending', extra: '' },
+				ddclientService: { state: 'neutral', icon: 'icon-info', content: 'DDClient service state unknown', extra: '' },
+				http: { state: 'neutral', icon: 'icon-info', content: 'Reachability of Nextcloud instance unknown', extra: '' },
+				resolve: { state: 'neutral', icon: 'icon-info', content: 'DNS resolve testing pending', extra: '' },
+				https: { state: 'neutral', icon: 'icon-info', content: 'HTTPS waiting to be tested', extra: '' },
+
+				intervalHandle: null,
+				mode: 'init',
+				nextMode: 'init',
+				lastMode: '',
+				lastModeRepeated: 0,
+				waitFor: 0,
+				waitCallback: null, 
+				help: '',
 			},
 
 			// consts/texts
@@ -251,23 +261,19 @@ export default {
 				captcha_png: '',
 				captcha_id: '',
 				captcha: '',
+				email: '',
 			},
 		}
 	},
 
 	computed: {
-		noEmail() {
-			return !this.config.email
-		},
 		userMessageCaptcha() {
-			console.error('userMessageCaptcha', this.userMessage)
 			if (this.userMessage.captcha) {
 				const out = Object.keys(this.userMessage.captcha).map((key) => 
 					this.userMessage.captcha[key].join(' ')).join('<br>')
 				console.error(out)
 				return out
 			}
-
 			return ''
 		},
 		statusTitle() {
@@ -286,7 +292,7 @@ export default {
 	async mounted() {
 		await this.refresh()
 		if (this.config.dns_mode.endsWith('_done')) {
-			await this.refresh_status()
+			await this.init_status()
 		}
 		this.loading = false
 	},
@@ -303,6 +309,7 @@ export default {
 			this.update.domain = this.config.domain
 			this.update.conf = this.config.conf.join('\n')
 			this.update.desec_token = this.config.desec_token
+			this.update.email = this.config.email
 
 			if (this.config.dns_mode === 'desec') {
 				this.refresh_captcha()
@@ -320,83 +327,247 @@ export default {
 			this.update.captcha = ''
 		},
 
+		async init_status() {
+			this.intervalHandle = window.setInterval(this.refresh_status, 1000)
+			//showMessage('STAAAAART STATUS maaan')
+		},
+
 		async refresh_status() {
-			await this.refresh_status_test_domain()
-			await this.refresh_status_test_service()
-			await this.refresh_status_test_resolve()
-			if (!this.status.resolve) {
-				this.status.resolve = null
-				this.status.domain = null
-				await this.refresh_status_test_ddclient()
-				if (!this.status.ddclientTest) {
-					await this.refresh_status_test_resolve()
-					await this.refresh_status_test_domain()
+			if (!this.status.fsmActive) {
+				this.status.fsmActive = true
+
+				if (this.status.mode !== 'wait') {
+					this.status.lastModeRepeated = (this.status.lastMode === this.status.mode) 
+						? this.status.lastModeRepeated + 1 
+						: 0
+
+					this.status.lastMode = this.status.mode
 				}
+
+				if (this.status.lastModeRepeated > 10) {
+					showError(`In state: ${this.status.lastMode} stalled - aborting...`)
+					this.status.mode = 'fail'
+					// here add help text
+					this.status.help = 'we failed, this is the help text...'
+				}
+
+				//showMessage(`fsm tick - ${this.status.mode}`)
+				
+				switch (this.status.mode) {
+				case 'init':
+					await this.refresh_status_test_ddclient()
+					break
+				case 'wait':
+					this.status.waitFor -= 1
+					if (this.status.waitFor <= 0) this.status.mode = this.status.nextMode
+					//showError(`waiting ${this.status.waitFor} + nextmode: ${this.status.nextMode}`)
+					if (this.status.waitCallback) this.status.waitCallback(this, this.status.waitFor)
+					break
+				case 'service':
+					await this.refresh_status_test_service()
+					break
+				case 'start-service':
+					this.status.ddclientService.icon = 'icon-loading-small'
+					await this.restart_ddclient()
+					this.status.mode = 'service'
+					break
+				case 'resolve':
+					await this.refresh_status_test_resolve()
+					break
+				case 'https':
+					await this.refresh_status_test_reachable('https')
+					break
+				case 'https-enable':
+					await this.enable_https()
+					break
+				case 'http':
+					await this.refresh_status_test_reachable('http')
+					break
+				case 'reload':
+					document.location.href = `${(this.config.https) ? 'https' : 'http'}://${this.config.domain}/index.php/apps/nextbox/`
+					break
+				case 'done':
+					window.clearInterval(this.intervalHandle)
+					break
+				case 'fail':
+					window.clearInterval(this.intervalHandle)
+					showError('failed...')
+					break
+				}
+				this.status.fsmActive = false
+				
 			}
 		},
 
 		async refresh_status_test_ddclient() {
-			const url1 = '/apps/nextbox/forward/dyndns/test/ddclient'
-			await axios.get(generateUrl(url1))
+			const url = '/apps/nextbox/forward/dyndns/test/ddclient'
+			this.status.ddclientTest.icon = 'icon-loading-small'
+			await axios.get(generateUrl(url))
 				.then((res) => {
-					this.status.ddclientTest = res.data.result === 'success'
-					this.status.ddclientTestDetails = res.data.data
+					if (res.data.result === 'success') {
+						this.status.ddclientTest.state = 'success'
+						this.status.ddclientTest.content = 'DDClient updating dynamic DNS entry successful'
+						this.status.ddclientTest.icon = 'icon-add'
+						this.status.mode = 'service'
+					} else {
+						if (res.data.data.reason === 'throttled') {
+							this.status.ddclientTest.icon = 'icon-loading-small'
+							this.status.waitFor = parseInt(res.data.data.waitfor) + 10
+							this.status.mode = 'wait'
+							this.status.nextMode = 'init'
+							this.status.waitCallback = function(myThis, secs) {
+								myThis.status.ddclientTest.extra = (secs <= 0) 
+									? '' 
+									: `throttled, retry in ${secs} secs`
+							}
+						} else {
+							this.status.ddclientTest.content = 'Unknown error during DDClient test'
+							this.status.ddclientTest.icon = 'icon-close'
+							this.status.mode = 'fail'
+						}
+					}
 				}).catch((e) => {
 					showError('Connection failed')
 					console.error(e)
-					this.status.ddclientTest = false
+					this.status.ddclientTest.content = 'DDClient Test - Connection failed - aborting...'
+					this.status.ddclientTest.state = 'error'
+					this.status.ddclientService.icon = 'icon-close'
+					this.status.mode = 'fail'
 				})
 
-			if (!this.status.ddclientTest) {
-				window.setTimeout(function() {
-					axios.get(generateUrl(url1))
-						.then((res) => {
-							this.status.ddclientTest = res.data.result === 'success'
-							this.status.ddclientTestDetails = res.data.data
-						}).catch((e) => {
-							showError('Connection failed')
-							console.error(e)
-							this.status.ddclientTest = false
-						})
-				}, 1000)
-			}
-				
-
-
+			return this.status.ddclientTest.state
 		},
-		async refresh_status_test_domain() {
-			const url2 = '/apps/nextbox/forward/dyndns/test/domain'
-			await axios.get(generateUrl(url2))
+
+		async refresh_status_test_reachable(what) {
+			// what \in { 'https', 'http' }
+			const url = '/apps/nextbox/forward/dyndns/test/' + what
+			this.status[what].icon = 'icon-loading-small'
+			await axios.get(generateUrl(url))
 				.then((res) => {
-					this.status.domain = res.data.result === 'success'
+					if (res.data.result === 'success') {
+						this.status[what].state = 'success'
+						this.status[what].content = `Your Nextcloud is reachable using: ${what}://${this.config.domain}`
+						this.status[what].icon = 'icon-add'
+						this.status.mode = (what === 'http') ? 'https' : 'done'
+					} else {
+						this.status[what].state = 'warning'
+						this.status[what].content = `Your Nextcloud is NOT reachable using: ${what}://${this.config.domain} - retrying in 10secs`
+						this.status[what].icon = 'icon-loading-small'
+						
+						// failed reachability for http
+						if (what === 'http') {
+							this.status.nextMode = 'http'
+							this.status.waitFor = 10
+							this.status.mode = 'wait'
+						} else {
+						
+							// we fail https, so activate it now:
+							if (!this.config.https) {
+								this.status.mode = 'https-enable'
+								this.status[what].content = 'HTTPS is not enabled - enabling now!'
+							
+							// we have https activated, retry ...
+							} else {
+								this.status.nextMode = 'https'
+								this.status.waitFor = 10
+								this.status.mode = 'wait'
+							}
+						}
+					}
 				}).catch((e) => {
 					showError('Connection failed')
 					console.error(e)
-					this.status.domain = false
+					this.status[what].state = 'error'
+					this.status[what].content = what + ' - connection failed - aborting'
+					this.status[what].icon = 'icon-close'
+					this.status.mode = 'fail'
 				})
+			return this.status[what].state
 		},
+
 		async refresh_status_test_service() {
-			const url3 = '/apps/nextbox/forward/service/ddclient/is-active'
-			await axios.get(generateUrl(url3))
+			const url = '/apps/nextbox/forward/service/ddclient/is-active'
+			this.status.ddclientService.icon = 'icon-loading-small'
+			await axios.get(generateUrl(url))
 				.then((res) => {
-					this.status.ddclientService = res.data.data.output[0] === 'active'
+					if (res.data.data.output[0] === 'active') {
+						this.status.ddclientService.state = 'success'
+						this.status.ddclientService.content = 'DDClient service is active'
+						this.status.ddclientService.icon = 'icon-add'
+						this.status.mode = 'resolve'
+					} else {
+						this.status.ddclientService.state = 'warning'
+						this.status.ddclientService.content = 'DDClient service not running, restarting...'
+						this.status.ddclientService.icon = 'icon-loading-small'
+						this.status.mode = 'start-service'
+					}
 				}).catch((e) => {
 					showError('Connection failed')
 					console.error(e)
-					this.status.ddclientService = false
+					this.status.ddclientService.state = 'error'
+					this.status.ddclientService.icon = 'icon-close'
+					this.status.ddclientService.content = 'DDClient Service - Connection failed - aborting'
+					this.status.mode = 'fail'
+				})
+			return this.status.ddclientService.state
+		},
+
+		async refresh_status_test_resolve() {
+			const url = '/apps/nextbox/forward/dyndns/test/resolve'
+			this.status.resolve.icon = 'icon-loading-small'
+			await axios.get(generateUrl(url))
+				.then((res) => {
+					if (res.data.result === 'success') {
+						this.status.resolve.state = 'success'
+						this.status.resolve.content = `Configured domain ${this.config.domain} correctly resolves to your IP: ${res.data.data.ip}`
+						this.status.resolve.icon = 'icon-add'
+						this.status.mode = 'http'
+					} else {
+						this.status.resolve.state = 'warning'
+						this.status.resolve.content = `Configured domain ${this.config.domain} resolves incorrectly, retrying in 10secs`
+						this.status.resolve.icon = 'icon-loading-small'
+						this.status.nextMode = 'resolve'
+						this.status.waitFor = 10
+						this.status.mode = 'wait'
+					}
+				}).catch((e) => {
+					showError('Connection failed')
+					console.error(e)
+					this.status.resolve.state = 'error'
+					this.status.resolve.content = 'Resolve Domain to IP - Connection failed - aborting'
+					this.status.resolve.icon = 'icon-close'
+					this.status.mode = 'fail'
+				})
+			return this.status.resolve.state
+		},
+
+		async enable_https() {
+			const url = '/apps/nextbox/forward/https/enable'
+			const res = await axios.post(generateUrl(url)) 
+				.then((res) => {
+					// unreachable, will never return with success as this leads to server restart
+				}).catch((e) => {
+					this.status.nextMode = 'reload'
+					this.status.mode = 'wait'
+					this.status.waitFor = 10
+					this.config.https = 443
+					showMessage('Switching from HTTP to HTTPS done')
+					showMessage('Reloading in 10 secs')
 				})
 		},
-		async refresh_status_test_resolve() {
-			const url4 = '/apps/nextbox/forward/dyndns/test/resolve'
-			await axios.get(generateUrl(url4))
+
+		async disable_https() {
+			const url = '/apps/nextbox/forward/https/disable'
+			const res = await axios.post(generateUrl(url)) 
 				.then((res) => {
-					this.status.resolve = res.data.result === 'success'
-					this.status.ip = res.data.data.ip  
+					// unreachable, will never return with success as this leads to server restart
 				}).catch((e) => {
-					showError('Connection failed')
-					console.error(e)
-					this.status.resolve = false
-					this.status.ip = ''
+					this.status.nextMode = 'reload'
+					this.status.mode = 'wait'
+					this.status.waitFor = 10
+					this.config.https = false
+					showMessage('Switching from HTTPS to HTTP done')
+					showMessage('Reloading in 10 secs')
 				})
 		},
 
@@ -406,22 +577,52 @@ export default {
 			this.refresh()
 		},
 
+		check_email() {
+			if (this.update.email === null || !this.update.email.includes('.') || !this.update.email.includes('@')) {
+				this.userMessage.email = ['Please insert a valid E-Mail address']
+				return false
+			}
+			if ('email' in this.userMessage) delete this.userMessage.email
+
+			return true
+		},
+
+		check_domain() {
+			if (this.update.domain === null || !this.update.domain.includes('.')) {
+				this.userMessage.domain = ['Please insert a valid Domain']
+				return false
+			}
+			if ('domain' in this.userMessage) delete this.userMessage.domain
+
+			return true
+		},
+
 		async update_dns_mode() {
 			this.userMessage = {}
 			this.update_config({ dns_mode: this.update.dns_mode })
 		},
 
 		async finalize_static() {
+			if (!this.check_email()) {
+				return false
+			}
+
 			this.update_config({ 
 				domain: this.update.domain,
+				email: this.update.email,
 				dns_mode: 'static_done',
 			})
 		},
 
 		async finalize_config() {
+			if (!this.check_email()) {
+				return false
+			}
+
 			this.update_config({ 
 				conf: this.update.conf,
 				domain: this.update.domain,
+				email: this.update.email,
 				dns_mode: 'config_done',
 			})
 			this.restart_ddclient()
@@ -447,7 +648,8 @@ export default {
 				conf: ddclientConfig,
 			})
 			await this.restart_ddclient()
-			this.refresh_status()
+			this.init_status()
+
 		},
 
 		async restart_ddclient() {
@@ -462,11 +664,15 @@ export default {
 				}).catch((e) => {
 					showError('Connection failed')
 					console.error(e)
-					
 				})
 		},
 
 		async register_desec(update) {
+			if (!this.check_email() || !this.check_domain()) {
+				this.refresh_captcha()
+				return false
+			}
+
 			const url = '/apps/nextbox/forward/dyndns/register'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -483,10 +689,12 @@ export default {
 					showError(this.userMessage.detail)
 				}
 				showError(res.data.msg)
+				this.refresh_captcha()
 			} else {
 				this.update_config({
 					dns_mode: 'desec_2',
 					domain: this.update.domain,
+					email: this.update.email,
 				})
 			}
 		},
@@ -501,7 +709,6 @@ export default {
 					showError('Connection failed')
 					console.error(e)
 				})
-			//showMessage(Object.keys(this.configUpdate).map((k) => `${k}: ${this.configUpdate[k]}`).join('\n'))
 			this.refresh()
 		},
 	},

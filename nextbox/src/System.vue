@@ -1,17 +1,6 @@
 <template>
 	<div class="system">
-		<!-- E-Mail Configuration -->
-		<div class="section">
-			<h2>E-Mail Address</h2>
-			Insert a valid E-Mail for the registrations to be used. You need access to this E-Mail 
-			to complete the guided registration process for the deSEC dynamic DNS service and 
-			Let's encrypt certificate acquisition.<br>
-			<input v-model="email" type="text" class="txt">
-			<button type="button" @click="update_email()">
-				<span class="icon icon-confirm" />
-				Save
-			</button>
-		</div>
+		x
 	</div>
 </template>
 
@@ -56,18 +45,7 @@ export default {
 				//showError(t('nextbox', 'Could not fetch logs'))
 			}
 		},
-		async update_email() {
-			if (!this.email.includes('.') || !this.email.includes('@')) {
-				showError('Please insert a valid E-Mail address')
-				return
-			}
 
-			if (!this.update_config({ email: this.email })) {
-				showError('Failed setting E-Mail')
-			} else {
-				showSuccess('Updated E-Mail')
-			}
-		},
 
 		async update_config(what) {
 			const url = '/apps/nextbox/forward/config'
