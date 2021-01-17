@@ -384,7 +384,7 @@ export default {
 					await this.refresh_status_test_reachable('http')
 					break
 				case 'reload':
-					document.location.href = `${(this.config.https) ? 'https' : 'http'}://${this.config.domain}/index.php/apps/nextbox/`
+					window.location.assign(`${(this.config.https) ? 'https' : 'http'}://${this.config.domain}/index.php/apps/nextbox/`)
 					break
 				case 'done':
 					window.clearInterval(this.intervalHandle)
