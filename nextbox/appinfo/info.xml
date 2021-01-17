@@ -5,7 +5,7 @@
     <name>NextBox</name>
     <summary>NextBox Configuration App</summary>
     <description><![CDATA[NextBox-exclusive app that enables configuration of the Nitrokey NextBox through a native Nextcloud app.]]></description>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
     <licence>agpl</licence>
     <author mail="meissner@nitrokey.com" >Nitrokey GmbH</author>
     <namespace>Nextbox</namespace>
