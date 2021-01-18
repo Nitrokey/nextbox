@@ -22,17 +22,14 @@ class PageController extends Controller {
 	public function index() {
 		return new TemplateResponse('nextbox', 'index');  // templates/index.php
 	}
-
-	/*public function token() {
-		$token = md5(rand() + uniqid());
-
-		// @todo: maybe reuse sessios-saved or cookie-saved token instead of creating a new one
-
-		$out = file_get_contents("http://127.0.0.1:18585/token/" . $token . 
-			"/" . $this->request->getRemoteAddress());
-
-		return new JSONResponse(array('token' => $token));
-	}*/
+	/**
+	 * @NoCSRFRequired
+	 */
+	public function getip($path) {
+		return new JSONResponse(
+			array('ip' => getHostByName(getHostName()) . ':18585')
+		);
+	}
 
 	public function forward($path) {
 		return new JSONResponse(
@@ -55,9 +52,5 @@ class PageController extends Controller {
 		$context  = stream_context_create($options);
 		$result = file_get_contents("http://127.0.0.1:18585/" . $path, false, $context);
 		return new JSONResponse(json_decode($result));
-
-			#http_post_data("http://127.0.0.1:18585/" . $path, $_POST)
-			#json_decode();
-		#);
 	}
 }

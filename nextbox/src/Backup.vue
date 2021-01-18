@@ -81,6 +81,8 @@
 				{{ overlay.progressStep }}
 			</div>
 		</Modal>
+		
+		
 	</div>
 </template>
 
@@ -118,6 +120,8 @@ export default {
 			
 			selectedDevice: false,
 			storages: {},
+
+			localip: null,
 
 			interval: false,
 			overlay: {
@@ -179,6 +183,14 @@ export default {
 				console.error(e)
 			})
 			
+			const url2 = '/apps/nextbox/getip'
+			await axios.get(generateUrl(url2)).then((res) => {
+				this.localip = res.data.ip
+			}).catch((e) => {
+				console.error('cannot acquire localip')
+				console.error(e)
+			})
+
 			await axios.get(generateUrl('/apps/nextbox/forward/storage'))
 				.then((res) => {
 					this.storages = res.data.data
@@ -253,7 +265,7 @@ export default {
 		},
 		
 		async update_progress() {
-			const res = await axios.get(`http://${document.location.host}:18585/overview`).catch((e) => {
+			const res = await axios.get(`http://${this.localip}/overview`).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 				this.overlay.canClose = true
