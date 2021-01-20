@@ -26,11 +26,13 @@ function sshrun
 scpit media-nextcloud.mount /tmp
 scpit nextbox-daemon.service /tmp
 scpit hostname /tmp
+scpit resolved.conf /tmp
 
 # copy files locally (as root)
 sshrun sudo install -m 644 -o root -g root /tmp/hostname /etc/writable
 sshrun sudo install -m 644 -o root -g root /tmp/media-nextcloud.mount /etc/systemd/system
 sshrun sudo install -m 644 -o root -g root /tmp/nextbox-daemon.service /etc/systemd/system
+sshrun sudo install -m 644 -o root -g root /tmp/resolved.conf /etc/systemd
 
 # reload systemd-units
 sshrun sudo systemctl daemon-reload

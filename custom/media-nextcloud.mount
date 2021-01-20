@@ -2,7 +2,7 @@
 Description=external harddisk mount
 
 [Mount]
-What=LABEL=NextBoxHardDisk
+What=/dev/disk/by-label/NextBoxHardDisk
 Where=/media/nextcloud
 Type=auto
 
