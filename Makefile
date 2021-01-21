@@ -1,4 +1,4 @@
-VERSION=0.2.4
+VERSION=0.2.5
 KEY_FILE=../secrets/certs/nextbox.key
 TAR_FILE=nextbox-$(VERSION).tar.gz
 

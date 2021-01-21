@@ -344,7 +344,7 @@ export default {
 					this.status.lastMode = this.status.mode
 				}
 
-				if (this.status.lastModeRepeated > 10) {
+				if (this.status.lastModeRepeated > 20) {
 					showError(`In state: ${this.status.lastMode} stalled - aborting...`)
 					this.status.mode = 'fail'
 					// here add help text
@@ -523,7 +523,7 @@ export default {
 				})
 			return this.status.ddclientService.state
 		},
-
+		
 		async refresh_status_test_resolve(ipType) {
 			const url = `/apps/nextbox/forward/dyndns/test/resolve/${ipType}`
 			const ipTypeName = (ipType === 'ipv4') ? 'IPv4' : 'IPv6'
@@ -532,7 +532,7 @@ export default {
 				.then((res) => {
 					if (res.data.result === 'success') {
 						this.status.resolve.state = 'success'
-						this.status.resolve.content = `Configured domain ${this.config.domain} correctly resolves to your ${ipTypeName}: ${res.data.data.ip}`
+						this.status.resolve.content = `Domain ${this.config.domain} resolves to your ${ipTypeName}: ${res.data.data.ip}`
 						this.status.resolve.icon = 'icon-add'
 						this.status.mode = 'http'
 					} else {
@@ -540,16 +540,16 @@ export default {
 						this.status.resolve.content = `Configured domain ${this.config.domain} resolves incorrectly ${ipTypeName}: ${res.data.data.ip}`
 						this.status.resolve.icon = 'icon-loading-small'
 						if (this.status.useIpType === 'ipv6') {
-							this.status.nextMode = 'resolve4'
-							this.status.useIpType = 'ipv4'
-							/*this.status.waitFor = 10
+							this.status.nextMode = 'resolve6'
+							//this.status.useIpType = 'ipv6'
+							this.status.waitFor = 10
 							this.status.mode = 'wait'
 							this.status.waitCallback = function(myThis, secs) {
 								myThis.status.resolve.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
-							}*/
+							}
 						} else {
-							this.status.nextMode = 'resolve6'
-							this.status.useIpType = 'ipv6'
+							this.status.nextMode = 'resolve4'
+							//this.status.useIpType = 'ipv4'
 							this.status.waitFor = 10
 							this.status.mode = 'wait'
 							this.status.waitCallback = function(myThis, secs) {
