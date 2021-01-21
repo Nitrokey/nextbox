@@ -105,10 +105,10 @@
 			<br>
 			If you have not received an E-Mail this means you have already 
 			been registered with this E-Mail at deSEC. If you know your password
-			you can <a href="https://desec.io/login">login here</a> and copy the 
+			you can <a class="bold" href="https://desec.io/login">login here</a> and copy the 
 			token from your account settings. During NextBox' automated process no 
 			password is set, in order to acquire one you have to 
-			<a href="https://desec.io/reset-password">reset your password</a>.
+			<a class="bold" href="https://desec.io/reset-password">reset your password</a>.
 		</div>
 
 		<!-- Raw ddclient configuration -->
@@ -235,6 +235,7 @@ export default {
 				https: { state: 'neutral', icon: 'icon-info', content: 'HTTPS waiting to be tested', extra: '' },
 
 				intervalHandle: null,
+				useIpType: 'ipv6',
 				mode: 'init',
 				nextMode: 'init',
 				lastMode: '',
@@ -374,8 +375,11 @@ export default {
 					await this.restart_ddclient()
 					this.status.mode = 'service'
 					break
-				case 'resolve':
-					await this.refresh_status_test_resolve()
+				case 'resolve6':
+					await this.refresh_status_test_resolve('ipv6')
+					break
+				case 'resolve4':
+					await this.refresh_status_test_resolve('ipv4')
 					break
 				case 'https':
 					await this.refresh_status_test_reachable('https')
@@ -502,7 +506,7 @@ export default {
 						this.status.ddclientService.state = 'success'
 						this.status.ddclientService.content = 'DDClient service is active'
 						this.status.ddclientService.icon = 'icon-add'
-						this.status.mode = 'resolve'
+						this.status.mode = (this.status.useIpType === 'ipv6') ? 'resolve6' : 'resolve4'
 					} else {
 						this.status.ddclientService.state = 'warning'
 						this.status.ddclientService.content = 'DDClient service not running, restarting...'
@@ -520,25 +524,37 @@ export default {
 			return this.status.ddclientService.state
 		},
 
-		async refresh_status_test_resolve() {
-			const url = '/apps/nextbox/forward/dyndns/test/resolve'
+		async refresh_status_test_resolve(ipType) {
+			const url = `/apps/nextbox/forward/dyndns/test/resolve/${ipType}`
+			const ipTypeName = (ipType === 'ipv4') ? 'IPv4' : 'IPv6'
 			this.status.resolve.icon = 'icon-loading-small'
 			await axios.get(generateUrl(url))
 				.then((res) => {
 					if (res.data.result === 'success') {
 						this.status.resolve.state = 'success'
-						this.status.resolve.content = `Configured domain ${this.config.domain} correctly resolves to your IP: ${res.data.data.ip}`
+						this.status.resolve.content = `Configured domain ${this.config.domain} correctly resolves to your ${ipTypeName}: ${res.data.data.ip}`
 						this.status.resolve.icon = 'icon-add'
 						this.status.mode = 'http'
 					} else {
 						this.status.resolve.state = 'warning'
-						this.status.resolve.content = `Configured domain ${this.config.domain} resolves incorrectly, retrying in 10secs`
+						this.status.resolve.content = `Configured domain ${this.config.domain} resolves incorrectly ${ipTypeName}: ${res.data.data.ip}`
 						this.status.resolve.icon = 'icon-loading-small'
-						this.status.nextMode = 'resolve'
-						this.status.waitFor = 10
-						this.status.mode = 'wait'
-						this.status.waitCallback = function(myThis, secs) {
-							myThis.status.resolve.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
+						if (this.status.useIpType === 'ipv6') {
+							this.status.nextMode = 'resolve4'
+							this.status.useIpType = 'ipv4'
+							/*this.status.waitFor = 10
+							this.status.mode = 'wait'
+							this.status.waitCallback = function(myThis, secs) {
+								myThis.status.resolve.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
+							}*/
+						} else {
+							this.status.nextMode = 'resolve6'
+							this.status.useIpType = 'ipv6'
+							this.status.waitFor = 10
+							this.status.mode = 'wait'
+							this.status.waitCallback = function(myThis, secs) {
+								myThis.status.resolve.extra = (secs <= 0) ? '' : `retry in ${secs} secs`
+							}
 						}
 					}
 				}).catch((e) => {
@@ -653,22 +669,30 @@ export default {
 				return
 			}
 
-			const ddclientConfig = 'protocol=dyndns2\n'
-			+ 'use=web, web=https://checkipv4.dedyn.io/\n'
-			+ 'ssl=yes\n'
-			+ 'server=update.dedyn.io\n'
-			+ `login='${this.config.domain}'\n`
-			+ `password='${this.update.desec_token}'\n`
-			+ `${this.config.domain}\n`
+			this.setup_ddclient_config(this.status.useIpType, this.config.domain, this.update.desec_token)
 
 			this.update_config({ 
 				desec_token: this.update.desec_token, 
 				dns_mode: 'desec_done',
+			})
+
+			this.init_status()
+		},
+
+		async setup_ddclient_config(ipType, domain, pwd) {
+			const updateip = (ipType === 'ipv6') ? 'update6.dedyn.io' : 'update.dedyn.io'
+			const ddclientConfig = 'protocol=dyndns2\n'
+				+ `use=web, web=https://check${ipType}.dedyn.io/\n`
+				+ 'ssl=yes\n'
+				+ `server=${updateip}\n`
+				+ `login='${domain}'\n`
+				+ `password='${pwd}'\n`
+				+ `${domain}\n`
+			
+			this.update_config({ 
 				conf: ddclientConfig,
 			})
 			await this.restart_ddclient()
-			this.init_status()
-
 		},
 
 		async restart_ddclient() {
