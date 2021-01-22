@@ -8,7 +8,7 @@
 			<Multiselect 
 				v-model="selectedDevice"
 				:options="devices"
-				:disabled="storages.backup"
+				:disabled="Boolean(storages.backup)"
 				placeholder="Select Available Device as Backup Drive..."
 				track-by="id" 
 				label="label" />
@@ -81,8 +81,6 @@
 				{{ overlay.progressStep }}
 			</div>
 		</Modal>
-		
-		
 	</div>
 </template>
 

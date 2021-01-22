@@ -2,9 +2,12 @@
 	<div class="overview">
 		<!-- External availability  -->
 		<div class="section">
-			<h2>External Reachability of Your NextBox</h2>
-			Work in progress....<br>
-			Show information about: dyndns-working (ddclient active), nextcloud reachable through configured domain<br>
+			<h2>Remote Access for Your NextBox</h2>
+			<span :class="'tag ' + status.remote.state"><span :class="'tag-icon ' + status.remote.icon" />
+				<span class="tag-content">{{ status.remote.content }}</span>
+				<span class="tag-middle" />
+				<span class="tag-extra">{{ status.remote.extra }}</span>
+			</span>
 		</div>
 
 		<!-- Last Backup  -->
@@ -53,6 +56,15 @@ export default {
 			apiMatch: false,
 			expectedApi: 1,
 			running: false,
+
+			status: {
+				remote: { 
+					state: 'neutral', 
+					icon: 'icon-info', 
+					content: '', 
+					extra: '',
+				},
+			},
 		}
 	},
 
@@ -74,6 +86,23 @@ export default {
 				this.config = {}
 				this.apiMatch = false
 				this.running = false
+			}
+			this.statusRemote()
+		},
+
+		async statusRemote() {
+			if (this.config.dns_mode === 'off' && !this.config.proxy_active) {
+				this.status.remote = {
+					content: 'There is no active remote access configuration',
+					icon: 'icon-info', 
+					state: 'neutral',
+				}
+			} else {
+				this.status.remote = {
+					content: 'Your Nextbox is configured for remote access',
+					icon: 'icon-checkmark',
+					state: 'success',
+				}
 			}
 		},
 	},

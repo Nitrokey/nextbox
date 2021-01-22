@@ -5,7 +5,18 @@
 				<AppNavigationItem :title="t('nextbox', 'Overview')" icon="icon-home" @click="set_page('overview')" />
 				<AppNavigationItem :title="t('nextbox', 'Storage Management')" icon="icon-category-files" @click="set_page('storage')" />
 				<AppNavigationItem :title="t('nextbox', 'Backup / Restore')" icon="icon-download" @click="set_page('backup')" />
-				<AppNavigationItem :title="t('nextbox', 'Remote Access')" icon="icon-timezone" @click="set_page('dyndns')" />
+				<AppNavigationItem :title="t('nextbox', 'Remote Access')"
+					icon="icon-timezone"
+					:allow-collapse="false"
+					:open="isRemoteOpen"
+					@click="set_page('remote')">
+					<template>
+						<AppNavigationItem :title="t('nextbox', 'Quickstart')" icon="icon-star" @click="set_page('remote_proxy')" />
+						<AppNavigationItem :title="t('nextbox', 'Guided Dynamic DNS')" icon="icon-comment" @click="set_page('remote_dyndns')" />
+						<AppNavigationItem :title="t('nextbox', 'Custom Dynamic DNS')" icon="icon-settings" @click="set_page('remote_custom_dns')" />
+						<AppNavigationItem :title="t('nextbox', 'Static Domain')" icon="icon-public" @click="set_page('remote_static_dns')" />
+					</template>
+				</AppNavigationItem>
 				<!-- AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" /-->
 				<!-- AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" /-->
 				<!-- AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" /-->
@@ -16,9 +27,14 @@
 			<Overview v-if="page === 'overview'" />
 			<Storage v-if="page === 'storage'" />
 			<Backup v-if="page === 'backup'" />
-			<DynDNS v-if="page === 'dyndns'" />
 			<System v-if="page === 'system'" />
 			<Logs v-if="page === 'logs'" />
+			<Proxy v-if="page === 'remote_proxy'" />
+			<DynDNS v-if="page === 'remote_dyndns'" />
+			<CustomDNS v-if="page === 'remote_custom_dns'" />
+			<StaticDNS v-if="page === 'remote_static_dns'" />
+			<Remote v-if="page === 'remote'" @newPage="set_page" />
+
 			<!-- TLS v-if="page === 'tls'" /-->
 		</AppContent>
 	</div>
@@ -36,9 +52,13 @@ import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 import Logs from './Logs'
 import System from './System'
 import DynDNS from './DynDNS'
+import StaticDNS from './StaticDNS'
+import CustomDNS from './CustomDNS'
+import Proxy from './Proxy'
 import Backup from './Backup'
 import Storage from './Storage'
 import Overview from './Overview'
+import Remote from './Remote'
 
 
 import '@nextcloud/dialogs/styles/toast.scss'
@@ -55,15 +75,20 @@ export default {
 		Overview,
 		Logs,
 		System,
-		DynDNS,
+		DynDNS, 
+		StaticDNS, 
+		CustomDNS,
+		Remote,
 		Backup,
 		Storage,
+		Proxy,
 	},
 	data() {
 		return {
 			page: 'overview',
 			updating: false,
 			loading: true,
+			isRemoteOpen: false,
 		}
 	},
 	computed: {
@@ -83,6 +108,7 @@ export default {
 	methods: {
 		set_page(what) {
 			this.page = what
+			if (this.page.startsWith('remote_')) this.isRemoteOpen = true
 		},
 	},
 }
@@ -91,7 +117,7 @@ export default {
 <style>
 	
 input[type='text'] {
-	width: 100%;
+	width: 50vw;
 }
 
 .tag {
@@ -127,7 +153,7 @@ input[type='text'] {
 
 .tag-icon {
 	opacity: 1;
-	/*background-position: 2px bottom;*/
+	background-position-y: -1px;
 	margin-right: 8px;
 	margin-left: 4px;
 	background-size: 16px;
@@ -182,9 +208,9 @@ input[type='text'] {
 	height: fit-content !important;
 }
 
-.txt {
+/*.txt {
 	width: 25vw;
-}
+}*/
 
 
 .icon {
