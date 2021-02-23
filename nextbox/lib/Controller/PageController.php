@@ -9,10 +9,12 @@ use OCP\AppFramework\Http\JSONResponse;
 
 class PageController extends Controller {
 	private $userId;
+	private $backendHost;
 
 	public function __construct($AppName, IRequest $request, $UserId){
 		parent::__construct($AppName, $request);
 		$this->userId = $UserId;
+		$this->backendHost = "172.18.238.1:18585";
 	}
 
 	/**
@@ -33,9 +35,10 @@ class PageController extends Controller {
 
 	public function forward($path) {
 		return new JSONResponse(
-			json_decode(file_get_contents("http://127.0.0.1:18585/" . $path))
+			json_decode(file_get_contents("http://" . $this->backendHost . "/" . $path))
 		);
 	}
+
 
 	public function post($path) {
 		$data = array();
@@ -50,7 +53,7 @@ class PageController extends Controller {
 			)
 		);
 		$context  = stream_context_create($options);
-		$result = file_get_contents("http://127.0.0.1:18585/" . $path, false, $context);
+		$result = file_get_contents("http://" . $this->backendHost . "/" . $path, false, $context);
 		return new JSONResponse(json_decode($result));
 	}
 }
