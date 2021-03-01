@@ -7,7 +7,7 @@
 		</div>
 		<div v-if="!config.proxy_active" class="section">
 			<h2>Domain for NextBox</h2>
-			Insert the designated full domain for your NextBox. The domain always has to end with <span class="bold">.nitrokey.com</span>.<br>
+			Insert the designated full domain for your NextBox. The domain always has to end with <span class="bold">.nextbox.link</span>.<br>
 			<input v-model="update.proxy_domain" type="text">
 			<br><span v-if="userMessage.proxy_domain" class="error-txt">{{ userMessage.proxy_domain.join(" ") }}</span><br>
 			<h2>NextBox Quickstart Token</h2>
@@ -108,8 +108,8 @@ export default {
 				this.userMessage.proxy_domain = ['Please insert a valid domain']
 				return false
 			}
-			if (!this.update.proxy_domain.endsWith('.nitrokey.com')) {
-				this.userMessage.proxy_domain = ['The Domain has to end with: .nitrokey.com']
+			if (!this.update.proxy_domain.endsWith('.nextbox.link')) {
+				this.userMessage.proxy_domain = ['The Domain has to end with: .nextbox.link']
 				return false
 			}
 
@@ -118,7 +118,7 @@ export default {
 		},
 
 		check_token() {
-			if (this.update.nk_token === null || this.update.nk_token.length !== 20) {
+			if (this.update.nk_token === null || this.update.nk_token.length !== 36) {
 				this.userMessage.nk_token = ['Please insert a valid token']
 				return false
 			}
@@ -141,22 +141,30 @@ export default {
 
 		async disable() {
 			this.update_config({
-				nk_token: '',
-				proxy_domain: '',
 				proxy_active: false,
 			})
 		},
 		
 		async update_config(update) {
-			const url = '/apps/nextbox/forward/config'
+			const url1 = '/apps/nextbox/forward/config'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
-			const res = await axios.post(generateUrl(url), qs.stringify(update), options)
+			const res1 = await axios.post(generateUrl(url1), qs.stringify(update), options)
 				.catch((e) => {
 					showError('Connection failed')
 					console.error(e)
 				})
+			
+			// only run on activation
+			if (update.proxy_active) {
+				const url2 = '/apps/nextbox/forward/proxy/register'
+				const res2 = await axios.post(generateUrl(url2), qs.stringify(update), options)
+					.catch((e) => {
+						showError('Connection failed')
+						console.error(e)
+					})
+			}
 			this.refresh()
 		},
 	},

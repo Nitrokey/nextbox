@@ -14,10 +14,6 @@ import VTooltip from '@nextcloud/vue/dist/Directives/Tooltip'
 
 Vue.directive('Tooltip', VTooltip)
 
-/*import VTooltip from 'v-tooltip'
-Vue.use(VTooltip, {
-	//defaultHtml: false,
-})*/
 
 
 
