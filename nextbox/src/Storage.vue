@@ -4,7 +4,7 @@
 			<h2>Mounted Storages</h2>
 
 			<ListItemIcon v-for="dev in mountedDevs" 
-				:key="dev"
+				:key="dev.name"
 				class="list-item"
 				:title="getListName(dev)"
 				:subtitle="getListDesc(dev)"
@@ -26,7 +26,7 @@
 		<AppContentList class="section storage-list" show-details>
 			<h2>Available Storages</h2>
 			<ListItemIcon v-for="dev in availableDevs" 
-				:key="dev"
+				:key="dev.name"
 				class="list-item"
 				:title="getListName(dev)"
 				:subtitle="getListDesc(dev)"
@@ -43,7 +43,7 @@
 					</ActionButton>
 				</Actions>
 			</ListItemIcon>
-			<EmptyContent v-if="!available" icon="icon-close">
+			<EmptyContent v-if="!availableDevs" icon="icon-close">
 				No Unmounted Available
 			</EmptyContent>
 		</AppContentList>
@@ -76,12 +76,6 @@ export default {
 		EmptyContent,
 	},
 
-	/*props: { 
-		isMounted: { type: Boolean },
-		title: { type: String, default: () => '' },
-		data: { type: Object, default: () => {} },
-	},*/
-
 	data() {
 		return {
 			loading: true,
@@ -91,19 +85,43 @@ export default {
 	},
 	computed: {
 		mountedDevs() {
-			return ('mounted' in this.storages) ? Object.keys(this.storages.mounted) : []
+			const ret = []
+			for (const devName in this.storages) {
+				const dev = this.storages[devName]
+				for (const partName in dev.parts) {
+					const part = dev.parts[partName]
+					if (part.mounted) {
+						ret.push({
+							name: part.name,
+							label: part.label,
+							desc: dev.model,
+							mounted: part.mounted,
+							special: part.special,
+							space: part.space,
+						})
+					}
+				}
+			}
+			return ret
 		},
 		availableDevs() {
-			return ('available' in this.storages) 
-				? this.storages.available.filter((x) => !(x in this.storages.mounted)) 
-				: []
-		},
-		mounted() {
-			return this.storages.mounted 
-		},
-
-		available() {
-			return this.storages.available
+			const ret = []
+			for (const devName in this.storages) {
+				const dev = this.storages[devName]
+				for (const partName in dev.parts) {
+					const part = dev.parts[partName]
+					if (!part.mounted) {
+						ret.push({
+							name: part.name,
+							label: part.label,
+							desc: dev.model,
+							special: part.special,
+							space: part.space,
+						})
+					}
+				}
+			}
+			return ret
 		},
 	},
 
@@ -115,39 +133,53 @@ export default {
 
 	methods: {
 		getListName(dev) {
-			const blockDev = dev.split('/').slice(-1)[0].slice(0, 3)
-			const desc = this.storages.block_devs[blockDev].name
-			if (!this.mountedDevs.includes(dev)) {
-				return desc
+			if (dev.special) {
+				if (dev.name.startsWith('mm')) {
+					return `SD-Card (${dev.label})`
+				} else {
+					return `Internal HardDisk (${dev.label})`
+				}
+			} else if (dev.mounted === '/media/backup') {
+				return `Backup (${dev.desc})`
 			}
-			if (this.storages.main === dev) {
-				return `Main (${desc})`
-			} else if (this.storages.backup === dev) {
-				return `Backup (${desc})`
-			}
-			return `Extra (${desc})`
+			return `Extra (${dev.desc})`
 		},
 
 		getListDesc(dev) {
-			const two = (this.mounted[dev]) ? this.mounted[dev] + ` (${this.storages.type[dev]})` : '(not mounted)'
-			return `${dev} @ ${two}`
+			let space = ''
+			if (dev.mounted) {
+				const togb = 2 ** 30
+				const free = Math.round((dev.space.free / togb) * 10) / 10
+				const avail = Math.round((dev.space.avail / togb) * 10) / 10
+				space = `Space: ${free}GB / ${avail}GB`
+			} 
+			return (dev.mounted) ? `/dev/${dev.name} @ ${dev.mounted} | ${space}` : `/dev/${dev.name}`
 		},
 
 		getActions(dev) {
-			const devFn = dev.split('/').slice(-1)[0]
-			const UmountTarget = dev in this.mounted ? this.mounted[dev].split('/').slice(-1)[0] : ''
-			if (this.storages.main !== dev) {
-				if (this.mountedDevs.includes(dev)) {
-					if (this.storages.backup !== dev) {
-						return [{ icon: 'icon-close', name: 'Unmount Partition', target: UmountTarget, act: 'umount' }]
-					}
+			if (!dev.special) {
+				// mount = "device name", umount = "mount point" as target
+				const target = (dev.mounted) ? dev.mounted.split('/').splice(-1)[0] : dev.name
+				if (dev.mounted) {
+					return [{ icon: 'icon-close', name: 'Unmount Partition', target, act: 'umount' }]
 				} else {
-					return [{ icon: 'icon-add', name: 'Mount as Extra Storage', target: devFn, act: 'mount-extra' }]
+					return [{ icon: 'icon-add', name: 'Mount as Extra Storage', target, act: 'mount-extra' }]
 				}
 			}
+			return []
 		},
 
 		async refreshStorage() {
+			/*this->storages = [{
+					<blockdev1> = { 
+						<name>, 
+						<model>, 
+						<parts> = [{ 
+							<part> = { <label>, <mounted> }, ...
+						}]
+					}, ...
+				}]
+				*/
 			const res = await axios
 				.get(generateUrl('/apps/nextbox/forward/storage'))
 				.catch((e) => {
@@ -195,7 +227,8 @@ export default {
 }
 
 .storage {
-	/*height: 45vh;*/
+	/*height: 
+	45vh;*/
 }
 
 .empty {
