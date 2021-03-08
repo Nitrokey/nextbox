@@ -1,0 +1,16 @@
+[Unit]
+Description=NextBox System Daemon 
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/nextbox-daemon 
+Restart=always
+RestartSec=10
+
+StandardOutput=journal
+StandardError=journal
+
+
+
+[Install]
+WantedBy=multi-user.target
