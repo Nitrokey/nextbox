@@ -1,0 +1,18 @@
+docker.io
+docker-compose
+openssl
+
+unattended-upgrades
+
+software-properties-common
+
+#ddclient don't install here, prefer apt-get
+
+
+# certbot
+certbot
+
+#python3-certbot-apache <- skipped, no need
+
+# nextbox daemon
+python3-requests python3-psutil python3-gpiozero python3-flask python3-rpi.gpio python3-yaml

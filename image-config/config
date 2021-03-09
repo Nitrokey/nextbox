@@ -1,0 +1,13 @@
+IMG_NAME=NextBox
+FIRST_USER_NAME=nextuser
+FIRST_USER_PASS=raspberry_default_password
+STAGE_LIST="stage0 stage1 stage2 stage-nextbox"
+TARGET_HOSTNAME=nextbox
+
+
+### disable for release
+ENABLE_SSH=1
+
+### enable for release
+PUBKEY_ONLY_SSH=0
+
