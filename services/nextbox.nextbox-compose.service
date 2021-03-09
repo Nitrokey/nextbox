@@ -1,7 +1,7 @@
 [Unit]
 Description=nextbox-compose
 Requires=docker.socket
-After=docker.socket nextbox-daemon.service
+After=docker.socket nextbox-daemon.service nextbox-image-load.service
 
 [Service]
 Restart=always
