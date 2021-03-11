@@ -1,0 +1,7 @@
+nextbox-compose /usr/lib/
+app/nextbox/lib /usr/lib/nextbox-app
+app/nextbox/js /usr/lib/nextbox-app
+app/nextbox/img /usr/lib/nextbox-app
+app/nextbox/css /usr/lib/nextbox-app
+app/nextbox/templates /usr/lib/nextbox-app
+app/nextbox/appinfo /usr/lib/nextbox-app

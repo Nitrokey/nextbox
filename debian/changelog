@@ -1,0 +1,100 @@
+%%PKG%% (0.1.4-1) groovy; urgency=low
+
+  * docker image load one-shot on 1st boot
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 7 Mar 2021 23:32:11 +0000
+
+%%PKG%% (0.1.3-2) groovy; urgency=low
+
+  * restructured repos
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 7 Mar 2021 23:32:11 +0000
+
+
+%%PKG%% (0.1.3-1) groovy; urgency=low
+
+  * restartsec for compose.service; auto-password generation on first-start
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 7 Mar 2021 23:32:11 +0000
+
+%%PKG%% (0.1.2-1) groovy; urgency=low
+
+  * proxy set overwritehost and overwritecondaddr during register
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+
+%%PKG%% (0.1.1-1) groovy; urgency=low
+
+  * fix backwards-proxy-key-gen; docker-compose expose apache2-dir
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+
+%%PKG%% (0.1.0-1) groovy; urgency=low
+
+  * backup updates, version bump
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+
+%%PKG%% (0.0.2-10) groovy; urgency=low
+
+  * move app-bind-mount to nextcloud/custom_apps
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+
+%%PKG%% (0.0.2-9) groovy; urgency=low
+
+  * %%PKG%%-compose.yaml binds global %%PKG%%-app to new location
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-8) groovy; urgency=low
+
+  * update %%PKG%%-compose.yaml (nc version);
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-7) groovy; urgency=low
+
+  * update %%PKG%%-compose.yaml; db.env
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-6) groovy; urgency=low
+
+  * update %%PKG%%-compose service to use docker.socket as requirement
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-5) groovy; urgency=low
+
+  * add runtime dependencies; add python package: %%PKG%%_daemon.api
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-4) groovy; urgency=low
+
+  * remove postinst
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:02:11 +0000
+
+%%PKG%% (0.0.2-3) groovy; urgency=low
+
+  * fixed postinst bug
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 14:11:11 +0000
+
+%%PKG%% (0.0.2-2) groovy; urgency=low
+
+  * changed JS packaging
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 21 Feb 2021 14:28:48 +0000
+
+%%PKG%% (0.0.2-1) groovy; urgency=low
+
+  * source package initial package
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 21 Feb 2021 14:28:48 +0000

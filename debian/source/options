@@ -1,0 +1,3 @@
+tar-ignore = "app/.git"
+tar-ignore = "app/nextbox/node_modules"
+tar-ignore = "nextbox_daemon.egg-info/*"

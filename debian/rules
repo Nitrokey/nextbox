@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=nextbox-daemon
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+binary:
+	dh binary --with python3 --buildsystem=pybuild
+	#make
+
+override_dh_installsystemd:
+	dh_installsystemd --name=nextbox-daemon
+	dh_installsystemd --name=nextbox-compose
+	dh_installsystemd --name=nextbox-image-load
