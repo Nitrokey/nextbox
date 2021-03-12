@@ -33,93 +33,95 @@ def success(msg=None, data=None):
         "api": API_VERSION
     })
 
+
+
 def local_ip():
     return socket.gethostbyname(socket.gethostname())
 
-def get_partitions():
-    alldevs = os.listdir("/dev/")
-    alllabels = os.listdir("/dev/disk/by-label")
+# def get_partitions():
+#     alldevs = os.listdir("/dev/")
+#     alllabels = os.listdir("/dev/disk/by-label")
 
-    # mounted: <dev> => <mount-point>
-    out = {
-        "available": [],
-        "mounted": {},
-        "type": {},
-        "backup": None,
-        "main": None,
-        "block_devs": {}
-    }
+#     # mounted: <dev> => <mount-point>
+#     out = {
+#         "available": [],
+#         "mounted": {},
+#         "type": {},
+#         "backup": None,
+#         "main": None,
+#         "block_devs": {}
+#     }
 
-    label_map = {}
-    for label in alllabels:
-        p = Path(f"/dev/disk/by-label/{label}")
-        label_map[p.resolve().as_posix()] = p.as_posix()
+#     label_map = {}
+#     for label in alllabels:
+#         p = Path(f"/dev/disk/by-label/{label}")
+#         label_map[p.resolve().as_posix()] = p.as_posix()
 
-    for dev in alldevs:
-        if dev.startswith("sd"):
-            path = f"/dev/{dev}"
-            if label_map.get(path) == NEXTBOX_HDD_LABEL:
-                out["main"] = path
-            elif path[-1] in map(str, range(1, 10)):
-                out["available"].append(path)
+#     for dev in alldevs:
+#         if dev.startswith("sd"):
+#             path = f"/dev/{dev}"
+#             if label_map.get(path) == NEXTBOX_HDD_LABEL:
+#                 out["main"] = path
+#             elif path[-1] in map(str, range(1, 10)):
+#                 out["available"].append(path)
 
-            block_dev = dev[:3]
-            out["block_devs"].setdefault(block_dev, {})
+#             block_dev = dev[:3]
+#             out["block_devs"].setdefault(block_dev, {})
 
-    with open("/proc/mounts", "rt") as fd:
-        for line in fd:
-            toks = line.split()
-            dev, mountpoint, ftype = toks[0], toks[1], toks[2]
-            if dev in out["available"] or dev == out["main"]:
-                out["mounted"][dev] = mountpoint
-                if mountpoint == "/media/backup":
-                    out["backup"] = dev
-                elif mountpoint == "/media/nextcloud":
-                    out["main"] = dev
-                out["type"][dev] = ftype
+#     with open("/proc/mounts", "rt") as fd:
+#         for line in fd:
+#             toks = line.split()
+#             dev, mountpoint, ftype = toks[0], toks[1], toks[2]
+#             if dev in out["available"] or dev == out["main"]:
+#                 out["mounted"][dev] = mountpoint
+#                 if mountpoint == "/media/backup":
+#                     out["backup"] = dev
+#                 elif mountpoint == "/media/nextcloud":
+#                     out["main"] = dev
+#                 out["type"][dev] = ftype
 
-    for block_dev in out["block_devs"]:
-        try:
-            p_base = Path("/sys/block") / block_dev / "device"
-            vendor = (p_base / "vendor").read_text("utf-8").strip()
-            model = (p_base / "model").read_text("utf-8").strip()
-            out["block_devs"][block_dev]["name"] = f"{vendor} {model}"
-        except OSError as e:
-            out["block_devs"][block_dev]["name"] = "n/a"
+#     for block_dev in out["block_devs"]:
+#         try:
+#             p_base = Path("/sys/block") / block_dev / "device"
+#             vendor = (p_base / "vendor").read_text("utf-8").strip()
+#             model = (p_base / "model").read_text("utf-8").strip()
+#             out["block_devs"][block_dev]["name"] = f"{vendor} {model}"
+#         except OSError as e:
+#             out["block_devs"][block_dev]["name"] = "n/a"
 
-    return out
+#     return out
 
-def parse_backup_line(line, dct_data):
-    toks = line.split()
-    if len(toks) == 0:
-        return
+# def parse_backup_line(line, dct_data):
+#     toks = line.split()
+#     if len(toks) == 0:
+#         return
 
-    # handle exporting line step
-    if toks[0].lower() == "exporting" and len(toks) > 1:
-        dct_data["step"] = toks[1].replace(".", "")
-        if dct_data["step"] == "init":
-            dct_data["target"] = " ".join(toks[2:])[1:-1]
+#     # handle exporting line step
+#     if toks[0].lower() == "exporting" and len(toks) > 1:
+#         dct_data["step"] = toks[1].replace(".", "")
+#         if dct_data["step"] == "init":
+#             dct_data["target"] = " ".join(toks[2:])[1:-1]
 
-    # handle importing line step
-    elif toks[0].lower() == "importing" and len(toks) > 1:
-        dct_data["step"] = toks[1].replace(".", "")
+#     # handle importing line step
+#     elif toks[0].lower() == "importing" and len(toks) > 1:
+#         dct_data["step"] = toks[1].replace(".", "")
 
-    elif len(toks) >= 3 and toks[0].lower() == "successfully":
-        dct_data["success"] = " ".join(toks[2:])
+#     elif len(toks) >= 3 and toks[0].lower() == "successfully":
+#         dct_data["success"] = " ".join(toks[2:])
 
-    elif len(toks) >= 3 and toks[0].lower() == "unable":
-        dct_data["unable"] = toks[-1]
+#     elif len(toks) >= 3 and toks[0].lower() == "unable":
+#         dct_data["unable"] = toks[-1]
 
-    # handle progress (how many files are already done)
-    elif len(toks) > 1 and "=" in toks[-1]:
-        subtoks = toks[-1].split("=")
-        if len(subtoks) > 1:
-            try:
-                lhs, rhs = subtoks[-1][:-1].split("/")
-                ratio = (1 - (int(lhs) / int(rhs))) * 100
-                dct_data["progress"] = f"{ratio:.1f}"
-            except ValueError:
-                dct_data["progress"] = None
+#     # handle progress (how many files are already done)
+#     elif len(toks) > 1 and "=" in toks[-1]:
+#         subtoks = toks[-1].split("=")
+#         if len(subtoks) > 1:
+#             try:
+#                 lhs, rhs = subtoks[-1][:-1].split("/")
+#                 ratio = (1 - (int(lhs) / int(rhs))) * 100
+#                 dct_data["progress"] = f"{ratio:.1f}"
+#             except ValueError:
+#                 dct_data["progress"] = None
 
 
 def cleanup_certs():
@@ -171,14 +173,14 @@ def tail(filepath, num_lines=20):
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        #####################
-        ##################### @TODO
-        #####################
+        
         #if request.remote_addr != "127.0.0.1":
-        #    # abort(403)
-        #    return error("not allowed")
-        print(request.remote_addr)
-
+        
+        # translates to 172.18.238.0/24
+        if not request.remote_addr.startswith("172.18.238."):
+            # abort(403)
+            return error("not allowed")
+        
         return f(*args, **kwargs)
     return decorated
 

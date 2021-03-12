@@ -57,6 +57,7 @@ def register_proxy():
     nc = Nextcloud()
     nc.set_config("overwriteprotocol", "https")
     nc.set_config("overwritecondaddr", "^172\\.18\\.238\\.1$")
+    nc.set_config("trusted_proxies", ["172.18.238.1"])
 
     cfg["config"]["proxy_port"] = proxy_port
     cfg.save()

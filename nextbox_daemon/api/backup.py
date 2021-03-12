@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 
 from nextbox_daemon.command_runner import CommandRunner
-from nextbox_daemon.utils import requires_auth, success, error, check_for_backup_process, get_partitions
+from nextbox_daemon.utils import requires_auth, success, error, check_for_backup_process
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.consts import *
 

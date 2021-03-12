@@ -16,8 +16,8 @@ from queue import Queue
 from flask import Flask, render_template, request, flash, redirect, Response, \
     url_for, send_file, Blueprint, render_template, jsonify, make_response
 
-from nextbox_daemon.utils import get_partitions, error, success, \
-    tail, parse_backup_line, local_ip, cleanup_certs, requires_auth
+from nextbox_daemon.utils import error, success, \
+    tail, local_ip, cleanup_certs, requires_auth
 
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.consts import *

@@ -34,7 +34,7 @@ class CommandRunner:
             log.warning(f"trying to start already started: {self.cmd}")
             return False
 
-        cmd = self.cmd if not self.shell else shlex.join(self.cmd)
+        self.cmd = self.cmd if not self.shell else " ".join(self.cmd)
         self.proc = subprocess.Popen(self.cmd, shell=self.shell,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 

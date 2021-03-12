@@ -2,7 +2,7 @@ from flask import Blueprint
 from pathlib import Path
 import os
 
-from nextbox_daemon.utils import requires_auth, success, error, get_partitions
+from nextbox_daemon.utils import requires_auth, success, error
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.partitions import Partitions
 from nextbox_daemon.consts import *

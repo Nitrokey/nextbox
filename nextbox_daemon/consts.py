@@ -16,7 +16,8 @@ PROXY_PUBKEY_PATH = PROXY_KEY_PATH + ".pub"
 PROXY_KEYGEN_CMD = ["ssh-keygen", "-b", "4096", "-t", "rsa", "-f", PROXY_KEY_PATH, "-q", "-N", ""]
 
 CONFIG_PATH = "/srv/nextbox/nextbox.conf"
-LOG_FILENAME = "/srv/nextbox/nextbox.log"
+
+LOG_FILENAME = "/var/log/nextbox.log"
 
 DDCLIENT_CONFIG_PATH = "/etc/ddclient/ddclient.conf"
 DDCLIENT_BIN = "ddclient"

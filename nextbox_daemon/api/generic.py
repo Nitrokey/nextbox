@@ -1,6 +1,10 @@
+import os
+import shutil
 from pathlib import Path
+from zipfile import ZipFile
+from base64 import b64encode
 
-from flask import Blueprint, request
+from flask import Blueprint, request, send_file
 
 
 from nextbox_daemon.command_runner import CommandRunner
@@ -15,10 +19,7 @@ generic_api = Blueprint('generic', __name__)
 
 @generic_api.route("/overview")
 def show_overview():
-    return success(data={
-        "storage": get_partitions(),
-        "backup": check_for_backup_process()
-    })
+    pass
 
 
 @generic_api.route("/log")
@@ -59,6 +60,85 @@ def system_settings():
 #     return success()
 
 
+
+
+@generic_api.route("/logs")
+@requires_auth
+def get_logs():
+    
+    log_dir = Path("/srv/logdump")
+    
+    journal_logs = {
+        "nextbox-daemon": "journald.nextbox-daemon.log", 
+        "nextbox-compose": "journald.nextbox-compose.log"
+    }
+    cmd_dump_journalctl = "journalctl --no-pager -n 1000 -xeu {daemon} > {log_dir}/{filename}"
+    
+    var_logfiles = [
+        "/var/log/dpkg.log", 
+        "/var/log/unattended-upgrades/unattended-upgrades.log", 
+        "/var/log/unattended-upgrades/unattended-upgrades-dpkg.log", 
+        "/var/log/unattended-upgrades/unattended-upgrades-shutdown.log", 
+        "/var/log/kern.log",
+        LOG_FILENAME
+    ]
+    
+    logfiles = []
+
+    # cleanup logdump dir
+    shutil.rmtree(log_dir.as_posix())
+    os.makedirs(log_dir.as_posix())
+
+    for unit, fn in journal_logs.items():
+        cmd = cmd_dump_journalctl.format(daemon=unit, filename=fn, log_dir=log_dir)
+        CommandRunner(cmd, block=True, shell=True)
+        logfiles.append(log_dir / fn)
+        
+        #print("")
+    
+    for path in var_logfiles:
+        shutil.copy(path, log_dir.as_posix())
+        logfiles.append(log_dir / Path(path).name)
+    
+    hash_file = Path(log_dir) / "sha256.txt"
+    CommandRunner(f"sha256sum {log_dir.as_posix()}/* > {hash_file.as_posix()}", shell=True, block=True)
+    logfiles.append(hash_file)
+
+    print(logfiles)
+
+    zip_path = "/srv/nextbox-logs.zip"
+    with ZipFile(zip_path, "w") as fd:
+        for path in logfiles:
+            fd.write(path, path.name)
+    
+    with open(zip_path, "rb") as fd:
+        return success(data={"zip": b64encode(fd.read())})
+    #send_file(zip_path, mimetype="application/zip",  as_attachment=True, attachment_filename=zip_path)
+    
+
+@generic_api.route("/ssh", methods=["POST", "GET"])
+@requires_auth
+def ssh_set():
+    auth_p = Path("/home/nextuser/.ssh/authorized_keys")
+    
+    if request.method == "GET":
+        if not auth_p.exists():
+            return success(data={
+                "pubkey": "",
+            })
+        with auth_p.open() as fd:
+            return success(data={
+                "pubkey": fd.read()
+            })      
+
+    elif request.method == "POST":
+        pubkey = request.form.get("pubkey")
+        print("PUBKEY_POST:", pubkey)
+        with auth_p.open("w") as fd:
+            fd.write(pubkey.strip() + "\n")
+        
+        log.info(f"setting ssh pub key: {pubkey}")
+        return success()
 
 
 
