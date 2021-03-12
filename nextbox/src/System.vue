@@ -1,6 +1,41 @@
 <template>
 	<div class="system">
-		x
+		<div class="section">
+			<h2>SSH Access Control</h2>
+						
+			<div v-if="pubkey">
+				NextBox is configured to grant access using SSH. As login use:
+				"nextuser" and as default password: "raspberry_default_password".<br>
+				The user has full sudo access, change the default password for 
+				your own security. <br>Nitrokey cannot give you support for changes
+				done using the ssh access, use it at your own risk!
+			</div><div v-else>
+				To get access to your NextBox via SSH, please provide a public key.
+			</div>
+
+			<input v-model="update.pubkey" placeholder="Public Key - SSH Access Deactivated" type="text"><br>
+			
+			<button v-if="!pubkey" type="button" @click="toggle_ssh('on')">
+				<span class="icon icon-confirm" />
+				Activate SSH Access
+			</button>
+			<button v-else type="button" @click="toggle_ssh('off')">
+				<span class="icon icon-close" />
+				Deactivate SSH Access
+			</button>
+			
+			<br>
+				
+		</div>
+
+		<div class="section">
+			<h2>System Logs</h2>
+			Downloading the system logs will allow you an extensive view into the state of your system.<br>
+			<button type="button" @click="get_logs()">
+				<span class="icon icon-confirm" />
+				Download System Logs
+			</button>
+		</div>
 	</div>
 </template>
 
@@ -17,6 +52,8 @@ import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 
+const FileDownload = require('js-file-download')
+
 export default {
 	name: 'System',
 	components: {
@@ -26,7 +63,10 @@ export default {
 	data() {
 		return {
 			loading: true,
-			email: '',
+			update: {
+				pubkey: ''
+			},
+			pubkey: ''
 		}
 	},
 
@@ -38,23 +78,47 @@ export default {
 	methods: {
 		async refresh() {
 			try {
-				const res = await axios.get(generateUrl('/apps/nextbox/forward/config'))
-				this.email = res.data.data.email
+				const res = await axios.get(generateUrl('/apps/nextbox/forward/ssh'))
+				if (res.data.data.pubkey.trim()) {
+					this.update.pubkey = res.data.data.pubkey.trim()
+					this.pubkey = res.data.data.pubkey.trim()
+				}
 			} catch (e) {
 				console.error(e)
-				//showError(t('nextbox', 'Could not fetch logs'))
 			}
 		},
 
+		async get_logs() {
+			axios({
+				url: generateUrl('/apps/nextbox/forward/logs'),
+				//responseType: 'blob',
+			}).then((res) => {
+				const decodedData = atob(res.data.data.zip)
+				const uInt8Array = new Uint8Array(decodedData.length)
 
-		async update_config(what) {
-			const url = '/apps/nextbox/forward/config'
+				for (let i = 0; i < decodedData.length; ++i) {
+					uInt8Array[i] = decodedData.charCodeAt(i)
+				}
+
+				return FileDownload(new Blob([uInt8Array], { type: 'application/zip' }), 'nextbox-logs.zip')
+			})
+		},
+
+
+		async toggle_ssh(what) {
+			const url = '/apps/nextbox/forward/ssh'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
 			try {
-				const res = await axios.post(generateUrl(url), qs.stringify(what), options)
+				const data = qs.stringify((what === 'on') 
+					? { pubkey: this.update.pubkey }
+					: { pubkey: '' })
+
+				const res = await axios.post(generateUrl(url), data, options)
+				this.refresh()
 				return res.data.result === 'success'
+
 			} catch (e) {
 				showError('Connection failed')
 				console.error(e)

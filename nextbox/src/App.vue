@@ -11,7 +11,7 @@
 					:open="isRemoteOpen"
 					@click="set_page('remote')">
 					<template>
-						<AppNavigationItem :title="t('nextbox', 'Quickstart')" icon="icon-star" @click="set_page('remote_proxy')" />
+						<AppNavigationItem :title="t('nextbox', 'Backwards Proxy')" icon="icon-star" @click="set_page('remote_proxy')" />
 						<AppNavigationItem :title="t('nextbox', 'Guided Dynamic DNS')" icon="icon-comment" @click="set_page('remote_dyndns')" />
 						<AppNavigationItem :title="t('nextbox', 'Custom Dynamic DNS')" icon="icon-settings" @click="set_page('remote_custom_dns')" />
 						<AppNavigationItem :title="t('nextbox', 'Static Domain')" icon="icon-public" @click="set_page('remote_static_dns')" />
@@ -19,7 +19,7 @@
 				</AppNavigationItem>
 				<!-- AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" /-->
 				<AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" />
-				<AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" />
+				<!-- AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" /-->
 			</ul>
 		</AppNavigation>
 			

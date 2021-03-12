@@ -37,6 +37,7 @@ class PageController extends Controller {
 		return new JSONResponse(
 			json_decode(file_get_contents("http://" . $this->backendHost . "/" . $path))
 		);
+		
 	}
 
 
