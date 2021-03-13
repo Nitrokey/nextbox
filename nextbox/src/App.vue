@@ -12,8 +12,8 @@
 					@click="set_page('remote')">
 					<template>
 						<AppNavigationItem :title="t('nextbox', 'Backwards Proxy')" icon="icon-star" @click="set_page('remote_proxy')" />
-						<AppNavigationItem :title="t('nextbox', 'Guided Dynamic DNS')" icon="icon-comment" @click="set_page('remote_dyndns')" />
-						<AppNavigationItem :title="t('nextbox', 'Custom Dynamic DNS')" icon="icon-settings" @click="set_page('remote_custom_dns')" />
+						<!-- AppNavigationItem :title="t('nextbox', 'Guided Dynamic DNS')" icon="icon-comment" @click="set_page('remote_dyndns')" /-->
+						<!-- AppNavigationItem :title="t('nextbox', 'Custom Dynamic DNS')" icon="icon-settings" @click="set_page('remote_custom_dns')" /-->
 						<AppNavigationItem :title="t('nextbox', 'Static Domain')" icon="icon-public" @click="set_page('remote_static_dns')" />
 					</template>
 				</AppNavigationItem>
