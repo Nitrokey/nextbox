@@ -53,7 +53,8 @@ repos/daemon/.git/config: repos
 repos/app: repos/app/.git/config
 	cd repos/app && \
 		git pull && \
-		git checkout $(GIT_TAG)
+		git checkout $(GIT_TAG) 
+	rm -f repos/app/nextbox/js/nextbox-main.js
 
 repos/daemon: repos/daemon/.git/config
 	cd repos/daemon && \
@@ -74,7 +75,7 @@ repos/app/nextbox/package-lock.json:
 	cd repos/app/nextbox/ && \
 		npm install		
 
-repos/app/nextbox/js/nextbox-main.js: repos/app repos/app/nextbox/package-lock.json
+repos/app/nextbox/js/nextbox-main.js: repos/app repos/app/nextbox/package-lock.json repos/app/nextbox/src
 	make -C repos/app/nextbox build-js-production
 
 $(PKG)/nextbox-compose: repos/daemon

@@ -1,3 +1,16 @@
+%%PKG%% (0.2.1-1) groovy; urgency=low
+
+  * ssh proxy disabled
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sat, 13 Mar 2021 22:32:11 +0000
+
+%%PKG%% (0.2.0-1) groovy; urgency=low
+
+  * ssh access setting; download logs
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 12 Mar 2021 20:32:11 +0000
+
+
 %%PKG%% (0.1.4-1) groovy; urgency=low
 
   * docker image load one-shot on 1st boot
