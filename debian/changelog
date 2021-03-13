@@ -1,3 +1,10 @@
+%%PKG%% (0.2.1-2) groovy; urgency=low
+
+  * updated Makefile
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sat, 13 Mar 2021 23:32:11 +0000
+
+
 %%PKG%% (0.2.1-1) groovy; urgency=low
 
   * ssh proxy disabled

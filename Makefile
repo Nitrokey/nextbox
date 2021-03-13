@@ -13,12 +13,18 @@ DEB_PKG=$(PKG)_$(VERSION)_all.deb
 DEB_SRC=$(PKG)_$(VERSION)_source.changes
 
 unstable:
+	rm -rf nextbox-unstable
+	rm -f repos/app/nextbox/js/*
 	make PKG=nextbox-unstable GIT_TAG=main main-target
 
 testing:
+	rm -rf nextbox-testing
+	rm -f repos/app/nextbox/js/*
 	make PKG=nextbox-testing GIT_TAG=main main-target
 
 stable:
+	rm -rf nextbox
+	rm -f repos/app/nextbox/js/*
 	make PKG=nextbox GIT_TAG=main main-target
 
 
@@ -54,7 +60,6 @@ repos/app: repos/app/.git/config
 	cd repos/app && \
 		git pull && \
 		git checkout $(GIT_TAG) 
-	rm -f repos/app/nextbox/js/nextbox-main.js
 
 repos/daemon: repos/daemon/.git/config
 	cd repos/daemon && \
@@ -71,11 +76,11 @@ $(PKG)/app: repos/app repos/app/nextbox/js/nextbox-main.js
 	rsync -r repos/app/nextbox/templates $(PKG)/app/nextbox
 	rsync -r repos/app/nextbox/appinfo $(PKG)/app/nextbox
 
-repos/app/nextbox/package-lock.json: repos/app/nextbox/package.json
+repos/app/nextbox/package-lock.json:
 	cd repos/app/nextbox/ && \
 		npm install		
 
-repos/app/nextbox/js/nextbox-main.js: repos/app repos/app/nextbox/package-lock.json repos/app/nextbox/src
+repos/app/nextbox/js/nextbox-main.js: repos/app repos/app/nextbox/package-lock.json
 	make -C repos/app/nextbox build-js-production
 
 $(PKG)/nextbox-compose: repos/daemon
