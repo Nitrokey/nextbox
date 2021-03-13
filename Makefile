@@ -71,7 +71,7 @@ $(PKG)/app: repos/app repos/app/nextbox/js/nextbox-main.js
 	rsync -r repos/app/nextbox/templates $(PKG)/app/nextbox
 	rsync -r repos/app/nextbox/appinfo $(PKG)/app/nextbox
 
-repos/app/nextbox/package-lock.json:
+repos/app/nextbox/package-lock.json: repos/app/nextbox/package.json
 	cd repos/app/nextbox/ && \
 		npm install		
 
