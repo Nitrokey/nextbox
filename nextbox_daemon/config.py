@@ -37,6 +37,8 @@ class Config(dict):
                 "proxy_port":   None,
                 "dns_mode":     "off",
                 "expert_mode":  False,
+
+                "debian_package": "nextbox"
             }
         })
         self.load()

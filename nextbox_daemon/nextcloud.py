@@ -18,7 +18,7 @@ class Nextcloud:
 
     
     def run_cmd(self, *args):
-        log.debug(f"run (nextcloud): {self.occ_cmd + args}")
+        #log.debug(f"run (nextcloud): {self.occ_cmd + args}")
         return CommandRunner(self.occ_cmd + args, block=True).output[:-2]
 
     def get_config(self, key):

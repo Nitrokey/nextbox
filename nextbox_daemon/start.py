@@ -92,7 +92,7 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
 
     job_mgr.register_job(TrustedDomainsJob)
-    job_mgr.register_job(ProxySSHJob)
+    #job_mgr.register_job(ProxySSHJob)
 
     worker.start()
 
