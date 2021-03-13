@@ -119,7 +119,11 @@ def get_logs():
 @generic_api.route("/ssh", methods=["POST", "GET"])
 @requires_auth
 def ssh_set():
-    auth_p = Path("/home/nextuser/.ssh/authorized_keys")
+    auth_p_dir = Path("/home/nextuser/.ssh")
+    if not auth_p_dir.exists():
+        os.makedirs(auth_p_dir.as_posix())
+
+    auth_p = auth_p_dir / "authorized_keys"
     
     if request.method == "GET":
         if not auth_p.exists():
@@ -133,7 +137,7 @@ def ssh_set():
 
     elif request.method == "POST":
         pubkey = request.form.get("pubkey")
-        print("PUBKEY_POST:", pubkey)
+        
         with auth_p.open("w") as fd:
             fd.write(pubkey.strip() + "\n")
         
