@@ -36,7 +36,7 @@ clean:
 	make PKG=nextbox GIT_TAG=main deb-clean
 
 
-main-target: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian deb-src
+main-target: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian $(PKG)/rtun-linux-arm64 deb-src
 
 
 $(PKG)/debian: debian
@@ -94,6 +94,9 @@ $(PKG)/nextbox_daemon: repos/daemon $(PKG)/debian
 	rsync -r repos/daemon/nextbox_daemon $(PKG)
 	cp repos/daemon/setup.py $(PKG)/
 
+$(PKG)/rtun-linux-arm64: $(PKG)/debian
+	cd $(PKG) && \
+		wget https://github.com/snsinfu/reverse-tunnel/releases/download/v1.3.0/rtun-linux-arm64
 
 
 ###

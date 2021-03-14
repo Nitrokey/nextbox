@@ -7,9 +7,9 @@ export PYBUILD_NAME=nextbox-daemon
 
 binary:
 	dh binary --with python3 --buildsystem=pybuild
-	#make
 
 override_dh_installsystemd:
 	dh_installsystemd --name=nextbox-daemon
 	dh_installsystemd --name=nextbox-compose
 	dh_installsystemd --name=nextbox-image-load
+	dh_installsystemd --name=reverse-tunnel --no-start --no-enable

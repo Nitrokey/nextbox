@@ -17,7 +17,9 @@ update-app: app/nextbox/src/
 		$(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-app/
 	rsync -r --info=progress --exclude='node_modules/*' --exclude='vendor/*' app/nextbox/templates \
 		$(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-app/
-	rsync -r --info=progress --exclude='node_modules/*' --exclude='vendor/*' app/nextbox/lib/Controller \
+	rsync -r --info=progress --exclude='node_modules/*' --exclude='vendor/*' app/nextbox/lib \
+		$(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-app/
+	rsync -r --info=progress --exclude='node_modules/*' --exclude='vendor/*' app/nextbox/appinfo \
 		$(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-app/
 	#ssh root@192.168.10.50 -- chown root.root -R /srv/nextcloud/custom_apps/nextbox
 

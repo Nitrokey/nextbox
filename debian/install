@@ -5,3 +5,4 @@ app/nextbox/img /usr/lib/nextbox-app
 app/nextbox/css /usr/lib/nextbox-app
 app/nextbox/templates /usr/lib/nextbox-app
 app/nextbox/appinfo /usr/lib/nextbox-app
+rtun-linux-arm64 /usr/bin/

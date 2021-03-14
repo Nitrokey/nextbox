@@ -1,3 +1,15 @@
+%%PKG%% (0.2.2-2) groovy; urgency=low
+
+  * bump app version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 15:22:11 +0000
+
+%%PKG%% (0.2.2-1) groovy; urgency=low
+
+  * replace ssh with reverse-tunnel
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 15:22:11 +0000
+
 %%PKG%% (0.2.1-2) groovy; urgency=low
 
   * updated Makefile
