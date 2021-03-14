@@ -1,3 +1,9 @@
+%%PKG%% (0.2.4-1) groovy; urgency=low
+
+  * status board added for thread comms
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 22:22:11 +0000
+
 %%PKG%% (0.2.3-1) groovy; urgency=low
 
   * locking fix for proxy
