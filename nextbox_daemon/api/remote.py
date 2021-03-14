@@ -1,6 +1,7 @@
 
 import urllib.request, urllib.error
 import json
+import yaml
 from pathlib import Path
 from flask import Blueprint, request
 
@@ -9,7 +10,11 @@ from nextbox_daemon.utils import requires_auth, success, error
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
 from nextbox_daemon.nextcloud import Nextcloud
+from nextbox_daemon.services import Services
 from nextbox_daemon.consts import *
+
+
+from filelock import FileLock
 
 remote_api = Blueprint('remote', __name__)
 
@@ -18,20 +23,8 @@ remote_api = Blueprint('remote', __name__)
 @requires_auth
 def register_proxy():
 
-    # check/create key
-    kpath = Path(PROXY_PUBKEY_PATH)
-    if not kpath.exists():
-        cr = CommandRunner(PROXY_KEYGEN_CMD, block=True)
-        if cr.returncode != 0:
-            msg = f"cannot generate key-pair at: '{PROXY_KEY_PATH}'"
-            log.error(msg)
-            return error(msg=msg)
-
-    # get public key string
-    pub_key = kpath.open().read().split(" ")[1]
-
     # assemble data
-    data = {"public_key": pub_key}
+    data = {}
     for key in request.form:
         if key == "nk_token":
             data["token"] = request.form.get(key)
@@ -62,7 +55,26 @@ def register_proxy():
     cfg["config"]["proxy_port"] = proxy_port
     cfg.save()
     
-    job_queue.put("ProxySSH")
+    # configure reverse-tunnel
+    rtun_conf = {
+        "gateway_url": "wss://nextbox.link", 
+        "auth_key": data["token"], 
+        "forwards": [{
+            "port": f"{proxy_port}/tcp", 
+            "destination": "127.0.0.1:80"
+        }]
+    }
+    with FileLock(RTUN_CONFIG_PATH, timeout=10):
+        with open(RTUN_CONFIG_PATH, "w") as fd:
+            yaml.dump(rtun_conf, fd)
+    
+    # enable and restart tunnel
+    ctrl = Services()
+    ctrl.exec("reverse-tunnel", "enable")
+    ctrl.exec("reverse-tunnel", "restart")
+
+    # ensure trusted domains are set
+    job_queue.put("TrustedDomains")
 
     return success("Proxy successfully registered")
 

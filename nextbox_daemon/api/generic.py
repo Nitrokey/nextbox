@@ -11,6 +11,7 @@ from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.utils import requires_auth, success, error, tail
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
+from nextbox_daemon.services import Services
 from nextbox_daemon.consts import *
 
 generic_api = Blueprint('generic', __name__)
@@ -149,24 +150,13 @@ def ssh_set():
 @generic_api.route("/service/<name>/<operation>")
 @requires_auth
 def service_operation(name, operation):
-    if name not in SERVICES_CTRL:
+    ctrl = Services()
+    if not ctrl.check(name, operation):
         return error("not allowed")
-
-    service, operations = SERVICES_CTRL[name]
-
-    if operation not in operations:
-        return error("not allowed")
-
-    cr = CommandRunner([SYSTEMCTL_BIN, operation, service], block=True)
-    output = [x for x in cr.output if x]
+        
+    dct = ctrl.exec(name, operation)
+    return success(data=dct)
     
-    return success(data={
-        "service":     name,
-        "operation":   operation,
-        "return-code": cr.returncode,
-        "output":      output
-    })
-
 
 @generic_api.route("/config", methods=["POST", "GET"])
 @requires_auth

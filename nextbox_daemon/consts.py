@@ -16,10 +16,12 @@ PROXY_PUBKEY_PATH = PROXY_KEY_PATH + ".pub"
 PROXY_KEYGEN_CMD = ["ssh-keygen", "-b", "4096", "-t", "rsa", "-f", PROXY_KEY_PATH, "-q", "-N", ""]
 
 CONFIG_PATH = "/srv/nextbox/nextbox.conf"
+RTUN_CONFIG_PATH = "/srv/nextbox/rtun.yaml"
+DDCLIENT_CONFIG_PATH = "/etc/ddclient/ddclient.conf"
+
 
 LOG_FILENAME = "/var/log/nextbox.log"
 
-DDCLIENT_CONFIG_PATH = "/etc/ddclient/ddclient.conf"
 DDCLIENT_BIN = "ddclient"
 
 
@@ -32,16 +34,6 @@ AVAIL_CONFIGS = ["dns_mode", "desec_token", "email", "domain", "nk_token",
 
 MOUNT_BIN = "/bin/mount"
 UMOUNT_BIN = "/bin/umount"
-
-### services
-SAFE_SERVICE_CTRL = ["start", "restart", "status", "is-active"]
-FULL_SERVICE_CTRL = SAFE_SERVICE_CTRL + ["stop", "disable"]
-SERVICES_CTRL = {
-    "ddclient": ("ddclient.service", FULL_SERVICE_CTRL),
-    "nextbox-daemon": ("nextbox-daemon.service", SAFE_SERVICE_CTRL),
-    "nextbox-compse": ("nextbox-compose.service", SAFE_SERVICE_CTRL),
-    "reverse-tunnel": ("reverse-tunnel.service", FULL_SERVICE_CTRL)
-}
 
 
 

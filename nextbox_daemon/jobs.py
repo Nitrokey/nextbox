@@ -117,7 +117,7 @@ class BaseJob:
 
 class TrustedDomainsJob(BaseJob):
     name = "TrustedDomains"
-    interval = 471
+    interval = 90
 
     static_entries = ["192.168.*.*", "10.*.*.*", "172.16.*.*", "172.18.*.*", "nextbox.local"]
 
