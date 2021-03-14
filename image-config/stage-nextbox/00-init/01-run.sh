@@ -24,6 +24,9 @@ install -m 644 ../files/nextcloud.service "${ROOTFS_DIR}/etc/avahi/services/"
 # journald-config to keep size limited
 install -m 644 ../files/journald.conf "${ROOTFS_DIR}/etc/systemd/"
 
+# sudo -> nextuser can sudo without a password
+install -m 440 ../files/01_nextuser-nopasswd "${ROOTFS_DIR}/etc/sudoers.d/"
+
 # docker images for 1st boot
 mkdir -p "${ROOTFS_DIR}/usr/lib/nextbox-compose/"
 install -m 644 ../files/docker-images.tar "${ROOTFS_DIR}/usr/lib/nextbox-compose/"
