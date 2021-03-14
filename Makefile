@@ -46,6 +46,7 @@ $(PKG)/debian: debian
 	cp repos/daemon/services/nextbox.nextbox-daemon.service $(PKG)/debian/$(PKG).nextbox-daemon.service
 	cp repos/daemon/services/nextbox.nextbox-compose.service $(PKG)/debian/$(PKG).nextbox-compose.service
 	cp repos/daemon/services/nextbox.nextbox-image-load.service $(PKG)/debian/$(PKG).nextbox-image-load.service
+	cp repos/daemon/services/nextbox.reverse-tunnel.service $(PKG)/debian/$(PKG).reverse-tunnel.service
 
 repos:
 	mkdir -p repos
