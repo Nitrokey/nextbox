@@ -24,6 +24,7 @@ from nextbox_daemon.consts import *
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_mgr, job_queue, worker
 from nextbox_daemon.jobs import TrustedDomainsJob #, ProxySSHJob
+from nextbox_daemon.status_board import board
 
 from nextbox_daemon.api.storage import storage_api
 from nextbox_daemon.api.backup import backup_api

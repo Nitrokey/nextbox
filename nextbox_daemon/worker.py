@@ -7,6 +7,7 @@ from queue import Queue
 
 from nextbox_daemon.config import log, cfg
 from nextbox_daemon.jobs import JobManager
+from nextbox_daemon.status_board import board
 
 class Worker(Thread):
     def __init__(self, job_queue, job_mgr, *v, **kw):
@@ -35,7 +36,7 @@ class Worker(Thread):
             self.job_mgr.handle_job(job_name)
 
 
-job_mgr = JobManager(cfg)
+job_mgr = JobManager(cfg, board)
 job_queue = Queue()
 worker = Worker(job_queue, job_mgr)
 

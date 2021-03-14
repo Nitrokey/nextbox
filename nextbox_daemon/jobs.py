@@ -21,13 +21,13 @@ class BaseJob:
             return False
         return (dt.now() - self.last_run).seconds > self.interval
 
-    def run(self, cfg):
+    def run(self, cfg, board):
         log.debug(f"starting worker job: {self.name}")
         self.last_run = dt.now()
-        self._run(cfg)
+        self._run(cfg, board)
         log.debug(f"finished worker job: {self.name}")
 
-    def _run(self, cfg):
+    def _run(self, cfg, board):
         raise NotImplementedError()
 
 
@@ -125,7 +125,7 @@ class TrustedDomainsJob(BaseJob):
         self.nc = Nextcloud()
         super().__init__()
 
-    def _run(self, cfg):
+    def _run(self, cfg, board):
         trusted_domains = self.nc.get_config("trusted_domains")
 
         default_entry = trusted_domains[0]
@@ -185,9 +185,10 @@ class TrustedDomainsJob(BaseJob):
 
 
 class JobManager:
-    def __init__(self, config):
+    def __init__(self, config, board):
         self.cfg = config
         self.jobs = { }
+        self.board = board
 
     def register_job(self, job):
         log.info(f"registering job {job.name}")
@@ -203,7 +204,7 @@ class JobManager:
 
         # run actual job
         try:
-            self.jobs[job_name].run(self.cfg)
+            self.jobs[job_name].run(self.cfg, self.board)
         except Exception as e:
             log.error(f"failed running job: {job_name}")
             log.error(msg="EXC", exc_info=e)
