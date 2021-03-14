@@ -64,7 +64,7 @@ def register_proxy():
             "destination": "127.0.0.1:80"
         }]
     }
-    with FileLock(RTUN_CONFIG_PATH, timeout=10):
+    with FileLock(RTUN_CONFIG_PATH + ".lock", timeout=10):
         with open(RTUN_CONFIG_PATH, "w") as fd:
             yaml.dump(rtun_conf, fd)
     
