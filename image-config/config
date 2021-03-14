@@ -6,8 +6,8 @@ TARGET_HOSTNAME=nextbox
 
 
 ### disable for release
-ENABLE_SSH=1
+ENABLE_SSH=0
 
 ### enable for release
-PUBKEY_ONLY_SSH=0
+PUBKEY_ONLY_SSH=1
 
