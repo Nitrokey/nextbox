@@ -21,16 +21,29 @@ LOG_FILENAME = "/var/log/nextbox.log"
 
 DDCLIENT_CONFIG_PATH = "/etc/ddclient/ddclient.conf"
 DDCLIENT_BIN = "ddclient"
-DDCLIENT_SERVICE = "ddclient.service"
 
-NEXTBOX_SERVICE = "nextbox-daemon.service"
-COMPOSE_SERVICE = "nextbox-compose.service"
 
 DYNDNS_MODES = ["desec", "desec_2", "static", "config", "off",
                 "desec_done", "config_done", "static_done"]
 
 AVAIL_CONFIGS = ["dns_mode", "desec_token", "email", "domain", "nk_token",
                  "proxy_active", "proxy_domain"]
+
+
+MOUNT_BIN = "/bin/mount"
+UMOUNT_BIN = "/bin/umount"
+
+### services
+SAFE_SERVICE_CTRL = ["start", "restart", "status", "is-active"]
+FULL_SERVICE_CTRL = SAFE_SERVICE_CTRL + ["stop", "disable"]
+SERVICES_CTRL = {
+    "ddclient": ("ddclient.service", FULL_SERVICE_CTRL),
+    "nextbox-daemon": ("nextbox-daemon.service", SAFE_SERVICE_CTRL),
+    "nextbox-compse": ("nextbox-compose.service", SAFE_SERVICE_CTRL),
+    "reverse-tunnel": ("reverse-tunnel.service", FULL_SERVICE_CTRL)
+}
+
+
 
 DYNDNS_DESEC_CAPTCHA = "https://desec.io/api/v1/captcha/"
 DYNDNS_DESEC_REGISTER = "https://desec.io/api/v1/auth/"
@@ -56,9 +69,6 @@ CERTBOT_CERTS_PATH = "/var/snap/nextcloud-nextbox/current/certs/certbot/config/l
 CERTBOT_BACKUP_PATH = "/var/snap/nextcloud-nextbox/current/certs/certbot/config/live.bak"
 
 OCC_BIN = "/snap/bin/nextcloud-nextbox.occ"
-MOUNT_BIN = "/bin/mount"
-UMOUNT_BIN = "/bin/umount"
-
 
 
 ###

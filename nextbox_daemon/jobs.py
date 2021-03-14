@@ -62,58 +62,58 @@ class BaseJob:
 #             log.info("installed nextbox nextcloud app - wasn't found for update")
 
 
-class ProxySSHJob(BaseJob):
-    name = "ProxySSH"
-    interval = 291
+# class ProxySSHJob(BaseJob):
+#     name = "ProxySSH"
+#     interval = 291
 
-    ssh_cmd = "ssh -o StrictHostKeyChecking=accept-new -p {ssh_port} -f -N -i {key_path} -R localhost:{remote_port}:localhost:{local_port} {user}@{host}"
+#     ssh_cmd = "ssh -o StrictHostKeyChecking=accept-new -p {ssh_port} -f -N -i {key_path} -R localhost:{remote_port}:localhost:{local_port} {user}@{host}"
 
-    def __init__(self):
-        self.pid = None
-        self.nc = Nextcloud()
-        super().__init__()
+#     def __init__(self):
+#         self.pid = None
+#         self.nc = Nextcloud()
+#         super().__init__()
 
-    def _run(self, cfg):
-        data = {
-            "ssh_port": 2215,
-            "key_path": PROXY_KEY_PATH,
-            "remote_port": cfg["config"]["proxy_port"],
-            "local_port": 80,
-            "host": "nextbox.link",
-            "user": "proxyuser"
-        }
+#     def _run(self, cfg):
+#         data = {
+#             "ssh_port": 2215,
+#             "key_path": PROXY_KEY_PATH,
+#             "remote_port": cfg["config"]["proxy_port"],
+#             "local_port": 80,
+#             "host": "nextbox.link",
+#             "user": "proxyuser"
+#         }
 
-        # do nothing except killing process, if proxy_active == False
-        if not cfg["config"]["proxy_active"]:
-            if self.pid and psutil.pid_exists(self.pid):
-                psutil.Process(self.pid).kill()
-            self.pid = None
-            return
+#         # do nothing except killing process, if proxy_active == False
+#         if not cfg["config"]["proxy_active"]:
+#             if self.pid and psutil.pid_exists(self.pid):
+#                 psutil.Process(self.pid).kill()
+#             self.pid = None
+#             return
 
-        if not cfg["config"]["nk_token"]:
-            log.error("cannot establish reverse proxy - no token")
-            return
+#         if not cfg["config"]["nk_token"]:
+#             log.error("cannot establish reverse proxy - no token")
+#             return
 
-        if self.pid is not None:
-            if not psutil.pid_exists(self.pid):
-                self.pid = None
-                log.warning("missing reverse proxy process, restarting")
+#         if self.pid is not None:
+#             if not psutil.pid_exists(self.pid):
+#                 self.pid = None
+#                 log.warning("missing reverse proxy process, restarting")
 
-        # no running reverse proxy connection, establish!
-        if self.pid is None:
-            log.info("Starting reverse proxy connection")
-            cmd = self.ssh_cmd.format(**data).split(" ")
-            cr = CommandRunner(cmd, block=True)
-            if cr.returncode == 0:
-                # searching for process, as daemonizing leads to new pid
-                for proc in psutil.process_iter():
-                    if proc.name() == "ssh":
-                        self.pid = proc.pid
-                        break
-                log.info(f"Success starting reverse proxy (pid: {self.pid})")
-            else:
-                cr.log_output()
-                log.error("Failed starting reverse proxy, check configuration")
+#         # no running reverse proxy connection, establish!
+#         if self.pid is None:
+#             log.info("Starting reverse proxy connection")
+#             cmd = self.ssh_cmd.format(**data).split(" ")
+#             cr = CommandRunner(cmd, block=True)
+#             if cr.returncode == 0:
+#                 # searching for process, as daemonizing leads to new pid
+#                 for proc in psutil.process_iter():
+#                     if proc.name() == "ssh":
+#                         self.pid = proc.pid
+#                         break
+#                 log.info(f"Success starting reverse proxy (pid: {self.pid})")
+#             else:
+#                 cr.log_output()
+#                 log.error("Failed starting reverse proxy, check configuration")
 
 class TrustedDomainsJob(BaseJob):
     name = "TrustedDomains"

@@ -149,21 +149,17 @@ def ssh_set():
 @generic_api.route("/service/<name>/<operation>")
 @requires_auth
 def service_operation(name, operation):
-    if name not in ["ddclient", "nextbox-daemon", "nextbox-compose"]:
-        return error("not allowed")
-    if operation not in ["start", "restart", "status", "is-active"]:
+    if name not in SERVICES_CTRL:
         return error("not allowed")
 
-    if name == "ddclient":
-        cr = CommandRunner([SYSTEMCTL_BIN, operation, DDCLIENT_SERVICE], block=True)
-    elif name == "nextbox-daemon":
-        cr = CommandRunner([SYSTEMCTL_BIN, operation, NEXTBOX_SERVICE], block=True)
-    elif name == "nextbox-compose":
-        cr = CommandRunner([SYSTEMCTL_BIN, operation, COMPOSE_SERVICE], block=True)
-    else:
+    service, operations = SERVICES_CTRL[name]
+
+    if operation not in operations:
         return error("not allowed")
 
+    cr = CommandRunner([SYSTEMCTL_BIN, operation, service], block=True)
     output = [x for x in cr.output if x]
+    
     return success(data={
         "service":     name,
         "operation":   operation,
