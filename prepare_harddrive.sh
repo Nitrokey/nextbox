@@ -19,6 +19,11 @@ if [[ ! -a "$dev" ]]; then
 	exit 1
 fi
 
+if [[ "$dev" = "/dev/sda" ]]; then 
+	echo "will not write to /dev/sda, too risky..."
+	exit 1	
+fi 
+
 
 # create harddisk partition
 parted -ms ${dev} mktable gpt mkpart "NextBoxHardDisk" 1MiB 100%
@@ -56,11 +61,7 @@ chmod 775 tmp
 
 sleep 5
 
-
 umount tmp
-
-echo "if umount fails, please try by hand using: `sudo umount tmp`"
-
 
 
 
