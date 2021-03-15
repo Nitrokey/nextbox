@@ -22,6 +22,9 @@ class StatusBoard:
     
 
 
+
+board = StatusBoard()
+
     
 
 

@@ -190,7 +190,10 @@ def handle_config():
                     run_jobs.append("TrustedDomains")
 
                 elif key == "proxy_active" and val.lower() == "false":
-                    run_jobs.append("ProxySSH")
+                    #run_jobs.append("ProxySSH")
+                    service_operation("reverse-tunnel", "stop")
+                    service_operation("reverse-tunnel", "disable")
+
 
                 elif val is None:
                     log.debug(f"skipping key: '{key}' -> no value provided")
