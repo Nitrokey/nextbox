@@ -21,9 +21,10 @@ fi
 
 
 # create harddisk partition
-sfdisk ${dev} --delete
-echo 'label: gpt' | sfdisk ${dev}
-echo '-;-;linux' | sfdisk ${dev}
+parted -ms ${dev} mktable gpt mkpart "NextBoxHardDisk" 1MiB 100%
+#sfdisk ${dev} --delete
+#echo 'label: gpt' | sfdisk ${dev}
+#echo '-;-;linux' | sfdisk ${dev}
 
 # create ext4 filesystem with label
 mkfs.ext4 -L NextBoxHardDisk ${dev}1
