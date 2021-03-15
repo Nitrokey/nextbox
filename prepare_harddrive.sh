@@ -26,6 +26,9 @@ parted -ms ${dev} mktable gpt mkpart "NextBoxHardDisk" 1MiB 100%
 #echo 'label: gpt' | sfdisk ${dev}
 #echo '-;-;linux' | sfdisk ${dev}
 
+echo "waiting 5 secs"
+sleep 5
+
 # create ext4 filesystem with label
 mkfs.ext4 -L NextBoxHardDisk ${dev}1
 
