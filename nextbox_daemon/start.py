@@ -23,7 +23,7 @@ from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.consts import *
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_mgr, job_queue, worker
-from nextbox_daemon.jobs import TrustedDomainsJob #, ProxySSHJob
+from nextbox_daemon.jobs import TrustedDomainsJob, EnableNextBoxAppJob #, ProxySSHJob
 from nextbox_daemon.status_board import board
 
 from nextbox_daemon.api.storage import storage_api
@@ -93,7 +93,7 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
 
     job_mgr.register_job(TrustedDomainsJob)
-    #job_mgr.register_job(ProxySSHJob)
+    job_mgr.register_job(EnableNextBoxAppJob)
 
     worker.start()
 

@@ -48,6 +48,11 @@ class Nextcloud:
     def set_maintenance_off(self):
         return self.run_cmd("maintenance:mode", "--off")
     
+    def enable_nextbox_app(self):
+        out = self.run_cmd("app:enable", "nextbox")
+        out = " ".join(out)
+        return "already" in out
+
 
 if __name__ == "__main__":
     nc = Nextcloud()

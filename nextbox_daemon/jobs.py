@@ -11,9 +11,9 @@ from nextbox_daemon.nextcloud import Nextcloud
 
 class BaseJob:
     name = None
-    interval = None
 
-    def __init__(self):
+    def __init__(self, initial_interval):
+        self.interval = initial_interval
         self.last_run = dt.now()
 
     def is_due(self):
@@ -30,6 +30,19 @@ class BaseJob:
     def _run(self, cfg, board):
         raise NotImplementedError()
 
+
+class EnableNextBoxAppJob(BaseJob):
+    name = "EnableNextBoxApp"
+    
+    def __init__(self):
+        self.nc = Nextcloud()
+        super().__init__(initial_interval=5)
+
+    def _run(self, cfg, board):
+        # just keep on trying to activate until it worked
+        if self.nc.enable_nextbox_app():
+            self.interval = 3600
+        
 
 # class UpdateJob(BaseJob):
 #     name = "UpdateJob"
@@ -117,13 +130,12 @@ class BaseJob:
 
 class TrustedDomainsJob(BaseJob):
     name = "TrustedDomains"
-    interval = 90
-
+    
     static_entries = ["192.168.*.*", "10.*.*.*", "172.16.*.*", "172.18.*.*", "nextbox.local"]
 
     def __init__(self):
         self.nc = Nextcloud()
-        super().__init__()
+        super().__init__(initial_interval=90)
 
     def _run(self, cfg, board):
         trusted_domains = self.nc.get_config("trusted_domains")
