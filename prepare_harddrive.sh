@@ -35,7 +35,7 @@ echo "waiting 5 secs"
 sleep 5
 
 # create ext4 filesystem with label
-mkfs.ext4 -L NextBoxHardDisk ${dev}1
+mkfs.ext4 -F -L NextBoxHardDisk ${dev}1
 
 # mount & chmod 775
 mkdir -p tmp
