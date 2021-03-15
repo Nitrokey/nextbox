@@ -54,7 +54,13 @@ mkdir -p tmp/varcache
 
 chmod 775 tmp
 
+sleep 5
+
+
 umount tmp
+
+echo "if umount fails, please try by hand using: `sudo umount tmp`"
+
 
 
 
