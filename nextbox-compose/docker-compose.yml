@@ -25,6 +25,7 @@ services:
       - nextcloud:/var/www/html
       - nextbox-app:/var/www/html/custom_apps/nextbox
       - apache-conf:/etc/apache2
+      - letsencrypt:/etc/letsencrypt
     environment:
       - MYSQL_HOST=db
       - REDIS_HOST=redis
@@ -79,5 +80,13 @@ volumes:
       type: none
       o: bind
       device: /srv/apache2
+  
+  letsencrypt:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /etc/letsencrypt
+
 
 

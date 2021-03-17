@@ -12,10 +12,11 @@ from nextbox_daemon.config import log
 
 class RawBackupRestore:
     dirs = {
-        "data":     "/srv/nextcloud/data",
-        "apps":     "/srv/nextcloud/custom_apps",
-        "nextbox":  "/srv/nextbox",
-        "config":   "/srv/nextcloud/config",
+        "data":         "/srv/nextcloud/data",
+        "apps":         "/srv/nextcloud/custom_apps",
+        "nextbox":      "/srv/nextbox",
+        "config":       "/srv/nextcloud/config",
+        "letsencrypt":  "/etc/letsencrypt",
     }
     db_env = "/srv/nextbox/docker.env"
     sql_dump_fn = "dump.sql"
@@ -303,11 +304,12 @@ class RawBackupRestore:
     ###
     def full_export(self, tar_path):
         steps = [
-            ("sql",     lambda: self.export_sql(tar_path)),
-            ("data",    lambda: self.export_dir("data", tar_path)), 
-            ("apps",    lambda: self.export_dir("apps", tar_path)), 
-            ("nextbox", lambda: self.export_dir("nextbox", tar_path)),
-            ("config", lambda: self.export_dir("config", tar_path)),
+            ("sql",         lambda: self.export_sql(tar_path)),
+            ("data",        lambda: self.export_dir("data", tar_path)), 
+            ("apps",        lambda: self.export_dir("apps", tar_path)), 
+            ("nextbox",     lambda: self.export_dir("nextbox", tar_path)),
+            ("config",      lambda: self.export_dir("config", tar_path)),
+            ("letsencrypt", lambda: self.export_dir("letsencrypt", tar_path)),
         ]
 
         if not tar_path.exists():
@@ -352,11 +354,12 @@ class RawBackupRestore:
     ###
     def full_import(self, src_path):
         steps = [
-            ("sql",     lambda: self.import_sql(src_path)),
-            ("data",    lambda: self.import_dir("data", src_path)), 
-            ("apps",    lambda: self.import_dir("apps", src_path)), 
-            ("nextbox", lambda: self.import_dir("nextbox", src_path)),
-            ("config",  lambda: self.import_dir("config", src_path)),
+            ("sql",         lambda: self.import_sql(src_path)),
+            ("data",        lambda: self.import_dir("data", src_path)), 
+            ("apps",        lambda: self.import_dir("apps", src_path)), 
+            ("nextbox",     lambda: self.import_dir("nextbox", src_path)),
+            ("config",      lambda: self.import_dir("config", src_path)),
+            ("letsencrypt", lambda: self.import_dir("letsencrypt", src_path)),
         ]
 
         if not src_path.exists():
