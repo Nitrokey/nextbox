@@ -175,11 +175,13 @@ class Certificates:
 if __name__ == "__main__":
     c = Certificates()
 
-    print(c.get_local_certs())
+    c.set_apache_config(ssl=False)
 
-    cert = c.get_cert("staticnextbox.dedyn.io")
+    # print(c.get_local_certs())
 
-    c.write_apache_ssl_conf(cert["domains"][0], cert["fullchain_path"], cert["privkey_path"])
+    # cert = c.get_cert("staticnextbox.dedyn.io")
 
-    print(c.set_apache_config(ssl=True))
+    # c.write_apache_ssl_conf(cert["domains"][0], cert["fullchain_path"], cert["privkey_path"])
+
+    # print(c.set_apache_config(ssl=True))
 
