@@ -1,3 +1,15 @@
+%%PKG%% (0.2.7-1) groovy; urgency=low
+
+  * certificate/apache backend manager added
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 22:22:11 +0000
+
+%%PKG%% (0.2.6-1) groovy; urgency=low
+
+  * backend backup/restore class added
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 22:22:11 +0000
+
 %%PKG%% (0.2.5-1) groovy; urgency=low
 
   * disabling proxy actually disables/stops reverse-tunnel
