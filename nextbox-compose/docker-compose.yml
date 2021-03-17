@@ -21,6 +21,7 @@ services:
       - dockerhost:172.18.238.1
     ports:
       - 80:80
+      - 443:443
     volumes:
       - nextcloud:/var/www/html
       - nextbox-app:/var/www/html/custom_apps/nextbox

@@ -81,6 +81,7 @@ def get_logs():
         "/var/log/unattended-upgrades/unattended-upgrades-dpkg.log", 
         "/var/log/unattended-upgrades/unattended-upgrades-shutdown.log", 
         "/var/log/kern.log",
+        "/var/log/letsencrypt/letsencrypt.log",
         LOG_FILENAME
     ]
     
