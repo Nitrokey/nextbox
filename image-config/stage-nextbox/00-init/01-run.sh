@@ -11,9 +11,17 @@ sed -i -e 's/rootwait quiet/usb-storage.quirks=0x152d:0x1561:u rootwait quiet/g'
 # [ ] 174c:55aa => 'SKL' & 'Inateck' adapters using 'ASMedia Chipset'
 
 
-# unattended upgrades configuration
+# unattended upgrades configuration (1st apt.conf 'always' allow run, based on systemd-timers)
 install -m 644 ../files/50unattended-upgrades "${ROOTFS_DIR}/etc/apt/apt.conf.d/"
 install -m 644 ../files/20auto-upgrades "${ROOTFS_DIR}/etc/apt/apt.conf.d/"
+
+mkdir -p /etc/systemd/system/apt-daily.timer.d
+install -m 644 ../files/override.apt-daily.timer.conf \
+	"${ROOTFS_DIR}/etc/systemd/system/apt-daily.timer.d/override.conf"
+
+mkdir -p /etc/systemd/system/apt-daily-upgrade.timer.d
+install -m 644 ../files/override.apt-daily-upgrade.timer.conf \
+	"${ROOTFS_DIR}/etc/systemd/system/apt-daily-upgrade.timer.d/override.conf"
 
 # docker default configuration, change docker lib-dir to /srv/docker
 install -m 644 ../files/docker-default "${ROOTFS_DIR}/etc/default/docker"
