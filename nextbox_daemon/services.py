@@ -4,7 +4,7 @@ from nextbox_daemon.command_runner import CommandRunner
 class Services:
 
     SAFE_SERVICE_CTRL = ["start", "restart", "status", "is-active"]
-    FULL_SERVICE_CTRL = SAFE_SERVICE_CTRL + ["stop", "disable"]
+    FULL_SERVICE_CTRL = SAFE_SERVICE_CTRL + ["stop", "disable", "enable"]
     
     SERVICES_CTRL = {
         "ddclient": ("ddclient.service", FULL_SERVICE_CTRL),

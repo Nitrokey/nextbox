@@ -186,45 +186,45 @@ def requires_auth(f):
 
 
 
-def check_for_backup_process():
-    global backup_proc
+# def check_for_backup_process():
+#     global backup_proc
 
-    out = dict(cfg["config"])
-    if backup_proc is None:
-        out["running"] = False
-        return out
+#     out = dict(cfg["config"])
+#     if backup_proc is None:
+#         out["running"] = False
+#         return out
 
-    assert isinstance(backup_proc, CommandRunner)
+#     assert isinstance(backup_proc, CommandRunner)
 
-    backup_proc.get_new_output()
+#     backup_proc.get_new_output()
 
-    if backup_proc.finished:
-        if backup_proc.returncode == 0:
-            backup_proc.parsed["state"] = "finished"
+#     if backup_proc.finished:
+#         if backup_proc.returncode == 0:
+#             backup_proc.parsed["state"] = "finished"
 
-            cfg["config"]["last_" + backup_proc.user_info] = backup_proc.started
-            cfg.save()
-
-
-            out["last_" + backup_proc.user_info] = backup_proc.started
-            log.info("backup/restore process finished successfully")
-        else:
-            backup_proc.parsed["state"] = "failed: " + backup_proc.parsed.get("unable", "")
-            if "target" in backup_proc.parsed:
-                if os.path.exists(backup_proc.parsed["target"]):
-                    shutil.rmtree(backup_proc.parsed["target"])
-                log.error("backup/restore process failed, logging output: ")
-                for line in backup_proc.output[-30:]:
-                    log.error(line.replace("\n", ""))
+#             cfg["config"]["last_" + backup_proc.user_info] = backup_proc.started
+#             cfg.save()
 
 
-    out.update(dict(backup_proc.parsed))
-    out["returncode"] = backup_proc.returncode
-    out["running"] = backup_proc.running
-    out["what"] = backup_proc.user_info
+#             out["last_" + backup_proc.user_info] = backup_proc.started
+#             log.info("backup/restore process finished successfully")
+#         else:
+#             backup_proc.parsed["state"] = "failed: " + backup_proc.parsed.get("unable", "")
+#             if "target" in backup_proc.parsed:
+#                 if os.path.exists(backup_proc.parsed["target"]):
+#                     shutil.rmtree(backup_proc.parsed["target"])
+#                 log.error("backup/restore process failed, logging output: ")
+#                 for line in backup_proc.output[-30:]:
+#                     log.error(line.replace("\n", ""))
 
-    if backup_proc.finished:
-        backup_proc = None
 
-    return out
+#     out.update(dict(backup_proc.parsed))
+#     out["returncode"] = backup_proc.returncode
+#     out["running"] = backup_proc.running
+#     out["what"] = backup_proc.user_info
+
+#     if backup_proc.finished:
+#         backup_proc = None
+
+#     return out
 

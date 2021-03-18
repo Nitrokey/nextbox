@@ -23,8 +23,12 @@ from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.consts import *
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_mgr, job_queue, worker
-from nextbox_daemon.jobs import TrustedDomainsJob, EnableNextBoxAppJob #, ProxySSHJob
 from nextbox_daemon.status_board import board
+
+from nextbox_daemon.jobs import TrustedDomainsJob, EnableNextBoxAppJob, \
+    GenericStatusUpdateJob, BackupRestoreJob, HardwareStatusUpdateJob
+
+
 
 from nextbox_daemon.api.storage import storage_api
 from nextbox_daemon.api.backup import backup_api
@@ -94,6 +98,9 @@ def main():
 
     job_mgr.register_job(TrustedDomainsJob)
     job_mgr.register_job(EnableNextBoxAppJob)
+    job_mgr.register_job(GenericStatusUpdateJob)
+    job_mgr.register_job(BackupRestoreJob)
+    job_mgr.register_job(HardwareStatusUpdateJob)
 
     worker.start()
 

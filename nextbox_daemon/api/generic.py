@@ -12,15 +12,24 @@ from nextbox_daemon.utils import requires_auth, success, error, tail
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
 from nextbox_daemon.services import Services
+from nextbox_daemon.status_board import board
 from nextbox_daemon.consts import *
 
 generic_api = Blueprint('generic', __name__)
 
 
 
-@generic_api.route("/overview")
+@generic_api.route("/status")
 def show_overview():
-    pass
+    keys = board.get_keys()
+
+    if "pkginfo" not in keys:
+        job_queue.put("GenericStatusUpdate")
+
+    out = {}
+    for key in keys:
+        out[key] = board.get(key)
+    return success(data=out)
 
 
 @generic_api.route("/log")

@@ -19,21 +19,34 @@ class Worker(Thread):
     def run(self):
         while True:
             try:
-                job_name = self.my_job_queue.get(timeout=5)
+                job = self.my_job_queue.get(timeout=5)
+                
+                # put either "jobname" or ("jobname", "args") into job_queue 
+                if job is None:
+                    job_name = None
+                    job_args = None
+                
+                elif isinstance(job, str):
+                    job_name = job
+                    job_args = None
+                
+                else:
+                    job_name, job_args = job
+
             except Empty:
                 job_name = self.job_mgr.get_recurring_job()
+                job_args = None
 
             if job_name is None:
                 sleep(1)
                 continue
 
-            print("JOB: ", job_name)
-
+            
             # special job "exit" will stop the worker-queue
             if job_name == "exit":
                 break
 
-            self.job_mgr.handle_job(job_name)
+            self.job_mgr.handle_job(job_name, job_args)
 
 
 job_mgr = JobManager(cfg, board)

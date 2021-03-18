@@ -303,6 +303,9 @@ class RawBackupRestore:
     ### convinience, yield-based full-export (use with StopIteration)
     ###
     def full_export(self, tar_path):
+        if not isinstance(tar_path, Path):
+            tar_path = Path(tar_path)
+        
         steps = [
             ("sql",         lambda: self.export_sql(tar_path)),
             ("data",        lambda: self.export_dir("data", tar_path)), 
@@ -353,6 +356,9 @@ class RawBackupRestore:
     ### convinience, yield-based full-import (use with StopIteration)
     ###
     def full_import(self, src_path):
+        if not isinstance(src_path, Path):
+            src_path = Path(src_path)
+
         steps = [
             ("sql",         lambda: self.import_sql(src_path)),
             ("data",        lambda: self.import_dir("data", src_path)), 

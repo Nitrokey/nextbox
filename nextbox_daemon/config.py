@@ -52,7 +52,8 @@ class Config(dict):
             with open(self.config_path) as fd:
                 loaded = yaml.safe_load(fd)
                 try:
-                    self.update(loaded)
+                    for key in loaded:
+                        self.setdefault(key, {}).update(loaded[key])
                 except TypeError:
                     pass
 
