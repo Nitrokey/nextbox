@@ -24,9 +24,15 @@
 			<span v-if="running" class="tag success"><span class="icon icon-checkmark" />The Backend is up and running</span>
 			<span v-else class="tag error"><span class="icon icon-error" />Cannot connect to the Backend</span>
 			
-			<span v-if="apiMatch" class="tag success"><span class="icon icon-checkmark" />The Backend & Frontend API versions match</span>
-			<span v-else class="tag error"><span class="icon icon-error" />The Backend & Frontend API version <span class="bold">do not match</span> - update both!</span>
+			<span class="tag neutral"><span class="icon icon-checkmark" />NextBox Software Version: {{ version }}</span>
+			
 		</div>
+
+		<!-- div class="section">
+			<pre>
+				{{ board }}
+			</pre>
+		</div /-->
 	</div>
 </template>
 
@@ -65,6 +71,9 @@ export default {
 					extra: '',
 				},
 			},
+
+			board: {},
+			version: '',
 		}
 	},
 
@@ -88,6 +97,18 @@ export default {
 				this.running = false
 			}
 			this.statusRemote()
+			this.statusBoard()
+		},
+
+		async statusBoard() {
+			try {
+				const res = await axios.get(generateUrl('/apps/nextbox/forward/status'))
+				this.board = JSON.stringify(res.data, null, 2)
+				this.version = res.data.data.pkginfo.version
+			} catch (e) {
+				console.error('failed loading status board')
+			}
+
 		},
 
 		async statusRemote() {

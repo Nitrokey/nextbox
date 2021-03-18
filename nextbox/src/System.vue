@@ -36,6 +36,16 @@
 				Download System Logs
 			</button>
 		</div>
+
+		<div class="section">
+			<h2>NextBox Token</h2>
+			Your personal <span class="bold">NextBox Quickstart Token</span>:<br>
+			<input v-model="update.nk_token" type="text" disabled="true">
+			<br><span v-if="userMessage.nk_token" class="error-txt">{{ userMessage.nk_token.join(" ") }}</span><br>
+		</div>
+		
+
+
 	</div>
 </template>
 
@@ -63,10 +73,21 @@ export default {
 	data() {
 		return {
 			loading: true,
+			
+			// update-ables
 			update: {
-				pubkey: ''
+				pubkey: '',
+				nk_token: '',
 			},
-			pubkey: ''
+			
+			// user messaging
+			userMessage: {
+				nk_token: [],
+			},
+
+			// constants (after refresh)
+			pubkey: '',
+			config: {},
 		}
 	},
 
@@ -86,6 +107,24 @@ export default {
 			} catch (e) {
 				console.error(e)
 			}
+
+			const url = '/apps/nextbox/forward/config'
+			const res = await axios.get(generateUrl(url)).catch((e) => {
+				showError('Connection failed')
+				console.error(e)
+			})
+			this.config = res.data.data
+			this.update.nk_token = res.data.data.nk_token
+		},
+		
+		check_token() {
+			if (this.update.nk_token === null || this.update.nk_token.length !== 36) {
+				this.userMessage.nk_token = ['Please insert a valid token']
+				return false
+			}
+
+			this.userMessage.nk_token = []
+			return true
 		},
 
 		async get_logs() {

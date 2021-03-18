@@ -10,10 +10,6 @@
 			Insert the designated full domain for your NextBox. The domain always has to end with <span class="bold">.nextbox.link</span>.<br>
 			<input v-model="update.proxy_domain" type="text">
 			<br><span v-if="userMessage.proxy_domain" class="error-txt">{{ userMessage.proxy_domain.join(" ") }}</span><br>
-			<h2>NextBox Quickstart Token</h2>
-			Insert here your personal <span class="bold">NextBox Quickstart Token</span> you received together with your NextBox.<br>
-			<input v-model="update.nk_token" type="text">
-			<br><span v-if="userMessage.nk_token" class="error-txt">{{ userMessage.nk_token.join(" ") }}</span><br>
 			<button type="button" @click="activate()">
 				<span class="icon icon-confirm" />
 				Activate Quickstart Remote Access
@@ -63,13 +59,11 @@ export default {
 			// generics
 			loading: false,
 			userMessage: {
-				nk_token: [],
 				proxy_domain: [],
 			},
 			
 			config: {
 				dns_mode: 'off',
-				nk_token: '',
 				proxy_active: '',
 				proxy_domain: '',
 				
@@ -78,7 +72,6 @@ export default {
 			// variables
 			update: {
 				proxy_domain: '',
-				nk_token: '',
 			},
 		}
 	},
@@ -100,7 +93,6 @@ export default {
 			})
 			this.config = res.data.data
 			this.update.proxy_domain = this.config.proxy_domain
-			this.update.nk_token = this.config.nk_token
 		},
 
 		check_domain() {
@@ -117,25 +109,29 @@ export default {
 			return true
 		},
 
-		check_token() {
-			if (this.update.nk_token === null || this.update.nk_token.length !== 36) {
-				this.userMessage.nk_token = ['Please insert a valid token']
-				return false
-			}
-
-			this.userMessage.nk_token = []
-			return true
-		},
-
+		
 		async activate() {
-			let cont = this.check_domain()
-			cont &= this.check_token()
-			if (cont) {
+			if (this.check_domain()) {
 				this.update_config({
-					nk_token: this.update.nk_token,
 					proxy_domain: this.update.proxy_domain,
 					proxy_active: true,
 				})
+					
+				// after updating the config, register at nextbox-proxy
+				const data = {
+					proxy_domain: this.update.proxy_domain,
+					proxy_active: true,
+					nk_token: this.config.nk_token
+				}
+				const url = '/apps/nextbox/forward/proxy/register'
+				const options = {
+					headers: { 'content-type': 'application/x-www-form-urlencoded' },
+				}
+				const res = await axios.post(generateUrl(url), qs.stringify(data), options)
+					.catch((e) => {
+						showError('Connection failed')
+						console.error(e)
+					})
 			}
 		},
 
@@ -146,25 +142,16 @@ export default {
 		},
 		
 		async update_config(update) {
-			const url1 = '/apps/nextbox/forward/config'
+			const url = '/apps/nextbox/forward/config'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
-			const res1 = await axios.post(generateUrl(url1), qs.stringify(update), options)
+			const res = await axios.post(generateUrl(url), qs.stringify(update), options)
 				.catch((e) => {
 					showError('Connection failed')
 					console.error(e)
 				})
-			
-			// only run on activation
-			if (update.proxy_active) {
-				const url2 = '/apps/nextbox/forward/proxy/register'
-				const res2 = await axios.post(generateUrl(url2), qs.stringify(update), options)
-					.catch((e) => {
-						showError('Connection failed')
-						console.error(e)
-					})
-			}
+
 			this.refresh()
 		},
 	},
