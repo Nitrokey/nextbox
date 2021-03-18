@@ -10,6 +10,8 @@ sed -i -e 's/rootwait quiet/usb-storage.quirks=0x152d:0x1561:u rootwait quiet/g'
 # [x] 152d:1561 => 'Sabrent' adapter using 'JMicron Chipset'
 # [ ] 174c:55aa => 'SKL' & 'Inateck' adapters using 'ASMedia Chipset'
 
+# modify /boot/config.txt to activate i2c
+sed -i -e 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/g' "${ROOTFS_DIR}/boot/config.txt"
 
 # unattended upgrades configuration (1st apt.conf 'always' allow run, based on systemd-timers)
 install -m 644 ../files/50unattended-upgrades "${ROOTFS_DIR}/etc/apt/apt.conf.d/"
