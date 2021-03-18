@@ -17,11 +17,11 @@ sed -i -e 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/g' "${ROOTFS_DIR}/boot/confi
 install -m 644 ../files/50unattended-upgrades "${ROOTFS_DIR}/etc/apt/apt.conf.d/"
 install -m 644 ../files/20auto-upgrades "${ROOTFS_DIR}/etc/apt/apt.conf.d/"
 
-mkdir -p /etc/systemd/system/apt-daily.timer.d
+mkdir -p "${ROOTFS_DIR}/etc/systemd/system/apt-daily.timer.d"
 install -m 644 ../files/override.apt-daily.timer.conf \
 	"${ROOTFS_DIR}/etc/systemd/system/apt-daily.timer.d/override.conf"
 
-mkdir -p /etc/systemd/system/apt-daily-upgrade.timer.d
+mkdir -p "${ROOTFS_DIR}/etc/systemd/system/apt-daily-upgrade.timer.d"
 install -m 644 ../files/override.apt-daily-upgrade.timer.conf \
 	"${ROOTFS_DIR}/etc/systemd/system/apt-daily-upgrade.timer.d/override.conf"
 
