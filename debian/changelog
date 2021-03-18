@@ -1,3 +1,9 @@
+%%PKG%% (0.2.8-2) groovy; urgency=low
+
+  * forgot bumping app-version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 18 Mar 2021 23:22:11 +0000
+
 %%PKG%% (0.2.8-1) groovy; urgency=low
 
   * backend status board
