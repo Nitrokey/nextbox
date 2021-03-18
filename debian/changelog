@@ -1,3 +1,12 @@
+%%PKG%% (0.2.8-1) groovy; urgency=low
+
+  * backend status board
+  * backend cleanups (remove old jobs, remove old storage/backup)
+  * add frontend version
+  * move token from proxy.vue to system.vue
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 18 Mar 2021 23:22:11 +0000
+
 %%PKG%% (0.2.7-1) groovy; urgency=low
 
   * certificate/apache backend manager added
