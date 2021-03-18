@@ -144,10 +144,10 @@ class TrustedDomainsJob(BaseJob):
         default_entry = trusted_domains[0]
 
         entries = [default_entry] + self.static_entries[:]
-        if cfg["config"]["domain"]:
+        if "domain" in cfg["config"]:
             entries.append(cfg["config"]["domain"])
 
-        if cfg["config"]["proxy_active"]:
+        if cfg["config"].get("proxy_active") and "proxy_domain" in cfg["config"]:
             entries.append(cfg["config"]["proxy_domain"])
 
         if any(entry not in trusted_domains for entry in entries):
