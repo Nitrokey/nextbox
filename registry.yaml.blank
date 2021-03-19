@@ -1,0 +1,5 @@
+host: bender
+offset: 10
+serials: []
+token_file: nextcloud-proxy.tokens
+user: dariball
