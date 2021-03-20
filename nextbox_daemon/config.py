@@ -72,7 +72,7 @@ def check_filesystem():
     """
 
     # check/create dirs
-    dirs_exist = ["/srv/nextcloud", "/srv/nextbox", "/srv/apache2", 
+    dirs_exist = ["/srv/nextcloud", "/srv/nextbox", "/srv/apache2", "/srv/backups", 
                   "/srv/mariadb", "/srv/logdump", "/etc/letsencrypt"]
     for p in dirs_exist:
         if not Path(p).exists():

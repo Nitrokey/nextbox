@@ -39,7 +39,7 @@ class Partitions:
                     return line.split(" ", 2)[1]
         return False
 
-    def get_parts(self, block_dev):
+    def get_parts(self, block_dev, model):
         labels = { path.resolve().name: path.name \
             for path in Path("/dev/disk/by-label/").iterdir() }
 
@@ -62,23 +62,35 @@ class Partitions:
                 else:
                     avail, free = None, None
 
+                is_special = label in self.special_labels
+                
+                friendly_name = f"Extra ({model})"
+                if real_mounted:
+                    friendly_name += f" @ {real_mounted}"
+                if is_special:
+                    if block_dev.startswith("mm"):
+                        friendly_name = f"SD-Card ({label})"
+                    else:
+                        friendly_name = f"Internal HardDisk ({label})"
+
                 dct[part] = {
                     "name": part,
+                    "desc": model,
+                    "friendly_name": friendly_name,
                     "label": label,
                     "mounted": real_mounted,
-                    "special": label in self.special_labels,
-                    "backup": mounted == self.backup_mountpoint,
+                    "special": is_special,
                     "space":  {"free": free, "avail": avail}
                 }
         return dct
 
     def get_block_device(self, block_dev):
+        model = self.get_device_model(block_dev)
         return {
             "name": block_dev, 
-            "model": self.get_device_model(block_dev),
-            "parts": self.get_parts(block_dev)
+            "model": model,
+            "parts": self.get_parts(block_dev, model)
         }
-
 
     def mount_partition(self, mount_device, mount_target):
         cr = CommandRunner([MOUNT_BIN, mount_device, mount_target], block=True)
@@ -106,6 +118,24 @@ class Partitions:
         return dct 
 
     @property
+    def backup_devices(self):
+        out = []
+        for item in self.block_devices.values():
+            for part_name, part_item in item["parts"].items():
+                if part_item["mounted"] and part_item["mounted"] != "/":
+                    path = part_item["mounted"]
+                    # allow backups onto internal drive
+                    if path.startswith("/srv"):
+                        path = (Path(path) / "backups").as_posix()
+
+                    out.append({
+                        "friendly_name": part_item["friendly_name"],
+                        "name": part_name,
+                        "path": path,
+                    })
+        return out
+
+    @property
     def block_devices(self):
         dct = {}
         for dev in Path("/sys/block").iterdir():
@@ -113,9 +143,6 @@ class Partitions:
                 continue
             dct[dev.name] = self.get_block_device(dev.name)
         return dct
-
-
-
 
 
 if __name__ == "__main__":

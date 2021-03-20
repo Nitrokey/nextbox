@@ -3,83 +3,76 @@ from flask import Blueprint, request
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.utils import requires_auth, success, error
 from nextbox_daemon.config import cfg, log
+from nextbox_daemon.worker import job_queue
 from nextbox_daemon.status_board import board
+from nextbox_daemon.partitions import Partitions
+from nextbox_daemon.raw_backup_restore import RawBackupRestore
 from nextbox_daemon.consts import *
 
 backup_api = Blueprint('backup', __name__)
 
-
+partitions = Partitions()
+backup_restore = RawBackupRestore()
 
 @backup_api.route("/backup")
 @requires_auth
 def backup():
-    data = dict(cfg["config"])
-    #data["operation"] = check_for_backup_process()
-    data["found"] = []
-
-    # if get_partitions()["backup"] is not None:
-    #     for name in os.listdir("/media/backup"):
-    #         p = Path("/media/backup") / name
-    #         try:
-    #             size =  (p / "size").open().read().strip().split()[0]
-    #         except FileNotFoundError:
-    #             continue
-
-    #         data["found"].append({
-    #             "name": name,
-    #             "created": p.stat().st_ctime,
-    #             "size": size
-    #         })
-    #         data["found"].sort(key=lambda x: x["created"], reverse=True)
+    devs = partitions.backup_devices
+    data = {
+        "devices": devs,
+        "backups": backup_restore.find_backups([dev["path"] for dev in devs]),
+        "last_backup": cfg["config"]["last_backup"],
+    }
 
     return success(data=data)
 
+@backup_api.route("/backup/status")
+@requires_auth
+def backup_status():
+    return success(data=board.get("backup_restore"))
 
-#@app.route("/backup/cancel")
-#def backup_cancel(name):
-#    global backup_proc
-#
-#    subprocess.check_call(["killall", "nextcloud-nextbox.export"])
-#    #subprocess.check_call(["killall", "nextcloud-nextbox.import"])
-#
-#    pass
+@backup_api.route("/backup/status/clear")
+@requires_auth
+def backup_status_clear():
+    board.delete_key("backup_restore")
+    return success()
 
-
-@backup_api.route("/backup/start")
+@backup_api.route("/backup/start", methods=["POST"])
 @requires_auth
 def backup_start():
-    # global backup_proc
-    # backup_info = check_for_backup_process()
-    # parts = get_partitions()
+    tar_path = request.form.get("tar_path")
+    found = False
+    for dev in partitions.backup_devices:
+        if tar_path.startswith(dev["path"]):
+            found = dev
+            break
+    
+    if not found:
+        msg = "Invalid backup location provided"
+        log.error(msg)
+        return error(msg)
 
-    # if backup_info["running"]:
-    #     return error("backup/restore operation already running", data=backup_info)
+    log.info(f"Initiating backup onto: {dev['friendly_name']} @ {dev['path']} with target: {tar_path}")
 
-    # if not parts["backup"]:
-    #     return error("no 'backup' storage mounted")
-
-    # backup_proc = CommandRunner([BACKUP_EXPORT_BIN],
-    #     cb_parse=parse_backup_line, block=False)
-    # backup_proc.user_info = "backup"
+    job_kwargs = {"tar_path": tar_path, "mode": "backup"}
+    job_queue.put(("BackupRestore", job_kwargs))
 
     return success("backup started")
 
 
-@backup_api.route("/backup/restore/<name>")
+@backup_api.route("/backup/restore", methods=["POST"])
 @requires_auth
-def restore_start(name):
-    # global backup_proc
-    # backup_info = check_for_backup_process()
+def restore_start():
+    src_path = request.form.get("src_path")
+    
+    if not backup_restore.check_backup(src_path):
+        msg = "Invalid backup, cannot restore"
+        log.error(msg)
+        return error(msg)
 
-    # if ".." in name or "/" in name:
-    #     return error("invalid name", data=backup_info)
+    log.info(f"Initiating restore from: {src_path}")
 
-    # if backup_info["running"]:
-    #     return error("backup/restore operation already running", data=backup_info)
-
-    # directory = f"/media/backup/{name}"
-    # backup_proc = CommandRunner([BACKUP_IMPORT_BIN, directory],
-    #     cb_parse=parse_backup_line, block=False)
-    # backup_proc.user_info = "restore"
+    job_kwargs = {"tar_path": src_path, "mode": "restore"}
+    job_queue.put(("BackupRestore", job_kwargs))
 
     return success("restore started")

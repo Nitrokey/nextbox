@@ -1,5 +1,6 @@
 import yaml
 import os
+import time
 from pathlib import Path
 from datetime import datetime
 from filelock import FileLock
@@ -8,7 +9,7 @@ import shutil
 
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.nextcloud import Nextcloud
-from nextbox_daemon.config import log
+from nextbox_daemon.config import log, cfg
 
 class RawBackupRestore:
     dirs = {
@@ -224,7 +225,7 @@ class RawBackupRestore:
             Touch `NEXTBOX_BACKUP.OK` in addition to mark a proper backup    
         """
         upd = {
-            "state":    "finished", 
+            "state":    "completed", 
             "substate": None, 
             "ended":    str(datetime.now())
         }
@@ -254,26 +255,29 @@ class RawBackupRestore:
         with open(tar_meta_path, "w") as fd:
             yaml.dump(info, fd)
 
+    ###
+    ### check some path for containing a valid backup
+    ### 
     def check_backup(self, src_path):
         """Check `path` for a valid backup"""
         
-        path = Path(src_path)
+        src_path = Path(src_path)
         
         # check for flag file
-        if not (path / "NEXTBOX_BACKUP.OK").exists():
-            log.error(f"restore cancel - {src_path}: 'NEXTBOX_BACKUP.OK' missing")
+        if not (src_path / "NEXTBOX_BACKUP.OK").exists():
+            log.error(f"check cancel - {src_path}: 'NEXTBOX_BACKUP.OK' missing")
             return False
         
         # read meta info file
         try:
             info = self.read_meta(src_path)
         except FileNotFoundError:
-            log.error(f"restore cancel - {src_path}: meta-info not found")
+            log.error(f"check cancel - {src_path}: meta-info not found")
             return False
         
         # check for correct state
-        if info["state"] != "finished":
-            log.error(f"restore cancel - {src_path}: meta-info state not 'finished'")
+        if info["state"] != "completed":
+            log.error(f"check cancel - {src_path}: meta-info state not 'completed'")
             return False
 
         # check for all sizes > 0 and src_dirs (+sql-dump) exist in backup
@@ -282,22 +286,36 @@ class RawBackupRestore:
                 _, what = key.split("_")
                 # check meta-size > 0
                 if not val > 0:
-                    log.error(f"restore cancel - {src_path}: size for '{what}'' not > 0")
+                    log.error(f"check cancel - {src_path}: size for '{what}'' not > 0")
                     return False
                 # check existance of dir
                 if what != "sql":
                     p = src_path / Path(self.dirs[what]).name
                     if not p.exists():
-                        log.error(f"restore cancel - {src_path}: {p} not found for restoring: {what}")
+                        log.error(f"check cancel - {src_path}: {p} not found for restoring: {what}")
                         return False
                 # or sql dump file
                 else:
                     p = src_path / self.sql_dump_fn
                     if not p.exists():
-                        log.error(f"restore cancel - {src_path}: {p} not found for db-restore")
+                        log.error(f"check cancel - {src_path}: {p} not found for db-restore")
                         return False
         return True
 
+    def find_backups(self, paths):
+        """search inside `paths` for valid backup directories"""
+        out = {}
+        for path in paths:
+            out[path] = []
+            for item in Path(path).iterdir():
+                if item.is_dir() and self.check_backup(item):
+                    out[path].append({
+                        "owner": path,
+                        "path": item.as_posix(),
+                        "name": item.name,
+                        "info": self.read_meta(item.as_posix())
+                    })
+        return out
     
     ###
     ### convinience, yield-based full-export (use with StopIteration)
@@ -344,12 +362,16 @@ class RawBackupRestore:
                         failed = True
                     yield (act, desc, 100)
                     break
-                sleep(1)
+                time.sleep(1)
                 yield (act, desc, percent)
         
         # finalize meta (only on success)
         if not failed:
             self.end_meta(tar_path)
+            cfg["config"]["last_backup"] = datetime.now().timestamp()
+            cfg.save()
+            yield ("completed", ("all", "export"), 100)
+
             
 
     ###
@@ -396,8 +418,11 @@ class RawBackupRestore:
                         failed = True
                     yield (act, desc, 100)
                     break
-                sleep(1)
+                time.sleep(1)
                 yield (act, desc, percent)
+
+        if not failed:
+            yield ("completed", ("all", "import"), 100)
 
 
 if __name__ == "__main__":
@@ -405,34 +430,34 @@ if __name__ == "__main__":
 
     back = RawBackupRestore()
     
-    tar_path = Path("/srv/test")
-    it = back.full_export(tar_path)
-    while True:
-        try:
-            state, (who, what), percent = next(it)
-            print(state, who, what, percent)
-        except StopIteration:
-            print ("done")
-            break
+    # tar_path = Path("/srv/test")
+    # it = back.full_export(tar_path)
+    # while True:
+    #     try:
+    #         state, (who, what), percent = next(it)
+    #         print(state, who, what, percent)
+    #     except StopIteration:
+    #         print ("done")
+    #         break
 
-    it = back.full_import(tar_path)
-    while True:
-        try:
-            state, (who, what), percent = next(it)
-            print(state, who, what, percent)
-        except StopIteration:
-            print ("done")
-            break
+    # it = back.full_import(tar_path)
+    # while True:
+    #     try:
+    #         state, (who, what), percent = next(it)
+    #         print(state, who, what, percent)
+    #     except StopIteration:
+    #         print ("done")
+    #         break
 
-    tar_path = Path("/srv/test2")
-    it = back.full_export(tar_path)
-    while True:
-        try:
-            state, (who, what), percent = next(it)
-            print(state, who, what, percent)
-        except StopIteration:
-            print ("done")
-            break
+    # tar_path = Path("/srv/test2")
+    # it = back.full_export(tar_path)
+    # while True:
+    #     try:
+    #         state, (who, what), percent = next(it)
+    #         print(state, who, what, percent)
+    #     except StopIteration:
+    #         print ("done")
+    #         break
 
 
     #print(back.export_sql())

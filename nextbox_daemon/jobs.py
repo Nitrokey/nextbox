@@ -37,11 +37,11 @@ class BackupRestoreJob(BaseJob):
 
     def __init__(self):
         self.ctrl = RawBackupRestore()
-        self.interval = None
         self.iterator = None
+        super().__init__(initial_interval=None)
 
 
-    def run(self, cfg, board, kwargs):
+    def _run(self, cfg, board, kwargs):
 
         # operation not running, means we start a backup: need a "tar_path" + "mode" (backup or restore)
         if not self.iterator and ("tar_path" not in kwargs or "mode" not in kwargs):
@@ -60,8 +60,11 @@ class BackupRestoreJob(BaseJob):
         if not self.iterator:
             #if not board.contains_key("backup"):
             board.update("backup_restore", {
-                "state": "starting", 
+                "state": "starting",
+                "percent": "0",
+                "who": "all", 
                 "tar_path": kwargs["tar_path"],
+                "what": "export" if kwargs["mode"] == "backup" else "import", 
                 "mode": kwargs["mode"],
             })
 
@@ -140,6 +143,11 @@ class TrustedDomainsJob(BaseJob):
 
     def _run(self, cfg, board, kwargs):
         trusted_domains = self.nc.get_config("trusted_domains")
+
+        # @todo: might be dangerous if trusted_domains ARE really empty
+        # @todo: Nextcloud-class needs a mechanism to detect, if the nextcloud instance is running!!!
+        if len(trusted_domains) == 0:
+            return
 
         default_entry = trusted_domains[0]
 
