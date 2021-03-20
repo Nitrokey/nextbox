@@ -6,7 +6,7 @@
 			<ListItemIcon v-for="dev in mountedDevs" 
 				:key="dev.name"
 				class="list-item"
-				:title="getListName(dev)"
+				:title="dev.friendly_name"
 				:subtitle="getListDesc(dev)"
 				display-name="icon-add"
 				:icon-class="(loading === dev) ? 'icon-loading-small' : 'icon-add'"
@@ -28,7 +28,7 @@
 			<ListItemIcon v-for="dev in availableDevs" 
 				:key="dev.name"
 				class="list-item"
-				:title="getListName(dev)"
+				:title="dev.friendly_name"
 				:subtitle="getListDesc(dev)"
 				display-name="icon-add"
 				:icon-class="(loading === dev) ? 'icon-loading-small' : 'icon-add'"
@@ -91,14 +91,7 @@ export default {
 				for (const partName in dev.parts) {
 					const part = dev.parts[partName]
 					if (part.mounted) {
-						ret.push({
-							name: part.name,
-							label: part.label,
-							desc: dev.model,
-							mounted: part.mounted,
-							special: part.special,
-							space: part.space,
-						})
+						ret.push(part)
 					}
 				}
 			}
@@ -111,13 +104,7 @@ export default {
 				for (const partName in dev.parts) {
 					const part = dev.parts[partName]
 					if (!part.mounted) {
-						ret.push({
-							name: part.name,
-							label: part.label,
-							desc: dev.model,
-							special: part.special,
-							space: part.space,
-						})
+						ret.push(part)
 					}
 				}
 			}
@@ -132,19 +119,6 @@ export default {
 	},
 
 	methods: {
-		getListName(dev) {
-			if (dev.special) {
-				if (dev.name.startsWith('mm')) {
-					return `SD-Card (${dev.label})`
-				} else {
-					return `Internal HardDisk (${dev.label})`
-				}
-			} else if (dev.mounted === '/media/backup') {
-				return `Backup (${dev.desc})`
-			}
-			return `Extra (${dev.desc})`
-		},
-
 		getListDesc(dev) {
 			let space = ''
 			if (dev.mounted) {
@@ -175,7 +149,7 @@ export default {
 						<name>, 
 						<model>, 
 						<parts> = [{ 
-							<part> = { <label>, <mounted> }, ...
+							<part> = { <label>, <mounted>, <name>, <special>, <space>: {} }, ...
 						}]
 					}, ...
 				}]

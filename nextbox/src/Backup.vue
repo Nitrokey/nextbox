@@ -1,86 +1,89 @@
 <template>
 	<div class="backup-restore">
-		<div class="section">
-			<h2>Choose Backup Device</h2>
-			Select the device you would like to use for backups here. 
-			<span class="bold">Please note that a device can only be mounted either for backups or for extra storage</span>
-			<br><br>
+		<div v-if="progress" class="section">
+			<h2>{{ progressWhat }} in Progress</h2>
+			<br>
+
+			<span v-if="progress.state === 'completed'" class="tag success"><span class="icon icon-checkmark" />
+				Completed {{ progressWhat }} successfully
+			</span>
+			<span v-else-if="progress.state === 'failed'" class="tag error"><span class="icon icon-error" />
+				Failed {{ progressWhat }} operation during {{ progress.who }}
+			</span>
+			<span v-else class="tag neutral"><span class="icon icon-loading-small" />
+				{{ progressWhat }} - 
+				Current State: <span class="bold">{{ progress.state }}</span> 
+				Component: <span class="bold">{{ progress.who }}</span>
+				Percent Done: <span class="bold">{{ progress.percent }}%</span>
+			</span>
+			<br>
+			<br>
+			
+			<button type="button" :disabled="!['completed','failed'].includes(progress.state)" @click="clear_status()">
+				<span class="icon icon-confirm" />
+				Continue...
+			</button>
+
+		</div>
+
+		<div v-if="!progress" class="section">
+			<h2>Full System Backup</h2>
+			You can create a new backup of your NextBox, or incrementally
+			update an already existing backup.<br>
+
+			<span v-if="lastBackup" class="tag success"><span class="icon icon-checkmark" />Your last backup was done at: <span class="bold">{{ new Date(lastBackup * 1e3).toLocaleString() }}</span></span>
+			<span v-else class="tag warning"><span class="icon icon-close" />You have not yet run a backup - please do so</span><br>
+			
+			First select a device on which the backup should reside. You can
+			only select devices mounted inside Storage Management:<br>
 			<Multiselect 
 				v-model="selectedDevice"
 				:options="devices"
-				:disabled="Boolean(storages.backup)"
-				placeholder="Select Available Device as Backup Drive..."
-				track-by="id" 
-				label="label" />
-			<br>
-			<button type="button" :disabled="selectedDevice === false" @click="deviceAction()">
-				<span class="icon icon-confirm" />
-				{{ (storages.backup) ? "Unmount Backup Drive" : "Mount as Backup Drive" }}
-			</button>
-		</div>
+				:disabled="!Boolean(devices)"
+				placeholder="Select Backup Device"
+				track-by="path" 
+				label="friendly_name" /><br><br>
 
-		<div class="section">
-			<h2>Full System Backup</h2>
-			You can start a full backup here. Nextcloud will change into maintainance mode 
-			and will not be available during the backup operation. Once the backup is started 
-			you will see a progress indicator, if you reload you won't be able to see the 
-			progress until the operation finished.<br>
-			<!-- ActionButton
-				icon="icon-download" 
-				@click="start_backup()">
-				Start Backup now
-			</ActionButton -->
-			<span v-if="lastBackup" class="tag success"><span class="icon icon-checkmark" />Your last backup was done at: <span class="bold">{{ new Date(lastBackup * 1e3).toLocaleString() }}</span></span>
-			<span v-else class="tag warning"><span class="icon icon-close" />You have not yet run a backup - please do so</span>
+			On the selected device you can select either an existing backup:
+			<Multiselect 
+				v-model="selectedBackup"
+				:options="device_backups(selectedDevice)"
+				:disabled="!Boolean(selectedDevice)"
+				@update="validateBackupLocation"
+				placeholder="Select Backup Location"
+				track-by="path" 
+				label="name" /><br>
+			Alternatively, create a new backup:<br>
+			<input 
+				v-model="newBackup" 
+				type="text" 
+				:disabled="selectedBackup || !selectedDevice" 
+				@change="validateBackupLocation"
+				placeholder="Name of new backup"><br>
+			<span v-if="userMessage.newBackup" class="error-txt">{{ userMessage.newBackup.join(" ") }}</span><br>
 			<br>
-			<button type="button" :disabled="!storages.backup" @click="start_backup()">
+
+			<button type="button" :disabled="backupDisabled" @click="start_backup()">
 				<span class="icon icon-download" />
 				Start Backup now
 			</button>
 		</div>
 
-		<div class="section">
+		<div v-if="!progress" class="section">
 			<h2>Restore System from Backup</h2>
-			<div v-if="lastBackup">
-				Similar to the backup process, restoring the system from a 
-				backup will set Nextcloud into maintainance mode and you 
-				will be presented with a progress indicator.<br><br>
-				<Multiselect 
-					v-model="selectedBackup"
-					:options="backups"
-					placeholder="Select Backup for Restore Operation..."
-					track-by="id" 
-					label="label" />
-				<!-- ActionButton
-					:disabled="selectedBackup === false"
-					icon="icon-upload" 
-					@click="start_restore(selectedBackup)">
-					Start Restoring now
-				</ActionButton -->
-				<button type="button" :disabled="selectedBackup === false" @click="start_restore(selectedBackup)">
-					<span class="icon icon-upload" />
-					Start Restoring now
-				</button>
-			</div>
-			<EmptyContent v-if="!lastBackup" icon="icon-close">
-				No Backup to restore available yet...
-			</EmptyContent>
+			Select a Backup to restore the System from this Backup. Any existing 
+			data will be replaced with the backup data!<br>
+			<Multiselect 
+				v-model="selectedRestore"
+				:options="allBackups()"
+				placeholder="Select Backup to Restore"
+				track-by="path" 
+				label="friendly_name" /><br><br><br>
+			<button type="button" :disabled="restoreDisabled" @click="start_restore()">
+				<span class="icon icon-upload" />
+				Start Restoring now
+			</button>
 		</div>
-
-		<Modal 
-			v-if="overlay.active"
-			v-model="overlay"
-			dark
-			@close="close_modal($event)">
-			<div class="modal-box">
-				<span class="bold">{{ overlay.text }}</span><br><br>
-				<ProgressBar 
-					:value="overlay.progress"
-					:error="overlay.error" />
-				<br>
-				{{ overlay.progressStep }}
-			</div>
-		</Modal>
 	</div>
 </template>
 
@@ -91,6 +94,7 @@ import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
 import { showError, showMessage, showSuccess, TOAST_PERMANENT_TIMEOUT } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
+import qs from 'qs'
 
 import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
@@ -112,61 +116,44 @@ export default {
 	data() {
 		return {
 			loading: true,
+			interval: null,
+			lastBackup: false,
 
-			selectedBackup: false,
-			backupData: [],
-			
+			progress: false,
+			backupLocation: '',
+
 			selectedDevice: false,
-			storages: {},
+			selectedBackup: false,
+			newBackup: '',
+			selectedRestore: false,
+			
+			devices: [],
+			backups: {},
 
-			localip: null,
-
-			interval: false,
-			overlay: {
-				active: false,
-				text: '',
-				mode: '',
-				error: false,
-				progress: 0,
-				progressStep: '',
-				canClose: true,
-				enableSwipe: false,
+			// user messaging
+			userMessage: {
+				newBackup: [],
 			},
+
 		}
 	},
 	computed: {
-		lastBackup() {
-			return this.backupData && this.backupData.last_backup
+		backupDisabled() {
+			return !this.validateBackupLocation()
 		},
 
-		backups() {
-			return (!this.backupData) 
-				? [] 
-				: this.backupData.found.map((item) => {
-					const myDate = new Date(item.created * 1e3).toLocaleString()
-					return {
-						label: `${item.name} | created: ${myDate} | size: ${item.size}B`,
-						id: item.name,
-					}
-				})
+		restoreDisabled() {
+			return !this.selectedRestore
 		},
 
-		devices() {
-			if (!('available' in this.storages)) return []
-			
-			return this.storages.available
-				.filter((dev) => !(dev in this.storages.mounted))
-				.map((dev) => {
-					return {
-						label: this.getDevLabel(dev),
-						id: dev,
-					}
-				})
+		progressWhat() {
+			return (this.progress.what === 'export') ? 'Backup' : 'Restore'
 		},
 	},
 
 	async beforeMount() {
 		await this.refresh()
+		await this.update_progress()
 		this.loading = false
 	},
 
@@ -174,184 +161,147 @@ export default {
 		async refresh() {
 			const url = '/apps/nextbox/forward/backup'
 			await axios.get(generateUrl(url)).then((res) => {
-				this.backupData = res.data.data
+				this.devices = res.data.data.devices
+				this.backups = res.data.data.backups
+				this.lastBackup = res.data.data.last_backup
 				this.selectedBackup = false
+				this.selectedDevice = false
+				this.newBackup = ''
+				this.selectedRestore = false
 			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 			})
+		},
+
+		async clear_status() {
+			const url = '/apps/nextbox/forward/backup/status/clear'
+			await axios.get(generateUrl(url)).then((res) => {
 			
-			const url2 = '/apps/nextbox/getip'
-			await axios.get(generateUrl(url2)).then((res) => {
-				this.localip = res.data.ip
 			}).catch((e) => {
-				console.error('cannot acquire localip')
+				showError('Connection failed')
 				console.error(e)
 			})
-
-			await axios.get(generateUrl('/apps/nextbox/forward/storage'))
-				.then((res) => {
-					this.storages = res.data.data
-					if (this.storages.backup) {
-						this.selectedDevice = {
-							label: this.getDevLabel(this.storages.backup),
-							id: this.storages.backup,
-						}
-					}
-				}).catch((e) => {
-					showError('Could not load Storage data')
-					console.error(e)
-				})
+			this.progress = null
+			this.refresh()
+			if (this.interval) {
+				window.clearInterval(this.interval)
+			}
 		},
 
-		getDevLabel(dev) {
-			const blockDev = dev.split('/').slice(-1)[0].slice(0, 3)
-			const desc = this.storages.block_devs[blockDev].name
-			return `${desc} | ${dev}`
+		device_backups(dev) {
+			if (!dev) {
+				return []
+			}
+			return this.backups[dev.path]
 		},
 
-		async deviceAction() {
-			const dev = (this.storages.backup) ? this.storages.backup : this.selectedDevice.id
-			const devFn = dev.split('/').slice(-1)[0]
-			const UmountTarget = dev in this.storages.mounted 
-				? this.storages.mounted[dev].split('/').slice(-1)[0] 
-				: ''
-
-			const url = (!this.storages.backup)
-				? `/apps/nextbox/forward/storage/mount/${devFn}/backup`
-				: `/apps/nextbox/forward/storage/umount/${UmountTarget}`
-			
-			axios.get(generateUrl(url)).then((res) => {
-				const what = (this.storages.backup) ? 'Unmounting' : 'Mounting'
-				if (res.data.result === 'success') {
-					showSuccess(`${what} completed`)
-					this.refresh()
-				} else {
-					showError(`${what} failed`)
+		allBackups() {
+			const out = []
+			for (const dev in this.devices) {
+				const devPath = this.devices[dev].path
+				for (const backup of this.backups[devPath]) {
+					backup.friendly_name = `${backup.name} [${this.devices[dev].friendly_name}]`
+					out.push(backup)
 				}
-
-			}).catch((e) => {
-				showError('Connection failed')
-				console.error(e)
-			})
+			}
+			return out
 		},
 
-		async close_modal(ev) {
-			this.overlay.active = false
+		validateBackupLocation() {
+			if (!this.selectedDevice) {
+				this.userMessage.newBackup = []
+				this.backupLocation = ''
+				return false
+			}
+
+			if (Boolean(this.selectedBackup) && Boolean(this.selectedDevice)) {
+				this.userMessage.newBackup = []
+				this.newBackup = ''
+				this.backupLocation = this.selectedBackup.path
+				return true
+			}
+
+			if (this.newBackup === '' && Boolean(this.selectedDevice)) {
+				this.userMessage.newBackup = [
+					'Please select a location or enter a new backup location'
+				]
+				this.backupLocation = ''
+				return false
+			}
+
+			const pat = /^[a-zA-Z0-9_]+$/
+			if (!pat.test(this.newBackup)) {
+				this.userMessage.newBackup = [
+					'Invalid new backup location - use only alphanumeric letters and underscores.'
+				]
+				this.backupLocation = ''
+				return false
+			}
+			if (this.newBackup.length < 4) {
+				this.userMessage.newBackup = [
+					'Invalid new backup location - at least 4 characters length required.'
+				]
+				this.backupLocation = ''
+				return false
+			}
+			this.userMessage.newBackup = []
+			this.backupLocation = this.selectedDevice.path + '/' + this.newBackup
+			return true
 		},
 
 		async start_backup() {
-			this.overlay = { 
-				...this.overlay, 
-				...{
-					active: true,
-					canClose: false,
-					error: false,
-					progress: 0,
-					text: 'Please wait, the backup operation is running...',
-					progressStep: 'Preparing....',
-				},
-			}
-
 			const url = '/apps/nextbox/forward/backup/start'
-			const res = await axios.get(generateUrl(url)).catch((e) => {
+			const options = {
+				headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			}
+			const data = qs.stringify({
+				tar_path: this.backupLocation
+			})
+
+			const res = await axios.post(generateUrl(url), data, options).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 			})
 		
 			this.interval = window.setInterval(this.update_progress, 1000)
+			await this.update_progress()
 		},
 		
 		async update_progress() {
-			const res = await axios.get(`http://${this.localip}/overview`).catch((e) => {
-				showError('Connection failed')
-				console.error(e)
-				this.overlay.canClose = true
-				window.clearInterval(this.interval)
+			const url = '/apps/nextbox/forward/backup/status'
+			await axios.get(generateUrl(url)).then((res) => {
+				this.progress = res.data.data
+				// no progress to update => clear auto-update
+				if (this.progress === null && this.interval) {
+					window.clearInterval(this.interval)
+				}
+				// progress completed => clear auto-update
+				if (this.progress !== null && this.progress.state === 'completed' && this.interval) {
+					window.clearInterval(this.interval)
+				}
+			}).catch((e) => {
+				//showError('Connection failed')
+				//console.error(e)
 			})
-
-			// fail getting overview
-			if (!('data' in res.data)) {
-				return
-			}
-
-			const data = res.data.data
-			
-			// something is wrong
-			if (data.backup.unable) {
-				window.clearInterval(this.interval)
-				this.overlay = { 
-					...this.overlay, 
-					...{
-						error: true,
-						canClose: true,
-						text: `The operation failed during step: ${data.backup.unable}`,
-						progressStep: 'Operation canceled due to error!',
-					},
-				}
-				return
-			}
-
-			// regular operation mode
-			if (data.backup.running) {
-				const step = (data.backup.step === undefined) ? 'init' : data.backup.step
-				let percent = '   0%'
-				if (data.backup.progress) {
-					this.overlay.progress = Math.round(data.backup.progress)
-					percent = `${this.overlay.progress}%`.padStart(5)
-				}
-				
-				switch (step) {
-				case 'init':
-					this.overlay.progressStep = 'Initializing...'
-					break
-				case 'apps':
-					this.overlay.progressStep = `Copying: Applications ${percent}`
-					break
-				case 'db':
-					this.overlay.progressStep = `Copying: Database ${percent}`
-					break
-				case 'data':
-					this.overlay.progressStep = `Copying: User Data ${percent}`
-					break
-				}
-				
-			// once regular mode is finished...
-			} else if (!data.backup.unable) {
-				window.clearInterval(this.interval)
-				this.overlay = { 
-					...this.overlay, 
-					...{
-						progressStep: '',
-						canClose: true,
-						text: 'Finished successfully!',
-					},
-				}
-				this.refresh()
-			}
 		},
 
-		async start_restore(which) {
-			this.overlay = { 
-				...this.overlay, 
-				...{
-					active: true,
-					canClose: false,
-					error: false,
-					progress: 0,
-					text: 'Please wait, the restore operation is running...',
-					progressStep: 'Preparing....',
-				},
+		async start_restore() {
+			const url = '/apps/nextbox/forward/backup/restore'
+			const options = {
+				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
+			const data = qs.stringify({
+				src_path: this.selectedRestore.path
+			})
 
-			const url = `/apps/nextbox/forward/backup/restore/${which.id}`
-			const res = await axios.get(generateUrl(url)).catch((e) => {
+			const res = await axios.post(generateUrl(url), data, options).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 			})
 		
 			this.interval = window.setInterval(this.update_progress, 1000)
-			this.selectedBackup = false
+			await this.update_progress()
 		},
 	},
 }
