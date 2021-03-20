@@ -17,7 +17,7 @@ class RawBackupRestore:
         "apps":         "/srv/nextcloud/custom_apps",
         "nextbox":      "/srv/nextbox",
         "config":       "/srv/nextcloud/config",
-        "letsencrypt":  "/etc/letsencrypt",
+        "letsencrypt":  "/srv/letsencrypt",
     }
     db_env = "/srv/nextbox/docker.env"
     sql_dump_fn = "dump.sql"

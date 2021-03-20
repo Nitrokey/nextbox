@@ -12,6 +12,7 @@ from nextbox_daemon.utils import requires_auth, success, error, tail
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
 from nextbox_daemon.services import Services
+from nextbox_daemon.proxy_tunnel import ProxyTunnel
 from nextbox_daemon.status_board import board
 from nextbox_daemon.consts import *
 
@@ -175,7 +176,7 @@ def handle_config():
         data = dict(cfg["config"])
         try:
             data["conf"] = Path(DDCLIENT_CONFIG_PATH).read_text("utf-8").split("\n")
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             data["conf"] = ""
         return success(data=data)
 
@@ -201,8 +202,10 @@ def handle_config():
 
                 elif key == "proxy_active" and val.lower() == "false":
                     #run_jobs.append("ProxySSH")
-                    service_operation("reverse-tunnel", "stop")
-                    service_operation("reverse-tunnel", "disable")
+                    #service_operation("reverse-tunnel", "stop")
+                    #service_operation("reverse-tunnel", "disable")
+                    proxy_tunnel = ProxyTunnel()
+                    proxy_tunnel.stop()
 
 
                 elif val is None:

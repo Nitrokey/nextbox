@@ -17,7 +17,7 @@ from flask import Flask, render_template, request, flash, redirect, Response, \
     url_for, send_file, Blueprint, render_template, jsonify, make_response
 
 from nextbox_daemon.utils import error, success, \
-    tail, local_ip, cleanup_certs, requires_auth
+    tail, local_ip, requires_auth
 
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.consts import *
@@ -36,9 +36,8 @@ from nextbox_daemon.api.generic import generic_api
 from nextbox_daemon.api.remote import remote_api
 
 
-
 app = Flask(__name__)
-app.secret_key = "123456-nextbox-123456" #cfg["secret_key"]
+app.secret_key = cfg["config"]["nk_token"] if cfg["config"]["nk_token"] else "dummy"
 
 app.register_blueprint(generic_api)
 app.register_blueprint(backup_api)

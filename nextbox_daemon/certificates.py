@@ -41,7 +41,8 @@ SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
 
 class Certificates:
     
-    basedir = "/etc/letsencrypt"
+    config_dir = "/srv/letsencrypt"
+    inside_docker_dir = "/etc/letsencrypt"
     apache_ssl_conf = "/srv/apache2/sites-available/nextbox-ssl.conf"
     apache_nossl_conf = "/srv/apache2/sites-available/000-default.conf"
     apache_enabled_dir = "/srv/apache2/sites-enabled"
@@ -51,23 +52,23 @@ class Certificates:
     apache_mods_available = "/srv/apache2/mods-available"
     apache_mods_enabled = "/srv/apache2/mods-enabled"
 
-    acquire_cmd = "certbot certonly --webroot --webroot-path /srv/nextcloud --email {email} --non-interactive --agree-tos -d {domain}"
-    delete_cmd = "certbot delete -d {domain}"
-    list_cmd = "certbot certificates"
+    acquire_cmd = "certbot --config-dir {config_dir} certonly --webroot --webroot-path /srv/nextcloud --email {email} --non-interactive --agree-tos -d {domain}"
+    delete_cmd = "certbot --config-dir {config_dir} delete -d {domain}"
+    list_cmd = "certbot --config-dir {config_dir} certificates"
 
     #### example output for 'list_cmd'
     # Found the following certs:
     #   Certificate Name: staticnextbox.dedyn.io
     #     Domains: staticnextbox.dedyn.io
     #     Expiry Date: 2021-06-05 14:10:45+00:00 (VALID: 80 days)
-    #     Certificate Path: /etc/letsencrypt/live/staticnextbox.dedyn.io/fullchain.pem
-    #     Private Key Path: /etc/letsencrypt/live/staticnextbox.dedyn.io/privkey.pem
+    #     Certificate Path: /srv/letsencrypt/live/staticnextbox.dedyn.io/fullchain.pem
+    #     Private Key Path: /srv/letsencrypt/live/staticnextbox.dedyn.io/privkey.pem
     def get_local_certs(self):
         """Get the local certificate paths"""
 
         certs = []
 
-        cr = CommandRunner(self.list_cmd, block=True)
+        cr = CommandRunner(self.list_cmd.format(config_dir=self.config_dir), block=True)
         cur_cert = {}
         for line in cr.output:
             if "Certificate Name:" in line:
@@ -76,9 +77,11 @@ class Certificates:
             elif "Domains:" in line:
                 cur_cert["domains"] = line.split(":")[1].strip().split(" ")
             elif "Certificate Path:" in line:
-                cur_cert["fullchain_path"] = line.split(":")[1].strip()
+                cur_cert["fullchain_path"] = line.split(":")[1].strip() \
+                    .replace(self.config_dir, self.inside_docker_dir)
             elif "Private Key Path:" in line:
-                cur_cert["privkey_path"] = line.split(":")[1].strip()
+                cur_cert["privkey_path"] = line.split(":")[1].strip() \
+                    .replace(self.config_dir, self.inside_docker_dir)
                 certs.append(cur_cert)
         
         return certs
@@ -87,11 +90,18 @@ class Certificates:
         certs = self.get_local_certs()
         for cert in certs:
             if domain in cert["domains"]:
-                cr = CommandRunner(self.delete_cmd.format(domain=domain), block=True)
+                cmd = self.delete_cmd.format(config_dir=self.config_dir, domain=domain)
+                cr = CommandRunner(cmd, block=True)
                 return cr.returncode == 0
         
         log.warning(f"{domain} not in certbot certificates for deletion found")
         return False
+
+    def clear_certs(self):
+        all_certs = self.get_local_certs()
+        for cert in all_certs:
+            self.delete_cert(cert["domains"][0])
+        return True
 
     def get_cert(self, domain):
         certs = self.get_local_certs()
@@ -102,7 +112,7 @@ class Certificates:
         
     def acquire_cert(self, domain, email):
         # here we try to acquire a new certificate using certbot
-        cmd = self.acquire_cmd.format(email=email, domain=domain)
+        cmd = self.acquire_cmd.format(email=email, domain=domain, config_dir=self.config_dir)
         cr = CommandRunner(cmd, block=True)
         if cr.returncode == 0:
             return True
@@ -160,7 +170,7 @@ class Certificates:
         for path in enable_dir.iterdir():
             path.unlink()
 
-        # create ssl-enable-site symlink
+        # create (ssl-)enable-site symlink
         enable_fn = conf.name
         enable_path = enable_dir / enable_fn
         enable_path.symlink_to("../sites-available/" + enable_fn)
@@ -175,9 +185,11 @@ class Certificates:
 if __name__ == "__main__":
     c = Certificates()
 
-    c.set_apache_config(ssl=False)
+    #print(c.acquire_cert("staticnextbox.dedyn.io", "staticnextbox@dadadada.33mail.com"))
 
-    # print(c.get_local_certs())
+    #c.set_apache_config(ssl=False)
+
+    #print(c.get_local_certs())
 
     # cert = c.get_cert("staticnextbox.dedyn.io")
 

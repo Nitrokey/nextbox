@@ -11,9 +11,6 @@ GET_EXT_IP4_URL = "http://v4.ipv6-test.com/api/myip.php"
 GET_EXT_IP6_URL = "http://v6.ipv6-test.com/api/myip.php"
 
 PROXY_REGISTER_URL = "https://nextbox.link/register"
-PROXY_KEY_PATH = "/srv/nextbox/proxy_key"
-PROXY_PUBKEY_PATH = PROXY_KEY_PATH + ".pub"
-PROXY_KEYGEN_CMD = ["ssh-keygen", "-b", "4096", "-t", "rsa", "-f", PROXY_KEY_PATH, "-q", "-N", ""]
 
 CONFIG_PATH = "/srv/nextbox/nextbox.conf"
 RTUN_CONFIG_PATH = "/srv/nextbox/rtun.yaml"
@@ -42,25 +39,7 @@ DYNDNS_DESEC_REGISTER = "https://desec.io/api/v1/auth/"
 
 
 SYSTEMD_RESOLVE_BIN = "/usr/bin/systemd-resolve"
-
 SYSTEMCTL_BIN = "/usr/bin/systemctl"
-
-UPDATE_NEXTBOX_APP_CMD = ["/snap/bin/nextcloud-nextbox.occ",
-                          "app:update", "-n", "nextbox", "--ansi"]
-INSTALL_NEXTBOX_APP_CMD = ["/snap/bin/nextcloud-nextbox.occ",
-                          "app:install", "-n", "nextbox", "--ansi"]
-
-
-
-ENABLE_HTTPS_BIN = "/snap/bin/nextcloud-nextbox.enable-https"
-DISABLE_HTTPS_BIN = "/snap/bin/nextcloud-nextbox.disable-https"
-BACKUP_EXPORT_BIN = "/snap/bin/nextcloud-nextbox.export"
-BACKUP_IMPORT_BIN = "/snap/bin/nextcloud-nextbox.import"
-
-CERTBOT_CERTS_PATH = "/var/snap/nextcloud-nextbox/current/certs/certbot/config/live"
-CERTBOT_BACKUP_PATH = "/var/snap/nextcloud-nextbox/current/certs/certbot/config/live.bak"
-
-OCC_BIN = "/snap/bin/nextcloud-nextbox.occ"
 
 
 ###
