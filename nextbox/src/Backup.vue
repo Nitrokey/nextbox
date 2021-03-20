@@ -44,7 +44,7 @@
 				track-by="path" 
 				label="friendly_name" /><br><br>
 
-			On the selected device you can select either an existing backup:
+			On the selected device you can select an existing backup:
 			<Multiselect 
 				v-model="selectedBackup"
 				:options="device_backups(selectedDevice)"

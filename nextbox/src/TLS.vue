@@ -2,23 +2,38 @@
 	<div class="tls">
 		<div class="section">
 			<h2>HTTPS / TLS Configuration</h2>
-			<EmptyContent v-if="!config.email" icon="icon-close">
-				To enable HTTPS / TLS you need to provide a valid E-Mail address 
-				inside the <span class="bold">System Settings</span> to be used 
-				for the Let's Encrypt registration.
-			</EmptyContent>
-			<EmptyContent v-else-if="!config.dns_mode.endsWith('_done')" icon="icon-close">
-				In order to activate TLS encryption for your Nextcloud instance, 
-				first finish a DNS Configuration.
-			</EmptyContent>
+			<div v-if="!dns_mode.endsWith('_done')" icon="icon-close">
+				To activate TLS encryption for your NextBox, first finish a DNS Configuration.
+			</div>
 			<div v-else>
-				<div v-if="config.https_port">
+				
+				<span v-if="testResolve === null" class="tag neutral"><span class="icon icon-loading-small" />
+					Testing, if {{ domain }} resolves correctly
+				</span>
+				<span v-else-if="testResolve === false" class="tag error"><span class="icon icon-stop" />
+					Failed resolving for {{ domain }} need: {{ testResolveData.ip }}, found: {{ testResolveData.resolve_ip }}
+				</span>
+				<span v-else class="tag success"><span class="icon icon-checkmark" />
+					Successfully resolving for {{ domain }} to: {{ testResolveData.ip }}
+				</span>
+				
+				<span v-if="testReachable === null" class="tag neutral"><span class="icon icon-loading-small" />
+					Testing reachability of {{ domain }}
+				</span>
+				<span v-else-if="testReachable === false" class="tag error"><span class="icon icon-stop" />
+					Failed reachability test for {{ domain }}
+				</span>
+				<span v-else class="tag success"><span class="icon icon-checkmark" />
+					Successfully tested reachability for {{ domain }}
+				</span>
+				
+				<div v-if="https">
 					<span class="tag success"><span class="icon icon-checkmark" />
 						HTTPS / TLS is activated, your Nextcloud is available via 
-						<a :href="'https://' + config.domain">{{ config.domain }}</a>
+						<a :href="'https://' + domain">{{ domain }}</a>
 					</span><br>
 					<button v-tooltip="ttDisable" type="button" @click="disable()">
-						<span class="icon icon-confirm" />
+						<span class="icon icon-close" />
 						Disable HTTPS
 					</button>
 				</div>
@@ -26,20 +41,30 @@
 					<span class="tag warning"><span class="icon icon-error" />
 						HTTPS / TLS is not activated
 					</span><br>
-					<button v-tooltip="ttEnable" type="button" @click="enable()">
+					To activate HTTPS / TLS for your configured domain:
+					<span class="bold">"{{ domain }}"</span> please provide a valid E-Mail,
+					which will be used to acquire a Let's Encrypt Certificate.
+					<input v-model="update.email" type="text" @change="validateEMail()">
+					<br><span v-if="userMessage.email" class="error-txt">{{ userMessage.email.join(" ") }}</span><br>
+					<button v-tooltip="ttEnable" 
+						type="button" 
+						:disable="enableDisabled" 
+						@click="enable()">
+						
 						<span class="icon icon-confirm" />
 						Enable HTTPS 
 					</button>
 				</div><br>
 				Enabling or Disabling HTTPS might need a restart of your Browser to properly
 				access your Nextcloud afterwards as caching sometimes leads to issues.
+				<!--div icon="icon-close">
+					To enable HTTPS / TLS you need to provide a valid E-Mail address 
+					inside the <span class="bold">System Settings</span> to be used 
+					for the Let's Encrypt registration.
+				</div-->
+			
 			</div>
 		</div>
-		<Modal v-if="overlay" dark @close.prevent="">
-			<div class="modal-box">
-				<span class="bold">{{ overlayText }}</span>
-			</div>
-		</Modal>
 	</div>
 </template>
 
@@ -50,27 +75,42 @@ import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
+import qs from 'qs'
 
-import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
-import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
-import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
-import Modal from '@nextcloud/vue/dist/Components/Modal'
+//import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
+//import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
+//import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
+//import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+//import Modal from '@nextcloud/vue/dist/Components/Modal'
 
 export default {
 	name: 'TLS',
 	
 	components: {
-		EmptyContent,
-		Modal,
 	},
 
 	data() {
 		return {
-			overlay: false,
-			overlayText: '',
-			config: {},
+			domain: '',
+			email: '',
+			cert: {},
+			https: false,
+			dns_mode: '',
 			
+			testResolve: null,
+			testResolveData: {},
+			testReachable: null,
+			
+			// update-ables
+			update: {
+				email: '',
+			},
+
+			// user messaging
+			userMessage: {
+				email: [],
+			},
+
 			// consts/texts
 			ttEnable: 'This will use your e-mail address to register a certificate '
 					+ 'at Let\'s Crypt and install it to your NextBox\' Nextcloud instance. '
@@ -84,16 +124,91 @@ export default {
 		await this.refresh()
 	},
 
+	computed: {
+		enableDisabled() {
+			return !this.validateEMail()
+		},
+	},
+
 	methods: {
 		async refresh() {
 			try {
-				const res = await axios.get(generateUrl('/apps/nextbox/forward/config'))
-				this.config = res.data.data
+				const res = await axios.get(generateUrl('/apps/nextbox/forward/https'))
+				this.domain = res.data.data.domain
+				this.email = res.data.data.email
+				this.cert = res.data.data.cert
+				this.https = res.data.data.https
+				this.dns_mode = res.data.data.dns_mode
+				this.update.email = (this.email) ? this.email : ''
 			} catch (e) {
 				console.error(e)
 				showError(t('nextbox', 'Connection Failed'))
 			}
-			this.overlay = false
+			
+			try {
+				const res = await axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv4'))
+				this.testResolve = (res.data.result === 'success')
+				this.testResolveData = res.data.data
+			} catch (e) {
+				console.error(e)
+				showError(t('nextbox', 'Connection Failed'))
+			}
+
+			try {
+				const res = await axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/http'))
+				this.testReachable = (res.data.result === 'success')
+			} catch (e) {
+				console.error(e)
+				showError(t('nextbox', 'Connection Failed'))
+			}
+		},
+		
+		async enable() {
+			const url = '/apps/nextbox/forward/backup/restore'
+			const options = {
+				headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			}
+			const data = qs.stringify({
+				src_path: this.selectedRestore.path
+			})
+
+			const res = await axios.post(generateUrl(url), data, options).catch((e) => {
+				showError('Connection failed')
+				console.error(e)
+			})
+		},
+
+		async disable() {
+			const url = '/apps/nextbox/forward/backup/restore'
+			const options = {
+				headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			}
+			const data = qs.stringify({
+				src_path: this.selectedRestore.path
+			})
+
+			const res = await axios.post(generateUrl(url), data, options).catch((e) => {
+				showError('Connection failed')
+				console.error(e)
+			})
+		},
+
+		validateEMail() {
+			if (this.update.email === '' || this.update.email.length < 4) {
+				this.userMessage.email = [
+					'Please enter an e-mail address'
+				]
+				return false
+			}
+			const pat = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+			if (!pat.test(this.update.email)) {
+				this.userMessage.email = [
+					'Please enter a valid e-mail address'
+				]
+				return false
+			}
+			this.userMessage.email = []
+			return true
 		},
 	},
 }

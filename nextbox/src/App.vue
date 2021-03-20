@@ -15,9 +15,10 @@
 						<!-- AppNavigationItem :title="t('nextbox', 'Guided Dynamic DNS')" icon="icon-comment" @click="set_page('remote_dyndns')" /-->
 						<!-- AppNavigationItem :title="t('nextbox', 'Custom Dynamic DNS')" icon="icon-settings" @click="set_page('remote_custom_dns')" /-->
 						<AppNavigationItem :title="t('nextbox', 'Static Domain')" icon="icon-public" @click="set_page('remote_static_dns')" />
+						<AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" />
 					</template>
 				</AppNavigationItem>
-				<!-- AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" /-->
+				
 				<AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" />
 				<!-- AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" /-->
 			</ul>
@@ -33,9 +34,9 @@
 			<DynDNS v-if="page === 'remote_dyndns'" />
 			<CustomDNS v-if="page === 'remote_custom_dns'" />
 			<StaticDNS v-if="page === 'remote_static_dns'" />
+			<TLS v-if="page === 'tls'" />
 			<Remote v-if="page === 'remote'" @newPage="set_page" />
-
-			<!-- TLS v-if="page === 'tls'" /-->
+			
 		</AppContent>
 	</div>
 </template>
@@ -59,7 +60,7 @@ import Backup from './Backup'
 import Storage from './Storage'
 import Overview from './Overview'
 import Remote from './Remote'
-
+import TLS from './TLS'
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
@@ -82,6 +83,7 @@ export default {
 		Backup,
 		Storage,
 		Proxy,
+		TLS
 	},
 	data() {
 		return {
