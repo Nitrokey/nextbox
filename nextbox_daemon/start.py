@@ -69,13 +69,6 @@ def after_request_func(response):
     else:
         response.headers.add('Access-Control-Allow-Origin', request.remote_addr)
 
-
-    #response.headers.add('Access-Control-Allow-Origin', cfg["config"]["domain"])
-
-    #if not origin:
-    #    response.headers.add('Access-Control-Allow-Origin', "192.168.10.129")
-    #    response.headers.add('Access-Control-Allow-Origin', "192.168.10.47")
-
     return response
 ### end CORS section
 
@@ -103,7 +96,7 @@ def main():
 
     worker.start()
 
-    app.run(host="0.0.0.0", port=18585, debug=True, threaded=True, processes=1, use_reloader=False)
+    app.run(host="0.0.0.0", port=18585, debug=False, threaded=True, processes=1, use_reloader=False)
 
     signal.pause()
 
