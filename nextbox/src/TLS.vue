@@ -44,11 +44,11 @@
 					To activate HTTPS / TLS for your configured domain:
 					<span class="bold">"{{ domain }}"</span> please provide a valid E-Mail,
 					which will be used to acquire a Let's Encrypt Certificate.
-					<input v-model="update.email" type="text" @change="validateEMail()">
+					<input v-model="update.email" type="text" @change="validateEMail">
 					<br><span v-if="userMessage.email" class="error-txt">{{ userMessage.email.join(" ") }}</span><br>
 					<button v-tooltip="ttEnable" 
 						type="button" 
-						:disable="enableDisabled" 
+						:disabled="enableDisabled" 
 						@click="enable()">
 						
 						<span class="icon icon-confirm" />
@@ -56,13 +56,8 @@
 					</button>
 				</div><br>
 				Enabling or Disabling HTTPS might need a restart of your Browser to properly
-				access your Nextcloud afterwards as caching sometimes leads to issues.
-				<!--div icon="icon-close">
-					To enable HTTPS / TLS you need to provide a valid E-Mail address 
-					inside the <span class="bold">System Settings</span> to be used 
-					for the Let's Encrypt registration.
-				</div-->
-			
+				access your Nextcloud afterwards as caching sometimes leads to issues. <br>
+				It might also be needed to clear you browser cache/cookies, once you enable or disable TLS.
 			</div>
 		</div>
 	</div>
@@ -144,50 +139,66 @@ export default {
 				console.error(e)
 				showError(t('nextbox', 'Connection Failed'))
 			}
-			
-			try {
-				const res = await axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv4'))
-				this.testResolve = (res.data.result === 'success')
-				this.testResolveData = res.data.data
-			} catch (e) {
-				console.error(e)
-				showError(t('nextbox', 'Connection Failed'))
-			}
 
-			try {
-				const res = await axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/http'))
-				this.testReachable = (res.data.result === 'success')
-			} catch (e) {
-				console.error(e)
-				showError(t('nextbox', 'Connection Failed'))
+			// if domain is available check resolv/reachable
+			if (this.domain && this.dns_mode.endsWith('_done')) {
+
+				axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv4')).then((res) => {
+					this.testResolve = (res.data.result === 'success')
+					this.testResolveData = res.data.data
+				}).catch((e) => {
+					console.error(e)
+					showError(t('nextbox', 'Connection Failed'))
+				})
+					
+				axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/http')).then((res) => {
+					this.testReachable = (res.data.result === 'success')
+				}).catch((e) => {
+					console.error(e)
+					showError(t('nextbox', 'Connection Failed'))
+				})
+				
+				axios.get(generateUrl('/apps/nextbox/forward/certs')).then((res) => {
+					this.cert = res.data.data.cert
+				}).catch((e) => {
+					console.error(e)
+					showError(t('nextbox', 'Connection Failed'))
+				})
 			}
 		},
 		
 		async enable() {
-			const url = '/apps/nextbox/forward/backup/restore'
+			const url = '/apps/nextbox/forward/https/enable'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
 			const data = qs.stringify({
-				src_path: this.selectedRestore.path
+				domain: this.domain,
+				email: this.update.email,
 			})
 
-			const res = await axios.post(generateUrl(url), data, options).catch((e) => {
+			const res = await axios.post(generateUrl(url), data, options).then((res) => {
+				setTimeout(() => {
+					window.location.replace(`https://${this.domain}`)
+				}, 5000)
+			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 			})
 		},
 
 		async disable() {
-			const url = '/apps/nextbox/forward/backup/restore'
+			const url = '/apps/nextbox/forward/https/disable'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
-			const data = qs.stringify({
-				src_path: this.selectedRestore.path
-			})
+			const data = qs.stringify({})
 
-			const res = await axios.post(generateUrl(url), data, options).catch((e) => {
+			const res = await axios.post(generateUrl(url), data, options).then((res) => {
+				setTimeout(() => {
+					window.location.replace(`http://${this.domain}`)
+				}, 5000)
+			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 			})

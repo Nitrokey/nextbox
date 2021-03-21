@@ -8,16 +8,18 @@
 		<div v-if="!config.proxy_active" class="section">
 			<h2>Domain for NextBox</h2>
 			Insert the designated full domain for your NextBox. The domain always has to end with <span class="bold">.nextbox.link</span>.<br>
-			<input v-model="update.proxy_domain" type="text">
+			<input v-model="update.proxy_domain" type="text" @change="checkDomain">
 			<br><span v-if="userMessage.proxy_domain" class="error-txt">{{ userMessage.proxy_domain.join(" ") }}</span><br>
-			<button type="button" @click="activate()">
+			<button type="button" :disabled="activateDisabled" @click="activate()">
 				<span class="icon icon-confirm" />
 				Activate Quickstart Remote Access
 			</button>
 		</div>
 		<div v-else class="section">
-			Your <span class="bold">NextBox Quickstart Remote Access</span> is active, you can access your Nextcloud instance
-			using <a :href="'https://' + config.proxy_domain" class="bold">{{ config.proxy_domain }}</a>.<br>
+			Your <span class="bold">NextBox Quickstart Remote Access</span> is
+			active, you can access your Nextcloud instance using 
+			<a :href="'https://' + config.proxy_domain" class="bold">{{ config.proxy_domain }}</a>.<br>
+
 			<button type="button" @click="disable()">
 				<span class="icon icon-confirm" />
 				Disable Quickstart Remote Access
@@ -34,30 +36,28 @@ import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 
-import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
-import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
-import Actions from '@nextcloud/vue/dist/Components/Actions'
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
-import ActionRadio from '@nextcloud/vue/dist/Components/ActionRadio'
-import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
+// import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
+// import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
+// import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
+// import Actions from '@nextcloud/vue/dist/Components/Actions'
+// import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+// import ActionRadio from '@nextcloud/vue/dist/Components/ActionRadio'
+// import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
 export default {
 	name: 'Proxy',
 
 	components: {
-		AppContentDetails,
-		Actions,
-		ActionRadio,
-		ActionButton,
-		ActionInput,
+
 	},
 
 	data() {
 		return {
 			// generics
 			loading: false,
+			
+			// user messaging
 			userMessage: {
 				proxy_domain: [],
 			},
@@ -69,7 +69,7 @@ export default {
 				
 			},
 
-			// variables
+			// update-ables
 			update: {
 				proxy_domain: '',
 			},
@@ -77,7 +77,9 @@ export default {
 	},
 
 	computed: {
-
+		activateDisabled() {
+			return !this.checkDomain()
+		}
 	},
 
 	async mounted() {
@@ -95,23 +97,31 @@ export default {
 			this.update.proxy_domain = this.config.proxy_domain
 		},
 
-		check_domain() {
-			if (this.update.proxy_domain === null || !this.update.proxy_domain.includes('.')) {
+		checkDomain() {
+			const tld = '.nextbox.link'
+
+			const pat = /^((?:(?:(?:\w[.\-+]?)*)\w)+)((?:(?:(?:\w[.\-+]?){0,62})\w)+)\.(\w{2,6})$/
+			if (!pat.test(this.update.proxy_domain)) {
 				this.userMessage.proxy_domain = ['Please insert a valid domain']
 				return false
 			}
-			if (!this.update.proxy_domain.endsWith('.nextbox.link')) {
-				this.userMessage.proxy_domain = ['The Domain has to end with: .nextbox.link']
+			if (!this.update.proxy_domain.endsWith(tld)) {
+				this.userMessage.proxy_domain = [`Your proxy domain must end with ${tld}`]
+				return false
+			}
+			const subdomain = this.update.proxy_domain.slice(0, -tld.length)
+			const patSub = /^(?:[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]|[A-Za-z0-9])$/
+			if (!patSub.test(subdomain)) {
+				this.userMessage.proxy_domain = ['Not allowed characters in subdomain!']
 				return false
 			}
 
 			this.userMessage.proxy_domain = []
 			return true
 		},
-
 		
 		async activate() {
-			if (this.check_domain()) {
+			if (this.checkDomain()) {
 				this.update_config({
 					proxy_domain: this.update.proxy_domain,
 					proxy_active: true,

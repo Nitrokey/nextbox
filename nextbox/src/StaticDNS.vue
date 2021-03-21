@@ -23,6 +23,9 @@
 			domain configuration you have to disable your existing configuration first.
 		</div>
 		<div v-else class="section">
+			Your StaticDNS configuration is enabled for the domain: 
+			<span class="bold">{{ update.domain }}</span><br><br>
+			
 			<button type="button" @click="disable()">
 				<span class="icon icon-confirm" />
 				Disable Static Domain Configuration
@@ -40,24 +43,20 @@ import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 
-import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
-import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
-import Actions from '@nextcloud/vue/dist/Components/Actions'
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
-import ActionRadio from '@nextcloud/vue/dist/Components/ActionRadio'
-import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
+// import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
+// import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
+// import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
+// import Actions from '@nextcloud/vue/dist/Components/Actions'
+// import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+// import ActionRadio from '@nextcloud/vue/dist/Components/ActionRadio'
+// import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
 export default {
 	name: 'StaticDNS',
 
 	components: {
-		AppContentDetails,
-		Actions,
-		ActionRadio,
-		ActionButton,
-		ActionInput,
+		
 	},
 
 	data() {
