@@ -15,7 +15,7 @@ from nextbox_daemon.worker import job_queue
 from nextbox_daemon.certificates import Certificates
 from nextbox_daemon.nextcloud import Nextcloud
 from nextbox_daemon.services import Services
-from nextbox_daemon.proxy_tunnel import ProxyTunnel
+from nextbox_daemon.proxy_tunnel import ProxyTunnel, ProxySetupError
 from nextbox_daemon.consts import *
 
 
@@ -30,27 +30,23 @@ remote_api = Blueprint('remote', __name__)
 def register_proxy():
 
     # assemble data
-    data = {}
     for key in request.form:
         if key == "nk_token":
-            data["token"] = request.form.get(key)
+            token = request.form.get(key)
         elif key == "proxy_domain":
-            data["subdomain"] = request.form.get(key).split(".")[0]
+            subdomain = request.form.get(key).split(".")[0]
 
-    # send register request to proxy-server
-    headers = {"Content-Type": "application/json"}
-    req = urllib.request.Request(PROXY_REGISTER_URL, 
-        data=json.dumps(data).encode("utf-8"), 
-        method="POST", headers=headers)
+    scheme = "https" if cfg["config"]["https_port"] else "http"
+
+    proxy_tunnel = ProxyTunnel()
     try:
-        res = urllib.request.urlopen(req).read().decode("utf-8")
-    except urllib.error.HTTPError as e:
-        desc = e.read()
-        return error(f"Could not complete proxy registration", data=json.loads(desc))
-    
-    proxy_port = json.loads(res).get("data").get("port")
-    if not proxy_port:
-        return error(f"Could not register at proxy")
+        proxy_port = proxy_tunnel.setup(token, subdomain, scheme)
+    except ProxySetupError as e:
+        log.error(exc_info=e)
+        return error("register at proxy-server error: " + repr(e))
+    except Exception as e:
+        log.error(exc_info=e)
+        return error("unexpected error during proxy setup")
 
     # configure nextcloud
     nc = Nextcloud()
@@ -60,12 +56,6 @@ def register_proxy():
 
     cfg["config"]["proxy_port"] = proxy_port
     cfg.save()
-    
-    local_port = 443 if cfg["config"]["https_port"] else 80
-    
-    proxy_tunnel = ProxyTunnel()
-    proxy_tunnel.create_config(data["token"], proxy_port, local_port)
-    proxy_tunnel.start()
     
     # ensure trusted domains are set
     job_queue.put("TrustedDomains")
@@ -135,6 +125,9 @@ def test_resolve4():
     resolve_ip = None
     ext_ip = None
 
+    if not domain:
+        return error("no domain is set")
+
     # to resolve un-cachedx
     # we first flush all dns-related caches
     CommandRunner([SYSTEMD_RESOLVE_BIN, "--flush-cache"], block=True)
@@ -186,6 +179,9 @@ def test_http():
     else:
         domain = cfg["config"]["domain"]
     url = f"{what}://{domain}"
+
+    if not domain:
+        return error("no domain is set")
 
     try:
         content = urllib.request.urlopen(url).read().decode("utf-8")
@@ -260,32 +256,31 @@ def https():
     dct = {
         "domain": cfg.get("config", {}).get("domain"),
         "email": cfg.get("config", {}).get("email"),   
-        "cert": False,
         "https": cfg["config"]["https_port"] is not None,
         "dns_mode": cfg["config"]["dns_mode"]
     }
 
-    if dct.get("domain"):
-        certs = Certificates()
-        my_cert = certs.get_cert(dct.get("domain"))
-        if my_cert:
-            dct["cert"] = my_cert
-    
     return success(data=dct)
-
 
 @remote_api.route("/https/enable", methods=["POST"])
 @requires_auth
 def https_enable():
-    domain = cfg.get("config", {}).get("domain")
-    email = cfg.get("config", {}).get("email")
+    domain = request.form.get("domain")
+    email = request.form.get("email")
+
     if not domain or not email:
         return error(f"failed, domain: '{domain}' email: '{email}'")
 
     certs = Certificates()
     my_cert = certs.get_cert(domain)
     if not my_cert:
-        return error(f"could not get local certificate for: {domain}")
+        log.warning(f"could not get local certificate for: {domain}, acquiring...")
+        if not certs.acquire_cert(domain, email):
+            msg = f"Failed to acquire {domain} with {email}"
+            log.error(msg)
+            return error(msg)
+        log.info(f"acquired certificate for: {domain} with {email}")
+        my_cert = certs.get_cert(domain)
 
     certs.write_apache_ssl_conf(
         my_cert["domains"][0], 
@@ -296,17 +291,30 @@ def https_enable():
     if not certs.set_apache_config(ssl=True):
         return error("failed enabling ssl configuration for apache")
 
+    log.info(f"activated https for apache using: {domain}")
+
     cfg["config"]["https_port"] = 443
     cfg.save()
 
+    add_msg = ""
     if cfg["config"]["proxy_active"]:
+        subdomain = cfg["config"]["proxy_domain"].split(".")[0]
+        scheme = "https"
+        token = cfg["config"]["nk_token"]
         proxy_tunnel = ProxyTunnel()
-        token = cfg["config"]["token"]
-        port = cfg["config"]["proxy_port"]
-        proxy_tunnel.create_config(token, port, 443)
-        proxy_tunnel.start()
+        try:
+            proxy_port = proxy_tunnel.setup(token, subdomain, scheme)
+        except ProxySetupError as e:
+            log.error(exc_info=e)
+            add_msg = "(but register at proxy-server error: " + repr(e) + ")"
+        except Exception as e:
+            log.error(exc_info=e)
+            add_msg = "(unexpected error during proxy setup)"
 
-    return success("HTTPS enabled")
+        cfg["config"]["proxy_port"] = proxy_port
+        cfg.save()
+
+    return success("HTTPS enabled " + add_msg)
 
 @remote_api.route("/https/disable", methods=["POST"])
 @requires_auth
@@ -318,7 +326,42 @@ def https_disable():
     cfg["config"]["https_port"] = None
     cfg.save()
 
-    return success("HTTPS disabled")
+    add_msg = ""
+    if cfg["config"]["proxy_active"]:
+        subdomain = cfg["config"]["proxy_domain"].split(".")[0]
+        scheme = "http"
+        token = cfg["config"]["nk_token"]
+        proxy_tunnel = ProxyTunnel()
+        try:
+            proxy_port = proxy_tunnel.setup(token, subdomain, scheme)
+        except ProxySetupError as e:
+            log.error(exc_info=e)
+            add_msg = "(but register at proxy-server error: " + repr(e) + ")"
+        except Exception as e:
+            log.error(exc_info=e)
+            add_msg = "(unexpected error during proxy setup)"
+
+        cfg["config"]["proxy_port"] = proxy_port
+        cfg.save()
+
+
+    return success("HTTPS disabled " + add_msg)
+
+
+@remote_api.route("/certs")
+@requires_auth
+def getcerts():
+    dct = {
+        "cert": None,
+    }
+
+    if dct.get("domain"):
+        certs = Certificates()
+        my_cert = certs.get_cert(dct.get("domain"))
+        if my_cert:
+            dct["cert"] = my_cert
+    
+    return success(data=dct)
 
 
 @remote_api.route("/certs/acquire", methods=["POST"])
