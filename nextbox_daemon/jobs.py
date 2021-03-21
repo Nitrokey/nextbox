@@ -145,10 +145,12 @@ class TrustedDomainsJob(BaseJob):
         super().__init__(initial_interval=90)
 
     def _run(self, cfg, board, kwargs):
+        self.interval = 90
         try:
             trusted_domains = self.nc.get_config("trusted_domains")
-        except NextcloudError as e:
-            log.warning("cannot get trusted_domains from nextcloud, not running?", exc_info=e)
+        except NextcloudError:
+            log.warning("cannot get trusted_domains from nextcloud")
+            self.interval = 15
             return False        
 
         default_entry = trusted_domains[0]
@@ -161,7 +163,12 @@ class TrustedDomainsJob(BaseJob):
             entries.append(cfg["config"]["proxy_domain"])
 
         if any(entry not in trusted_domains for entry in entries):
-            self.nc.set_config("trusted_domains", entries)
+            try:
+                self.nc.set_config("trusted_domains", entries)
+            except NextcloudError:
+                log.warning("failed to write all trusted_domains")
+                self.interval = 15
+                
 
 class JobManager:
     def __init__(self, config, board):
