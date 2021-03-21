@@ -285,7 +285,7 @@ class RawBackupRestore:
             if key.startswith("size_"):
                 _, what = key.split("_")
                 # check meta-size > 0
-                if not val > 0:
+                if not val > 0 and what != "letsencrypt":
                     log.error(f"check cancel - {src_path}: size for '{what}'' not > 0")
                     return False
                 # check existance of dir
@@ -448,48 +448,3 @@ if __name__ == "__main__":
     #     except StopIteration:
     #         print ("done")
     #         break
-
-    # tar_path = Path("/srv/test2")
-    # it = back.full_export(tar_path)
-    # while True:
-    #     try:
-    #         state, (who, what), percent = next(it)
-    #         print(state, who, what, percent)
-    #     except StopIteration:
-    #         print ("done")
-    #         break
-
-
-    #print(back.export_sql())
-    # import time
-    # back.rsync_dir("/home/dariball/heap/nzb/dst", "/home/dariball/heap/nzb/dst2")
-    # while back.rsync_proc.running:
-    #     #print(back.rsync_proc.output)
-    #     print(back.rsync_proc.parsed)
-    #     time.sleep(0.3)
-    # print(back.rsync_proc.parsed)
-        
-    #print(back.rsync_proc.returncode)
-    #print(back.rsync_proc.output)
-    #print(back.rsync_proc.cmd)
-    #print(back.rsync_proc.get_new_output())
-    #print(back.rsync_proc.output)
-
-    #
-    #	# First, drop the database (if any)
-	#run_command "Dropping existing database" run-mysql -e "DROP DATABASE nextcloud"
-	#run_command "Creating new database" run-mysql -e "CREATE DATABASE nextcloud"
-	#run_command "Granting database privileges to existing user" \
-	#            run-mysql -e "GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'localhost'"
-
-
-	# Now restore the database 
-    ##	echo "Importing database..."
-    ##	if ! run-mysql nextcloud < "$database_backup"; then
-    ##		echo "Unable to import database"
-	##	exit 1
-	##fi
-
-    #
-    #
-    #

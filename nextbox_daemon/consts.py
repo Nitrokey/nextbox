@@ -13,7 +13,7 @@ GET_EXT_IP6_URL = "http://v6.ipv6-test.com/api/myip.php"
 PROXY_REGISTER_URL = "https://nextbox.link/register"
 
 CONFIG_PATH = "/srv/nextbox/nextbox.conf"
-RTUN_CONFIG_PATH = "/srv/nextbox/rtun.yaml"
+
 DDCLIENT_CONFIG_PATH = "/etc/ddclient/ddclient.conf"
 
 
