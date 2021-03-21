@@ -41,11 +41,3 @@ DYNDNS_DESEC_REGISTER = "https://desec.io/api/v1/auth/"
 SYSTEMD_RESOLVE_BIN = "/usr/bin/systemd-resolve"
 SYSTEMCTL_BIN = "/usr/bin/systemctl"
 
-
-###
-### certbot certonly --webroot --webroot-path /srv/nextcloud --email {email} --non-interactive --agree-tos -d {domain}
-###
-### certificates at /etc/letsencrypt
-###
-### delete certificates: rm -rf /etc/letsencrypt ?
-###        -> /etc/letsencrypt/archive /etc/letsencrypt/live
