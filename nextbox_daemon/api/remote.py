@@ -33,7 +33,8 @@ def register_proxy():
         if key == "nk_token":
             token = request.form.get(key)
         elif key == "proxy_domain":
-            subdomain = request.form.get(key).split(".")[0]
+            proxy_domain = request.form.get(key)
+            subdomain = proxy_domain.split(".")[0]
 
     scheme = "https" if cfg["config"]["https_port"] else "http"
 
@@ -41,15 +42,16 @@ def register_proxy():
     try:
         proxy_port = proxy_tunnel.setup(token, subdomain, scheme)
     except ProxySetupError as e:
-        log.error(exc_info=e)
         cfg["config"]["proxy_active"] = False
         cfg.save()
-        return error("register at proxy-server error: " + repr(e))
+        log.error(str(e))
+        return error(str(e))
     except Exception as e:
-        log.error(exc_info=e)
         cfg["config"]["proxy_active"] = False
         cfg.save()
-        return error("unexpected error during proxy setup")
+        msg = "unexpected error during proxy setup"
+        log.error(msg, exc_info=e)
+        return error(msg)
 
     # configure nextcloud
     nc = Nextcloud()
@@ -58,11 +60,14 @@ def register_proxy():
         nc.set_config("overwritecondaddr", "^172\\.18\\.238\\.1$")
         nc.set_config("trusted_proxies", ["172.18.238.1"])
     except NextcloudError as e:
-        log.error("could not configure nextcloud for proxy usage", exc_info=e)
         cfg["config"]["proxy_active"] = False
         cfg.save()
-        return error("configure nextcloud for proxy usage failed")
+        msg = "could not configure nextcloud for proxy usage"
+        log.error(msg, exc_info=e)
+        return error(msg)
 
+    cfg["config"]["proxy_domain"] = proxy_domain
+    cfg["config"]["proxy_active"] = True
     cfg["config"]["proxy_port"] = proxy_port
     cfg.save()
     

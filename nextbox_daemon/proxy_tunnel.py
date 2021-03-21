@@ -75,8 +75,13 @@ class ProxyTunnel:
             desc = e.read()
             raise ProxySetupError((f"Could not complete proxy registration", json.loads(desc)))
         
-        proxy_port = json.loads(res).get("data").get("port")
-        if not proxy_port:
-            raise ProxySetupError(f"Could not register at proxy")
-            
-        return proxy_port
+        res = json.loads(res)
+        # success return port
+        if res["result"] == "success":
+            return res["data"]["port"]
+
+        # on fail, raise with error-msg
+        err_msg = res["msg"][0] if isinstance(res["msg"], (list, tuple)) else res["msg"]
+        raise ProxySetupError(err_msg)
+        
+        
