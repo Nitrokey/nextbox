@@ -1,3 +1,9 @@
+%%PKG%% (0.9.1-2) groovy; urgency=low
+
+  * app: bump version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 21 Mar 2021 18:42:11 +0000
+
 %%PKG%% (0.9.1-1) groovy; urgency=low
 
   * daemon: nextcloud-class recognizes if instance is not running
