@@ -36,8 +36,10 @@ class Partitions:
                 if not line.startswith("/"):
                     continue
                 if line.startswith(f"/dev/{part}"):
-                    return line.split(" ", 2)[1]
-        return False
+                    toks = line.split(" ")
+                    ## return (mountpoint, fs_type)
+                    return toks[1], toks[2]
+        return False, False
 
     def get_parts(self, block_dev, model):
         labels = { path.resolve().name: path.name \
@@ -52,7 +54,7 @@ class Partitions:
 
             if part.startswith(block_dev) and part != block_dev:
                 label = labels.get(part)
-                mounted = self.is_mounted(part)
+                mounted, fs_type = self.is_mounted(part)
 
                 real_mounted = "/" if label == self.root_label else mounted
                 if real_mounted:
@@ -79,6 +81,7 @@ class Partitions:
                     "friendly_name": friendly_name,
                     "label": label,
                     "mounted": real_mounted,
+                    "fs": fs_type,
                     "special": is_special,
                     "space":  {"free": free, "avail": avail}
                 }
@@ -122,16 +125,19 @@ class Partitions:
         out = []
         for item in self.block_devices.values():
             for part_name, part_item in item["parts"].items():
-                if part_item["mounted"] and part_item["mounted"] != "/":
+                # exlude sd-card & internal harddisk from backups
+                if part_item["mounted"] and part_item["mounted"] not in ["/", "/srv"]:
                     path = part_item["mounted"]
-                    # allow backups onto internal drive
-                    if path.startswith("/srv"):
-                        path = (Path(path) / "backups").as_posix()
-
+                    
+                    # only allow unix filesystems for backups for now
+                    if part_item["fs"] not in ["btrfs", "ext3", "ext4", "xfs"]:
+                        continue
+                    
                     out.append({
                         "friendly_name": part_item["friendly_name"],
                         "name": part_name,
                         "path": path,
+                        "fs": part_item["fs"]
                     })
         return out
 
@@ -148,3 +154,5 @@ class Partitions:
 if __name__ == "__main__":
     p = Partitions()
     print(p.block_devices)
+    print()
+    print(p.backup_devices)
