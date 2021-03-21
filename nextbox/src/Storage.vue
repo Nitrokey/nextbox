@@ -60,7 +60,6 @@ import axios from '@nextcloud/axios'
 
 import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 import Actions from '@nextcloud/vue/dist/Components/Actions'
 import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
@@ -126,8 +125,15 @@ export default {
 				const free = Math.round((dev.space.free / togb) * 10) / 10
 				const avail = Math.round((dev.space.avail / togb) * 10) / 10
 				space = `Space: ${free}GB / ${avail}GB`
-			} 
-			return (dev.mounted) ? `/dev/${dev.name} @ ${dev.mounted} | ${space}` : `/dev/${dev.name}`
+			}
+			let fsinfo = '' 
+			if (dev.mounted !== '/' && dev.mounted !== '/srv') {
+				fsinfo = ` | (${dev.fs})`
+				if (!['ext4', 'ext3', 'xfs', 'btrfs'].includes(dev.fs)) {
+					fsinfo += ' Not available for backups (unsupported filesystem)'
+				}
+			}
+			return (dev.mounted) ? `/dev/${dev.name} @ ${dev.mounted} | ${space}${fsinfo}` : `/dev/${dev.name}`
 		},
 
 		getActions(dev) {
