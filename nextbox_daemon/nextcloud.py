@@ -60,31 +60,31 @@ class Nextcloud:
 
 if __name__ == "__main__":
     nc = Nextcloud()
-    x = nc.get_config("trusted_domains")
-    print(x)
+    # x = nc.get_config("trusted_domains")
+    # print(x)
     
-    nc.delete_config("trusted_domains")
-    x = nc.get_config("trusted_domains")
-    print(x)
+    # nc.delete_config("trusted_domains")
+    # x = nc.get_config("trusted_domains")
+    # print(x)
 
-    nc.set_config("trusted_domains", ["192.168.*.*", "10.*.*.*", "172.18.*.*", "foo.nextbox.link"])
-    x = nc.get_config("trusted_domains")
-    print(x)
+    # nc.set_config("trusted_domains", ["192.168.*.*", "10.*.*.*", "172.18.*.*", "foo.nextbox.link"])
+    # x = nc.get_config("trusted_domains")
+    # print(x)
 
-    # nc.set_maintenance_off()
+    # # nc.set_maintenance_off()
 
-    #nc.set_config("trusted_proxies", ["188.40.174.114"])
-    # nc.set_config("overwritehost", "foo.nextbox.link")
+    # #nc.set_config("trusted_proxies", ["188.40.174.114"])
+    # # nc.set_config("overwritehost", "foo.nextbox.link")
     
-    nc.set_config("overwriteprotocol", "https")
-    nc.set_config("overwritecondaddr", r"^172\.18\.238\.1$")
+    # nc.set_config("overwriteprotocol", "https")
+    # nc.set_config("overwritecondaddr", r"^172\.18\.238\.1$")
 
-    #x = nc.get_config("trusted_proxies")
-    #print(x)
-    #x = nc.get_config("overwriteprotocol")
-    #print(x)
-    #x = nc.get_config("overwritecondaddr")
-    #print(x)
+    # #x = nc.get_config("trusted_proxies")
+    # #print(x)
+    # #x = nc.get_config("overwriteprotocol")
+    # #print(x)
+    # #x = nc.get_config("overwritecondaddr")
+    # #print(x)
 
 
 #  $CONFIG = array (
