@@ -47,8 +47,8 @@ import AppContent from '@nextcloud/vue/dist/Components/AppContent'
 import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
 import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
 
-import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
-import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
+// import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
+// import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 
 import Logs from './Logs'
 import System from './System'

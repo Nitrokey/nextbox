@@ -58,8 +58,8 @@ import { showError, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 
-import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
-import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
+// import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
+// import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 
 const FileDownload = require('js-file-download')
