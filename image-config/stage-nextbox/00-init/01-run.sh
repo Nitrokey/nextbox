@@ -47,6 +47,8 @@ on_chroot << EOF
 systemctl enable unattended-upgrades
 dpkg-reconfigure -f noninteractive unattended-upgrades
 
+# delete password for nextuser
+passwd -d nextuser
 
 echo "LABEL=NextBoxHardDisk	/srv			ext4	defaults,noatime	0	2" >> /etc/fstab
 echo "/srv/varlog		/var/log		none	defaults,bind		0	0" >> /etc/fstab
