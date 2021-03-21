@@ -1,3 +1,15 @@
+%%PKG%% (0.9.1-1) groovy; urgency=low
+
+  * daemon: nextcloud-class recognizes if instance is not running
+  * daemon: removed debug flag for flask server
+  * daemon: allow only certain filesystems as backup devices
+  * app: inform user about unsupported filesystem on storage
+  * daemon: cleaned up python codebase
+  * app: removed unused imports
+  * daemon: don't allow backups on internal harddisk
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 21 Mar 2021 18:42:11 +0000
+
 %%PKG%% (0.9.0-1) groovy; urgency=low
 
   * release candidate
