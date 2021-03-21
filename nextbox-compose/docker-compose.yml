@@ -87,7 +87,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /etc/letsencrypt
+      device: /srv/letsencrypt
 
 
 
