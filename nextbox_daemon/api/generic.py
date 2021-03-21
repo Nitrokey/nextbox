@@ -4,7 +4,7 @@ from pathlib import Path
 from zipfile import ZipFile
 from base64 import b64encode
 
-from flask import Blueprint, request, send_file
+from flask import Blueprint, request
 
 
 from nextbox_daemon.command_runner import CommandRunner
@@ -55,24 +55,6 @@ def system_settings():
         pass
 
 
-#
-# @app.route("/token/<token>/<allow_ip>")
-# def set_token(token, allow_ip):
-#
-#     if request.remote_addr != "127.0.0.1":
-#         #abort(403)
-#         return error("not allowed")
-#
-#     cfg["token"]["value"] = token
-#     cfg["token"]["created"] = time.time()
-#     cfg["token"]["ip"] = allow_ip
-#     save_config(cfg, CONFIG_PATH)
-#
-#     return success()
-
-
-
-
 @generic_api.route("/logs")
 @requires_auth
 def get_logs():
@@ -106,8 +88,6 @@ def get_logs():
         CommandRunner(cmd, block=True, shell=True)
         logfiles.append(log_dir / fn)
         
-        #print("")
-    
     for path in var_logfiles:
         shutil.copy(path, log_dir.as_posix())
         logfiles.append(log_dir / Path(path).name)
@@ -116,8 +96,6 @@ def get_logs():
     CommandRunner(f"sha256sum {log_dir.as_posix()}/* > {hash_file.as_posix()}", shell=True, block=True)
     logfiles.append(hash_file)
 
-    print(logfiles)
-
     zip_path = "/srv/nextbox-logs.zip"
     with ZipFile(zip_path, "w") as fd:
         for path in logfiles:
@@ -125,8 +103,7 @@ def get_logs():
     
     with open(zip_path, "rb") as fd:
         return success(data={"zip": b64encode(fd.read())})
-    #send_file(zip_path, mimetype="application/zip",  as_attachment=True, attachment_filename=zip_path)
-    
+
 
 @generic_api.route("/ssh", methods=["POST", "GET"])
 @requires_auth
@@ -155,7 +132,6 @@ def ssh_set():
         
         log.info(f"setting ssh pub key: {pubkey}")
         return success()
-
 
 
 @generic_api.route("/service/<name>/<operation>")
@@ -201,9 +177,6 @@ def handle_config():
                     run_jobs.append("TrustedDomains")
 
                 elif key == "proxy_active" and val.lower() == "false":
-                    #run_jobs.append("ProxySSH")
-                    #service_operation("reverse-tunnel", "stop")
-                    #service_operation("reverse-tunnel", "disable")
                     proxy_tunnel = ProxyTunnel()
                     proxy_tunnel.stop()
 
