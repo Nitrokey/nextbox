@@ -13,7 +13,7 @@ from nextbox_daemon.utils import requires_auth, success, error
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
 from nextbox_daemon.certificates import Certificates
-from nextbox_daemon.nextcloud import Nextcloud
+from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.services import Services
 from nextbox_daemon.proxy_tunnel import ProxyTunnel, ProxySetupError
 from nextbox_daemon.consts import *
@@ -22,7 +22,6 @@ from nextbox_daemon.consts import *
 from filelock import FileLock
 
 remote_api = Blueprint('remote', __name__)
-
 
 
 @remote_api.route("/proxy/register", methods=["POST"])
@@ -43,16 +42,26 @@ def register_proxy():
         proxy_port = proxy_tunnel.setup(token, subdomain, scheme)
     except ProxySetupError as e:
         log.error(exc_info=e)
+        cfg["config"]["proxy_active"] = False
+        cfg.save()
         return error("register at proxy-server error: " + repr(e))
     except Exception as e:
         log.error(exc_info=e)
+        cfg["config"]["proxy_active"] = False
+        cfg.save()
         return error("unexpected error during proxy setup")
 
     # configure nextcloud
     nc = Nextcloud()
-    nc.set_config("overwriteprotocol", "https")
-    nc.set_config("overwritecondaddr", "^172\\.18\\.238\\.1$")
-    nc.set_config("trusted_proxies", ["172.18.238.1"])
+    try:
+        nc.set_config("overwriteprotocol", "https")
+        nc.set_config("overwritecondaddr", "^172\\.18\\.238\\.1$")
+        nc.set_config("trusted_proxies", ["172.18.238.1"])
+    except NextcloudError as e:
+        log.error("could not configure nextcloud for proxy usage", exc_info=e)
+        cfg["config"]["proxy_active"] = False
+        cfg.save()
+        return error("configure nextcloud for proxy usage failed")
 
     cfg["config"]["proxy_port"] = proxy_port
     cfg.save()
@@ -296,6 +305,7 @@ def https_enable():
     cfg["config"]["https_port"] = 443
     cfg.save()
 
+    # we need to "re-wire" the proxy to port 443 on activated TLS
     add_msg = ""
     if cfg["config"]["proxy_active"]:
         subdomain = cfg["config"]["proxy_domain"].split(".")[0]
@@ -326,6 +336,7 @@ def https_disable():
     cfg["config"]["https_port"] = None
     cfg.save()
 
+    # we need to "re-wire" the proxy to port 80 on activated TLS
     add_msg = ""
     if cfg["config"]["proxy_active"]:
         subdomain = cfg["config"]["proxy_domain"].split(".")[0]
@@ -343,7 +354,6 @@ def https_disable():
 
         cfg["config"]["proxy_port"] = proxy_port
         cfg.save()
-
 
     return success("HTTPS disabled " + add_msg)
 

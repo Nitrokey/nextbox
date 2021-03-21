@@ -16,10 +16,14 @@ class Nextcloud:
     def __init__(self):
         pass
 
-    
     def run_cmd(self, *args):
         #log.debug(f"run (nextcloud): {self.occ_cmd + args}")
-        return CommandRunner(self.occ_cmd + args, block=True).output[:-2]
+        cr = CommandRunner(self.occ_cmd + args, block=True)
+        if cr.returncode != 0:
+            cr.log_output()
+            raise NextcloudError("failed to execute nextcloud:occ command")
+        
+        return cr.output[:-2]
 
     def get_config(self, key):
         return self.run_cmd("config:system:get", key)

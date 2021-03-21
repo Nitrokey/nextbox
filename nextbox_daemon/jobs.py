@@ -7,7 +7,7 @@ import psutil
 from nextbox_daemon.consts import *
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.config import log
-from nextbox_daemon.nextcloud import Nextcloud
+from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.raw_backup_restore import RawBackupRestore
 
 class BaseJob:
@@ -98,8 +98,11 @@ class EnableNextBoxAppJob(BaseJob):
 
     def _run(self, cfg, board, kwargs):
         # just keep on trying to activate until it worked
-        if self.nc.enable_nextbox_app():
-            self.interval = 3600
+        try:
+            if self.nc.enable_nextbox_app():
+                self.interval = 3600
+        except NextcloudError:
+            pass
 
 
 class GenericStatusUpdateJob(BaseJob):
@@ -142,20 +145,19 @@ class TrustedDomainsJob(BaseJob):
         super().__init__(initial_interval=90)
 
     def _run(self, cfg, board, kwargs):
-        trusted_domains = self.nc.get_config("trusted_domains")
-
-        # @todo: might be dangerous if trusted_domains ARE really empty
-        # @todo: Nextcloud-class needs a mechanism to detect, if the nextcloud instance is running!!!
-        if len(trusted_domains) == 0:
-            return
+        try:
+            trusted_domains = self.nc.get_config("trusted_domains")
+        except NextcloudError as e:
+            log.warning("cannot get trusted_domains from nextcloud, not running?", exc_info=e)
+            return False        
 
         default_entry = trusted_domains[0]
 
         entries = [default_entry] + self.static_entries[:]
-        if "domain" in cfg["config"]:
+        if cfg["config"].get("domain"):
             entries.append(cfg["config"]["domain"])
 
-        if cfg["config"].get("proxy_active") and "proxy_domain" in cfg["config"]:
+        if cfg["config"].get("proxy_active") and cfg["config"].get("proxy_domain"):
             entries.append(cfg["config"]["proxy_domain"])
 
         if any(entry not in trusted_domains for entry in entries):

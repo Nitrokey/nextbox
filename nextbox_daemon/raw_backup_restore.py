@@ -8,7 +8,7 @@ import shutil
 
 
 from nextbox_daemon.command_runner import CommandRunner
-from nextbox_daemon.nextcloud import Nextcloud
+from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.config import log, cfg
 
 class RawBackupRestore:
@@ -148,13 +148,21 @@ class RawBackupRestore:
             log.error("cannot get sql password for export, aborting...")
             return False
         
-        self.nc.set_maintenance_on()
+        try:
+            self.nc.set_maintenance_on()
+        except NextcloudError as e:
+            log.error("could not switch on maintainance mode, stopping restore", exc_info=e)
+            return False
 
         tar_sql_path = Path(tar_path) / self.sql_dump_fn
         cmd = self.db_export_cmd.format(pwd=pwd, path=tar_sql_path.as_posix())
         cr = CommandRunner(cmd, block=True, shell=True)
         
-        self.nc.set_maintenance_off()
+        try:
+            self.nc.set_maintenance_off()
+        except NextcloudError as e:
+            log.error("could not switch off maintainance mode, stopping restore", exc_info=e)
+            return False
 
         upd = {"size_sql": os.path.getsize(tar_sql_path.as_posix())}
         self.update_meta(tar_path, upd)
@@ -172,7 +180,12 @@ class RawBackupRestore:
             log.error("sql-import data path not found, aborting...")
             return False
 
-        self.nc.set_maintenance_on()
+        try:
+            self.nc.set_maintenance_on()
+        except NextcloudError as e:
+            log.error("could not switch on maintainance mode, stopping restore")
+            log.error(exc_info=e)
+            return False
         
         # drop database
         cmd = self.db_cmd.format(pwd=pwd, sql="DROP DATABASE nextcloud")
@@ -190,7 +203,12 @@ class RawBackupRestore:
         cmd = self.db_import_cmd.format(pwd=pwd, path=src_sql_path.as_posix())
         cr = CommandRunner(cmd, block=True, shell=True)
         
-        self.nc.set_maintenance_off()
+        try:
+            self.nc.set_maintenance_off()
+        except NextcloudError as e:
+            log.error("could not switch off maintainance mode, stopping restore")
+            log.error(exc_info=e)
+            return False
 
         return cr.returncode == 0
 
