@@ -103,5 +103,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# cat /sys/class/thermal/thermal_zone0/temp
