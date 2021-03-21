@@ -1,17 +1,16 @@
 <template>
 	<div class="proxy">
 		<div class="section">
-			<h2>Quickstart Remote Access for Your NextBox</h2>
-			This is by far the easiest way to make your personal Cloud available from everywhere.<br>
-			Using your <span class="bold">NextBox Quickstart Token</span> you are just one click away from your private, global Nextcloud.
+			<h2>Backwards Proxy Remote Access for Your NextBox</h2>
+			The easiest way to make your personal Cloud available from everywhere.<br>
 		</div>
 		<div v-if="!config.proxy_active" class="section">
 			<h2>Domain for NextBox</h2>
-			Insert the designated full domain for your NextBox. The domain always has to end with <span class="bold">.nextbox.link</span>.<br>
+			Insert the designated full domain for your NextBox. The domain must end with <span class="bold">.nextbox.link</span><br>
 			<input v-model="update.proxy_domain" type="text" @change="checkDomain">
 			<br><span v-if="userMessage.proxy_domain" class="error-txt">{{ userMessage.proxy_domain.join(" ") }}</span><br>
 			<button type="button" :disabled="activateDisabled" @click="activate()">
-				<span class="icon icon-confirm" />
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 				Activate Quickstart Remote Access
 			</button>
 		</div>
@@ -56,6 +55,7 @@ export default {
 		return {
 			// generics
 			loading: false,
+			loadingButton: false,
 			
 			// user messaging
 			userMessage: {
@@ -78,6 +78,9 @@ export default {
 
 	computed: {
 		activateDisabled() {
+			if (this.loadingButton) {
+				return true
+			}
 			return !this.checkDomain()
 		}
 	},
@@ -115,6 +118,10 @@ export default {
 				this.userMessage.proxy_domain = ['Not allowed characters in subdomain!']
 				return false
 			}
+			if (subdomain.length < 5) {
+				this.userMessage.proxy_domain = ['The subdomain has to be at least 5 characters long']
+				return false
+			}
 
 			this.userMessage.proxy_domain = []
 			return true
@@ -122,10 +129,7 @@ export default {
 		
 		async activate() {
 			if (this.checkDomain()) {
-				this.update_config({
-					proxy_domain: this.update.proxy_domain,
-					proxy_active: true,
-				})
+				this.loadingButton = true
 					
 				// after updating the config, register at nextbox-proxy
 				const data = {
@@ -138,17 +142,26 @@ export default {
 					headers: { 'content-type': 'application/x-www-form-urlencoded' },
 				}
 				const res = await axios.post(generateUrl(url), qs.stringify(data), options)
-					.catch((e) => {
+					.then((res) => {
+						if (res.data.result !== 'success') {
+							showError(res.data.msg)
+						} else {
+							this.refresh()
+							showSuccess('backwards proxy activated')
+						}
+					}).catch((e) => {
 						showError('Connection failed')
 						console.error(e)
 					})
+				this.loadingButton = false
 			}
 		},
 
 		async disable() {
-			this.update_config({
+			await this.update_config({
 				proxy_active: false,
 			})
+
 		},
 		
 		async update_config(update) {
@@ -162,7 +175,7 @@ export default {
 					console.error(e)
 				})
 
-			this.refresh()
+			await this.refresh()
 		},
 	},
 }
