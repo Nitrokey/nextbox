@@ -127,7 +127,7 @@ class HardwareStatusUpdateJob(BaseJob):
     name = "HardwareStatusUpdate"
 
     def __init__(self):
-        super().__init__(initial_interval=60)
+        super().__init__(initial_interval=7200)
     
     def _run(self, cfg, board, kwargs):
     
