@@ -1,33 +1,7 @@
 <template>
 	<div class="system">
-		<div class="section">
-			<h2>SSH Access Control</h2>
-						
-			<div v-if="pubkey">
-				NextBox is configured to grant access using SSH. As login use:
-				"nextuser" and as default password: "raspberry_default_password".<br>
-				The user has full sudo access, change the default password for 
-				your own security. <br>Nitrokey cannot give you support for changes
-				done using the ssh access, use it at your own risk!
-			</div><div v-else>
-				To get access to your NextBox via SSH, please provide a public key.
-			</div>
-
-			<input v-model="update.pubkey" placeholder="Public Key - SSH Access Deactivated" type="text"><br>
+					
 			
-			<button v-if="!pubkey" type="button" @click="toggle_ssh('on')">
-				<span class="icon icon-confirm" />
-				Activate SSH Access
-			</button>
-			<button v-else type="button" @click="toggle_ssh('off')">
-				<span class="icon icon-close" />
-				Deactivate SSH Access
-			</button>
-			
-			<br>
-				
-		</div>
-
 		<div class="section">
 			<h2>System Logs</h2>
 			Downloading the system logs will allow you an extensive view into the state of your system.<br>
@@ -43,9 +17,31 @@
 			<input v-model="update.nk_token" type="text" disabled="true">
 			<br><span v-if="userMessage.nk_token" class="error-txt">{{ userMessage.nk_token.join(" ") }}</span><br>
 		</div>
-		
 
+		<div class="section">
+			<h2>SSH Access Control</h2>
+			
+			<div v-if="pubkey">
+				NextBox is configured to grant access using SSH. As user use:
+				"nextuser" the user has passwordless sudo configured.<br>
+				Nitrokey cannot give you support for changes
+				done using the ssh access, use it at your own risk!
+			</div><div v-else>
+				To get access to your NextBox via SSH, please provide a public key.<br>
+				<input v-model="update.pubkey" 
+					type="text" 
+					placeholder="Public Key - SSH Access Deactivated">
+			</div>
 
+			<button v-if="!pubkey" type="button" @click="toggle_ssh('on')">
+				<span class="icon icon-confirm" />
+				Activate SSH Access
+			</button>
+			<button v-else type="button" @click="toggle_ssh('off')">
+				<span class="icon icon-close" />
+				Deactivate SSH Access
+			</button>
+		</div>
 	</div>
 </template>
 
@@ -60,14 +56,13 @@ import qs from 'qs'
 
 // import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
+// import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 
 const FileDownload = require('js-file-download')
 
 export default {
 	name: 'System',
 	components: {
-		AppContentDetails,
 	},
 
 	data() {
@@ -100,10 +95,9 @@ export default {
 		async refresh() {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/ssh'))
-				if (res.data.data.pubkey.trim()) {
-					this.update.pubkey = res.data.data.pubkey.trim()
-					this.pubkey = res.data.data.pubkey.trim()
-				}
+				this.update.pubkey = res.data.data.pubkey.trim()
+				this.pubkey = res.data.data.pubkey.trim()
+				
 			} catch (e) {
 				console.error(e)
 			}
