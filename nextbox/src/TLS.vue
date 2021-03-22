@@ -36,7 +36,7 @@
 						type="button" 
 						:disabled="loadingButton" 
 						@click="disable()">
-						
+
 						<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
 						Disable HTTPS
 					</button>
@@ -226,7 +226,11 @@ export default {
 					this.loadingButton = false
 				}
 			}).catch((e) => {
-				showError('Connection failed')
+				// expected behavior for success :/
+				setTimeout(() => {
+					window.location.replace(`http://${this.domain}`)
+				}, 5000)
+				showSuccess('redirecting in 5secs')
 				console.error(e)
 				this.loadingButton = false
 			})
