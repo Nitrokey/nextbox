@@ -1,3 +1,11 @@
+%%PKG%% (0.9.2.3-1) groovy; urgency=low
+
+  * daemon: increase various job intervals
+  * daemon: decrease backup job interval, while running
+  * app: remote overview, only resolve/reach if domain is set
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 22 Mar 2021 08:42:11 +0000
+
 %%PKG%% (0.9.2.2-1) groovy; urgency=low
 
   * daemon: auto-self-update now a one-shot background job
