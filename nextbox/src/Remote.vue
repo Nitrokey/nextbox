@@ -5,7 +5,7 @@
 			<h2>Remote Access - Status</h2>
 			
 			<div>
-				<span :class="'tag ' + status.resolve.state"><span :class="'tag-icon ' + status.resolve.icon" />
+				<span v-if="config.domain" :class="'tag ' + status.resolve.state"><span :class="'tag-icon ' + status.resolve.icon" />
 					<span class="tag-content">{{ status.resolve.content }}</span>
 					<span class="tag-middle" />
 					<span class="tag-extra">{{ status.resolve.extra }}</span>
@@ -13,7 +13,7 @@
 			</div>
 
 			<div>
-				<span :class="'tag ' + status.http.state"><span :class="'tag-icon ' + status.http.icon" />
+				<span v-if="config.domain" :class="'tag ' + status.http.state"><span :class="'tag-icon ' + status.http.icon" />
 					<span class="tag-content">{{ status.http.content }}</span>
 					<span class="tag-middle" />
 					<span class="tag-extra">{{ status.http.extra }}</span>
@@ -92,7 +92,8 @@ export default {
 				https_port: false,
 				proxy_active: false,
 				dns_mode: 'off',
-				proxy_domain: ''
+				proxy_domain: '',
+				domain: false,
 
 			},
 
