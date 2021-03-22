@@ -26,10 +26,14 @@
 			Your StaticDNS configuration is enabled for the domain: 
 			<span class="bold">{{ update.domain }}</span><br><br>
 			
-			<button type="button" @click="disable()">
+			<button type="button" :disabled="config.https_port" @click="disable()">
 				<span class="icon icon-confirm" />
 				Disable Static Domain Configuration
 			</button>
+
+			<div v-if="config.https_port">
+				Disabling the Static Domain Configuration is not allowed with activated TLS.
+			</div>
 		</div>
 	</div>
 </template>
@@ -73,6 +77,7 @@ export default {
 			config: {
 				dns_mode: 'off',
 				domain: '',
+				https_port: false,
 			},
 			
 			// variables
