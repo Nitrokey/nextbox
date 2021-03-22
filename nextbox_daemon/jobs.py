@@ -73,7 +73,7 @@ class BackupRestoreJob(BaseJob):
                 self.iterator = self.ctrl.full_export(kwargs["tar_path"])
             else:
                 self.iterator = self.ctrl.full_import(kwargs["tar_path"])
-            self.interval = 5
+            self.interval = 1
             return
 
         # backup is running, update board with current state
