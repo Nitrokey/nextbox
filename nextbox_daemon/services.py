@@ -10,7 +10,9 @@ class Services:
         "ddclient": ("ddclient.service", FULL_SERVICE_CTRL),
         "nextbox-daemon": ("nextbox-daemon.service", SAFE_SERVICE_CTRL),
         "nextbox-compse": ("nextbox-compose.service", SAFE_SERVICE_CTRL),
-        "reverse-tunnel": ("reverse-tunnel.service", FULL_SERVICE_CTRL)
+        "reverse-tunnel": ("reverse-tunnel.service", FULL_SERVICE_CTRL),
+        "apt-daily": ("apt-daily.service", SAFE_SERVICE_CTRL),
+        "apt-daily-upgrade": ("apt-daily-upgrade.service", SAFE_SERVICE_CTRL),
     }
 
     def __init__(self):
