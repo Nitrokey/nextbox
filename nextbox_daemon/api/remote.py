@@ -308,6 +308,7 @@ def https_enable():
     log.info(f"activated https for apache using: {domain}")
 
     cfg["config"]["https_port"] = 443
+    cfg["config"]["email"] = email    
     cfg.save()
 
     # we need to "re-wire" the proxy to port 443 on activated TLS
