@@ -157,7 +157,7 @@ class Certificates:
 
         return True
 
-    def set_apache_config(self, ssl):
+    def set_apache_config(self, ssl, run_reload=True):
         # config: either with or without ssl 
         conf = Path(self.apache_ssl_conf if ssl else self.apache_nossl_conf)
         enable_dir = Path(self.apache_enabled_dir)
@@ -175,8 +175,10 @@ class Certificates:
         enable_path = enable_dir / enable_fn
         enable_path.symlink_to("../sites-available/" + enable_fn)
         
-        if not self.reload_apache():
+        if run_reload and not self.reload_apache():
             log.error("failed apache (graceful) restart")
+            log.error("rolling back to plain config...")
+            self.set_apache_config(ssl=False, run_reload=False)
             return False
     
         return True
