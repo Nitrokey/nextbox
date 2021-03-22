@@ -122,9 +122,10 @@ class GenericStatusUpdateJob(BaseJob):
     name = "GenericStatusUpdate"
 
     def __init__(self):
-        super().__init__(initial_interval=90)
+        super().__init__(initial_interval=15)
 
     def _run(self, cfg, board, kwargs):
+        self.interval = None
 
         pkg = cfg["config"]["debian_package"]
         cmd = f"dpkg -s {pkg}"
@@ -158,7 +159,7 @@ class TrustedDomainsJob(BaseJob):
         super().__init__(initial_interval=90)
 
     def _run(self, cfg, board, kwargs):
-        self.interval = 90
+        self.interval = 900
         try:
             trusted_domains = self.nc.get_config("trusted_domains")
         except NextcloudError:
