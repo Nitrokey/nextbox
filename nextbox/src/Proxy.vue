@@ -78,10 +78,7 @@ export default {
 
 	computed: {
 		activateDisabled() {
-			if (this.loadingButton) {
-				return true
-			}
-			return !this.checkDomain()
+			return this.loadingButton || !this.checkDomain()
 		}
 	},
 

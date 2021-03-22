@@ -14,7 +14,7 @@
 				@change="checkDomain()">
 			<br><span v-if="userMessage.domain" class="error-txt">{{ userMessage.domain.join(" ") }}</span><br>
 			<button type="button" @click="activate()" :disabled="activateDisabled">
-				<span class="icon icon-confirm" />
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 				Activate Configuration
 			</button>
 		</div>
@@ -63,6 +63,9 @@ export default {
 		return {
 			// generics
 			loading: false,
+			loadingButton: false,
+
+			// user messaging
 			userMessage: {
 				domain: [],
 			},
@@ -87,7 +90,7 @@ export default {
 
 	computed: {
 		activateDisabled() {
-			return !this.checkDomain()
+			return this.loadingButton || !this.checkDomain()
 		},
 	},
 
@@ -124,11 +127,12 @@ export default {
 
 		async activate() {
 			if (this.checkDomain()) {
-				this.update_config({ 
+				this.loadingButton = true
+				await this.update_config({ 
 					domain: this.update.domain,
-					//email: this.update.email,
 					dns_mode: 'static_done',
 				})
+				this.loadingButton = false
 			}
 		},
 

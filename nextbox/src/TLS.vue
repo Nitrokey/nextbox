@@ -32,8 +32,12 @@
 						HTTPS / TLS is activated, your Nextcloud is available via 
 						<a :href="'https://' + domain">{{ domain }}</a>
 					</span><br>
-					<button v-tooltip="ttDisable" type="button" @click="disable()">
-						<span class="icon icon-close" />
+					<button v-tooltip="ttDisable" 
+						type="button" 
+						:disabled="loadingButton" 
+						@click="disable()">
+						
+						<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
 						Disable HTTPS
 					</button>
 				</div>
@@ -51,7 +55,7 @@
 						:disabled="enableDisabled" 
 						@click="enable()">
 						
-						<span class="icon icon-confirm" />
+						<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 						Enable HTTPS 
 					</button>
 				</div><br>
@@ -86,6 +90,10 @@ export default {
 
 	data() {
 		return {
+			// generics
+			loadingButton: false,
+
+			// config (refreshed)
 			domain: '',
 			email: '',
 			cert: {},
@@ -121,7 +129,7 @@ export default {
 
 	computed: {
 		enableDisabled() {
-			return !this.validateEMail()
+			return this.loadingButton || !this.validateEMail()
 		},
 	},
 
@@ -139,6 +147,8 @@ export default {
 				console.error(e)
 				showError(t('nextbox', 'Connection Failed'))
 			}
+
+			this.loadingButton = false
 
 			// if domain is available check resolv/reachable
 			if (this.domain && this.dns_mode.endsWith('_done')) {
@@ -168,6 +178,8 @@ export default {
 		},
 		
 		async enable() {
+			this.loadingButton = true
+
 			const url = '/apps/nextbox/forward/https/enable'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -178,16 +190,25 @@ export default {
 			})
 
 			const res = await axios.post(generateUrl(url), data, options).then((res) => {
-				setTimeout(() => {
-					window.location.replace(`https://${this.domain}`)
-				}, 5000)
+				if (res.data.result === 'success') {
+					setTimeout(() => {
+						window.location.replace(`https://${this.domain}`)
+					}, 5000)
+					showSuccess(res.data.msg)
+				} else {
+					showError(res.data.msg)
+					this.loadingButton = false
+				}
 			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
+				this.loadingButton = false
 			})
 		},
 
 		async disable() {
+			this.loadingButton = true
+		
 			const url = '/apps/nextbox/forward/https/disable'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -195,12 +216,19 @@ export default {
 			const data = qs.stringify({})
 
 			const res = await axios.post(generateUrl(url), data, options).then((res) => {
-				setTimeout(() => {
-					window.location.replace(`http://${this.domain}`)
-				}, 5000)
+				if (res.data.result === 'success') {
+					setTimeout(() => {
+						window.location.replace(`http://${this.domain}`)
+					}, 5000)
+					showSuccess(res.data.msg)
+				} else {
+					showError(res.data.msg)
+					this.loadingButton = false
+				}
 			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
+				this.loadingButton = false
 			})
 		},
 
