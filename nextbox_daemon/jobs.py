@@ -9,6 +9,7 @@ from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.config import log
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.raw_backup_restore import RawBackupRestore
+from nextbox_daemon.services import Services
 
 class BaseJob:
     name = None
@@ -104,6 +105,18 @@ class EnableNextBoxAppJob(BaseJob):
         except NextcloudError:
             pass
 
+class SelfUpdateJob(BaseJob):
+    name = "SelfUpdate"
+
+    def __init__(self):
+        super().__init__(initial_interval=5)
+        
+    def _run(self, cfg, board, kwargs):
+        self.interval = None
+
+        ctrl = Services()
+        ctrl.exec("apt-daily", "start")
+        ctrl.exec("apt-daily-upgrade", "start")
 
 class GenericStatusUpdateJob(BaseJob):
     name = "GenericStatusUpdate"

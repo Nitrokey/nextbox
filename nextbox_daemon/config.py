@@ -101,12 +101,12 @@ def check_filesystem():
         print("created /srv/nextbox/docker.env and contents")
 
 
-def self_update():
-    from nextbox_daemon.services import Services
+# def self_update():
+#     from nextbox_daemon.services import Services
 
-    ctrl = Services()
-    ctrl.exec("apt-daily", "start")
-    ctrl.exec("apt-daily-upgrade", "start")
+#     ctrl = Services()
+#     ctrl.exec("apt-daily", "start")
+#     ctrl.exec("apt-daily-upgrade", "start")
 
 
 # check filesystem and do adjustments, if needed
@@ -124,8 +124,8 @@ log_handler.setFormatter(log_format)
 log.info("starting nextbox-daemon")
 
 # running apt-daily & apt-daily-upgrade
-log.info("init self-update")
-self_update()
+# log.info("init self-update")
+# self_update()
 
 
 # config load
