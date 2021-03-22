@@ -1,3 +1,18 @@
+%%PKG%% (0.9.2-1) groovy; urgency=low
+
+  * daemon: cleanups
+  * daemon: improve proxy error handling
+  * daemon: TrustedDomainsJob: on fail decrease
+  * daemon: save email to config during tls-enable
+  * daemon: rollback apache-config on failed ssl activation
+  * compose: change letsencrypt local volume location
+  * app: improve UX for: proxy, static-dns, tls
+  * app: better redirect on tls on/off
+  * app: rework remote overview view
+  * app: reorder system view
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 22 Mar 2021 02:42:11 +0000
+
 %%PKG%% (0.9.1-2) groovy; urgency=low
 
   * app: bump version
