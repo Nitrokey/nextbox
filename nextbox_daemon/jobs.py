@@ -10,6 +10,7 @@ from nextbox_daemon.config import log
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.raw_backup_restore import RawBackupRestore
 from nextbox_daemon.services import Services
+from nextbox_daemon.shield import Shield
 
 class BaseJob:
     name = None
@@ -31,6 +32,22 @@ class BaseJob:
 
     def _run(self, cfg, board, kwargs):
         raise NotImplementedError()
+
+
+class LEDJob(BaseJob):
+    name = "LED"
+
+    def __init__(self):
+        self.shield = Shield()
+
+        super().__init__(initial_interval=1)
+
+    def _run(self, cfg, board, kwargs):
+        self.shield.set_led(0, 1, 0)
+        #log.debug("LED", id(self.shield))
+        self.interval = None
+
+        
 
 
 class BackupRestoreJob(BaseJob):

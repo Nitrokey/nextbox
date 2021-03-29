@@ -25,7 +25,7 @@ from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_mgr, job_queue, worker
 from nextbox_daemon.status_board import board
 
-from nextbox_daemon.jobs import TrustedDomainsJob, EnableNextBoxAppJob, \
+from nextbox_daemon.jobs import TrustedDomainsJob, EnableNextBoxAppJob, LEDJob, \
     GenericStatusUpdateJob, BackupRestoreJob, HardwareStatusUpdateJob, SelfUpdateJob
 
 
@@ -94,6 +94,7 @@ def main():
     job_mgr.register_job(BackupRestoreJob)
     job_mgr.register_job(HardwareStatusUpdateJob)
     job_mgr.register_job(SelfUpdateJob)
+    job_mgr.register_job(LEDJob)
 
     worker.start()
 
