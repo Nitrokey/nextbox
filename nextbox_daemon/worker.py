@@ -19,7 +19,7 @@ class Worker(Thread):
     def run(self):
         while True:
             try:
-                job = self.my_job_queue.get(timeout=5)
+                job = self.my_job_queue.get(timeout=1)
                 
                 # put either "jobname" or ("jobname", "args") into job_queue 
                 if job is None:
