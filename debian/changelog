@@ -1,3 +1,11 @@
+%%PKG%% (0.9.2.4-1) groovy; urgency=low
+
+  * daemon: timeout for jobqueue to 1sec
+  * daemon: BackupRestoreJob: interval to None/1sec
+  * daemon: initial LED functionality: green on start
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 29 Mar 2021 15:30:29 +0200
+
 %%PKG%% (0.9.2.3-2) groovy; urgency=low
 
   * packaging: added replaces, provides and conflicts
