@@ -24,6 +24,7 @@ from nextbox_daemon.consts import *
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_mgr, job_queue, worker
 from nextbox_daemon.status_board import board
+from nextbox_daemon.shield import shield
 
 from nextbox_daemon.jobs import TrustedDomainsJob, EnableNextBoxAppJob, LEDJob, \
     GenericStatusUpdateJob, BackupRestoreJob, HardwareStatusUpdateJob, SelfUpdateJob
@@ -43,6 +44,9 @@ app.register_blueprint(generic_api)
 app.register_blueprint(backup_api)
 app.register_blueprint(remote_api)
 app.register_blueprint(storage_api)
+
+
+shield.set_led_state("started")
 
 
 #@app.before_request
