@@ -27,7 +27,8 @@ from nextbox_daemon.status_board import board
 from nextbox_daemon.shield import shield
 
 from nextbox_daemon.jobs import TrustedDomainsJob, EnableNextBoxAppJob, LEDJob, \
-    GenericStatusUpdateJob, BackupRestoreJob, HardwareStatusUpdateJob, SelfUpdateJob
+    GenericStatusUpdateJob, BackupRestoreJob, HardwareStatusUpdateJob, SelfUpdateJob, \
+    FactoryResetJob
 
 
 
@@ -99,6 +100,8 @@ def main():
     job_mgr.register_job(HardwareStatusUpdateJob)
     job_mgr.register_job(SelfUpdateJob)
     job_mgr.register_job(LEDJob)
+    job_mgr.register_job(FactoryResetJob)
+
 
     worker.start()
 

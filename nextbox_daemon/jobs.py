@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 from time import sleep
 from pathlib import Path
+import os
 
 import psutil
 
@@ -45,7 +46,26 @@ class LEDJob(BaseJob):
         #log.debug("LED", id(self.shield))
         self.interval = None
 
-        
+
+
+class FactoryResetJob(BaseJob):
+    name = "FactoryReset"
+
+    def __init__(self):
+        super().__init__(initial_interval=None)
+
+        shield.button.when_pressed = lambda: shield.set_led_state("button")
+        shield.button.when_held = self._run
+
+
+    def _run(self, cfg=None, board=None, kwargs=None):
+        log.warning("Starting factory-reset operation")
+        # stay low-level (os.system) here to avoid race-conditions
+        shield.set_led_state("factory-reset")
+        os.system("systemctl stop nextbox-compose.service")
+        for dir_name in ["apache2", "letsencrypt",  "logdump", "mariadb", "nextbox", "nextcloud"]:
+                os.system("rm -rf /srv/" + dir_name)
+        os.system("reboot")
 
 
 class BackupRestoreJob(BaseJob):

@@ -6,6 +6,7 @@ from nextbox_daemon.config import log
 class Shield:
     def __init__(self):
         self.led = gpiozero.RGBLED(19, 20, 21, active_high=False)
+        self.button = gpiozero.Button(16, hold_time=5, hold_repeat=False)
         #self.led.on()
 
     def set_led(self, r, g, b):
@@ -36,6 +37,9 @@ class Shield:
         * 'ready'    => green
         * 'started'  => yellow
         * 'updating' => yellow-blinking
+        * 'stopped'  => red
+        * 'factory-reset' => red-blinking
+        * 'button' => blue
         """
 
         if state == "ready":
@@ -44,6 +48,12 @@ class Shield:
             self.set_led(1, 1, 0)
         elif state == "updating":
             self.set_led_blink(1, 1, 0)
+        elif state == "stopped":
+            self.set_led(1, 0, 0)
+        elif state == "factory-reset":
+            self.set_led_blink(1, 0, 0)
+        elif state == "button":
+            self.set_led(0, 0, 1)
         else:
             self.set_led(0, 1, 0)
         
