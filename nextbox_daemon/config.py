@@ -100,15 +100,6 @@ def check_filesystem():
             fd.write(f"MYSQL_ROOT_PASSWORD={random_pass_root}\n")
         print("created /srv/nextbox/docker.env and contents")
 
-
-# def self_update():
-#     from nextbox_daemon.services import Services
-
-#     ctrl = Services()
-#     ctrl.exec("apt-daily", "start")
-#     ctrl.exec("apt-daily-upgrade", "start")
-
-
 # check filesystem and do adjustments, if needed
 check_filesystem()
 
@@ -122,11 +113,6 @@ log_format = logging.Formatter("{asctime} {module} {levelname} => {message}", st
 log_handler.setFormatter(log_format)
 
 log.info("starting nextbox-daemon")
-
-# running apt-daily & apt-daily-upgrade
-# log.info("init self-update")
-# self_update()
-
 
 # config load
 cfg = Config(CONFIG_PATH)
