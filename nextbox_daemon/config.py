@@ -66,7 +66,8 @@ class Config(dict):
 def check_filesystem():
     """
     Check local filesystem "integrity":
-    - existance of dirs: /srv/nextcloud, /srv/nextbox, /srv/apache2, /srv/mariadb
+    - existance of dirs: /srv/nextcloud, /srv/nextbox, /srv/apache2, 
+                         /srv/mariadb, /srv/logdump, /srv/letsencrypt
     - existance and permissions (uid: 33 gid: 0): /srv/nextcloud/custom_apps
     - existance (and contents) of: /srv/nextbox/docker.env
     """
