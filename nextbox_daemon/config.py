@@ -19,6 +19,10 @@ class Config(dict):
         self.config_lock_path = config_path + ".lock"
         self.config_lock = FileLock(self.config_lock_path, timeout=10)
 
+        self.factory_config_path = "/srv/nextbox.factory.conf"
+        self.factory_config_lock_path = self.factory_config_path + ".lock"
+        self.factory_config_lock = FileLock(self.factory_config_lock_path, timeout=10)
+
         self.update({
             "config":    {
                 "last_backup":  None,
@@ -31,7 +35,10 @@ class Config(dict):
                 "domain":       None,
                 "email":        None,
                 "desec_token":  None,
+
                 "nk_token":     None,
+                "serial":       None,
+                
                 "proxy_active": False,
                 "proxy_domain": None,
                 "proxy_port":   None,
@@ -42,6 +49,50 @@ class Config(dict):
             }
         })
         self.load()
+        self.manage_factory_config()
+
+    def manage_factory_config(self):
+        if Path(self.factory_config_path).exists():
+            with self.factory_config_lock:
+                with open(self.factory_config_path) as fd:
+                    factory_conf = yaml.safe_load(fd)
+        else:
+            factory_conf = {}
+
+        # if regular config contains 'nk_token' & 'serial' write factory-config if needed
+        if self["config"]["nk_token"] and self["config"]["serial"]:
+            if not "config" in factory_conf \
+                or not factory_conf.get("config", {}).get("nk_token") \
+                or not factory_conf.get("config", {}).get("serial"):
+
+                factory_dct = {
+                    "config": {
+                        "nk_token": self["config"]["nk_token"],
+                        "serial": self["config"]["serial"]
+                    }
+                }
+
+                with self.factory_config_lock:
+                    with open(self.factory_config_path, "w") as fd:
+                        yaml.safe_dump(factory_dct, fd)
+
+                log.info(f"wrote {self.factory_config_path} from regular config")
+
+        # regular config has no valid 'nk_token' & 'serial', take from factory_conf (if available)
+        elif not self["config"]["nk_token"] or not self["config"]["serial"]:
+            nk_token = factory_conf.get("config", {}).get("nk_token")
+            serial = factory_conf.get("config", {}).get("serial")
+            if nk_token:
+                self["config"]["nk_token"] = nk_token
+            if serial:
+                self["config"]["serial"] = serial
+
+            if nk_token or serial:
+                self.save()
+                log.info(f"updated regular config from {self.factory_config_path}")
+            else:
+                log.warning(f"need, but could not get 'nk_token' or 'serial' from {self.factory_config_path}")
+
 
     def load(self):
         if not os.path.exists(self.config_path):
