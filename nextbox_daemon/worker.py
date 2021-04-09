@@ -19,17 +19,20 @@ class BaseJob:
         self.last_run = dt.now()
 
     def is_due(self):
+        """True, if this job has not been run since `> self.interval` seconds"""
         if self.interval is None:
             return False
         return (dt.now() - self.last_run).seconds > self.interval
 
     def run(self, cfg, board, kwargs):
+        """Overridden Thread.run() is run inside the new thread after start()"""
         log.debug(f"starting worker job: {self.name}")
         self.last_run = dt.now()
         self._run(cfg, board, kwargs)
         log.debug(f"finished worker job: {self.name}")
 
     def _run(self, cfg, board, kwargs):
+        """This is executed by the job-manager, where the work happens"""
         raise NotImplementedError()
 
 
