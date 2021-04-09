@@ -154,19 +154,19 @@ def check_filesystem():
         print("created /srv/nextbox/docker.env and contents")
 
 
+# helper for enviornment-file writing (/etc/default/nextbox-updater.service)
+def write_nextbox_updater_env_file(path, pkg):
+    with open(path, "w") as fd:
+        fd.write(f"PACKAGE={pkg}\n")
+        fd.write("DEBIAN_FRONTEND=noninteractive\n")
+    return True
+
 def check_filesystem_after_init(cfg):
     """
     Check integrity of filesystem after the config was initialized
 
     * /etc/default/nextbox-updater (environment file for nextbox-updater.service)
     """
-
-    # helper for enviornment-file writing (/etc/default/nextbox-updater.service)
-    def write_env_file(path, pkg):
-        with open(path, "w") as fd:
-            fd.write(f"PACKAGE={pkg}\n")
-            fd.write("DEBIAN_FRONTEND=noninteractive\n")
-        return True
 
     pkg = cfg["config"]["debian_package"]
     # illegal configuration, fallback to default 'stable' package
@@ -180,7 +180,7 @@ def check_filesystem_after_init(cfg):
     nb_upd_env_path = "/etc/default/nextbox-updater"
     if not Path(nb_upd_env_path).exists():
         log.info(f"creating nextbox-updater.service env-file: {nb_upd_env_path}")
-        write_env_file(nb_upd_env_path, pkg)
+        write_nextbox_updater_env_file(nb_upd_env_path, pkg)
     else:
         write_file = False
         with open(nb_upd_env_path, "r") as fd:
@@ -197,7 +197,7 @@ def check_filesystem_after_init(cfg):
                     break
         if write_file:
             log.info(f"(re-)creating env-file: {nb_upd_env_path}")
-            write_env_file(nb_upd_env_path, pkg)
+            write_nextbox_updater_env_file(nb_upd_env_path, pkg)
 
 
 

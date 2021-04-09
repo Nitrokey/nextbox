@@ -1,0 +1,15 @@
+[Unit]
+Description=Ensure dpkg is in a proper state and install/upgrade provided package
+Requires=network.target
+
+[Service]
+Type=oneshot
+
+EnvironmentFile=/etc/default/nextbox-updater
+
+ExecStartPre=/usr/bin/dpkg --configure -a
+ExecStart=/usr/bin/apt-get install -yq --fix-missing --fix-broken --autoremove $PACKAGE
+ExecStartPost=/usr/bin/apt-get -yq autoclean
+
+[Install]
+WantedBy=multi-user.target

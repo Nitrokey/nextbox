@@ -4,6 +4,8 @@ from pathlib import Path
 import os
 
 import psutil
+import apt
+
 
 from nextbox_daemon.consts import *
 from nextbox_daemon.command_runner import CommandRunner
@@ -47,7 +49,6 @@ class LEDJob(BaseJob):
         self.interval = None
 
 
-
 class FactoryResetJob(BaseJob):
     name = "FactoryReset"
 
@@ -55,18 +56,17 @@ class FactoryResetJob(BaseJob):
         super().__init__(initial_interval=None)
 
         shield.button.when_pressed = lambda: shield.set_led_state("button")
+        shield.button.when_released = lambda: shield.set_led_state("ready")
         shield.button.when_held = self._run
-
 
     def _run(self, cfg=None, board=None, kwargs=None):
         log.warning("Starting factory-reset operation")
-        # stay low-level (os.system) here to avoid race-conditions
+        
         shield.set_led_state("factory-reset")
-        os.system("systemctl stop nextbox-compose.service")
-        for dir_name in ["apache2", "letsencrypt",  "logdump", "mariadb", "nextbox", "nextcloud"]:
-                os.system("rm -rf /srv/" + dir_name)
-        os.system("reboot")
 
+        # actual factory-reset is executed by systemd
+        services = Services()
+        services.start("nextbox-factory-reset")
 
 class BackupRestoreJob(BaseJob):
     name = "BackupRestore"
@@ -76,9 +76,7 @@ class BackupRestoreJob(BaseJob):
         self.iterator = None
         super().__init__(initial_interval=None)
 
-
     def _run(self, cfg, board, kwargs):
-
         # operation not running, means we start a backup: need a "tar_path" + "mode" (backup or restore)
         if not self.iterator and ("tar_path" not in kwargs or "mode" not in kwargs):
             msg = "Requested starting BackupRestore-Job without 'tar_path' and/or 'mode' arg"
@@ -133,10 +131,16 @@ class EnableNextBoxAppJob(BaseJob):
         super().__init__(initial_interval=5)
 
     def _run(self, cfg, board, kwargs):
-        # just keep on trying to activate until it worked
+        # only enable, if nextcloud is installed
+        if not self.nc.is_installed:
+            log.debug("cannot enable nextbox-app - uninitialized nextcloud")
+            return 
+        
+        # try to enable
         try:
             if self.nc.enable_nextbox_app():
                 self.interval = 3600
+                log.info("enabled nextcloud nextbox-app")
         except NextcloudError:
             pass
 
@@ -149,17 +153,47 @@ class SelfUpdateJob(BaseJob):
     def _run(self, cfg, board, kwargs):
         self.interval = None
 
-
         shield.set_led_state("updating")
 
+        log.info("running 'apt-get update'")
+        # apt-get update
+        cache = apt.cache.Cache()
+        cache.update()
+        cache.open()
 
-        ctrl = Services()
-        ctrl.exec("apt-daily", "start")
-        ctrl.exec("apt-daily-upgrade", "start")
+        # which debian package shall be used?
+        pkg = cfg["config"]["debian_package"]
 
+        try:
+            pkg_obj = cache[pkg]
+        except KeyError:
+            log.error(f"self-update failed: designated package: {pkg} not found!")
+            log.error("falling back to 'nextbox' - retrying upgrade...")
+            pkg = "nextbox"
+        
+            try:
+                pkg_obj = cache[pkg]
+            except KeyError:
+                log.error("CRITICAL: failed to find 'nextbox' in apt-cache")
+                # we should never ever end here, this means that the nextbox 
+                # debian package is not available...
+                # nextbox debian (ppa) repository not available ???!!
+                return 
+
+        services = Services()
+
+        # install package (i.e., other nextbox package is already installed)
+        # will trigger for e.g., 'nextbox' to 'nextbox-testing' switching
+        if not pkg_obj.is_installed:
+            log.info(f"installing debian package: {pkg} (start service: nextbox-updater)")
+            services.start("nextbox-updater")
+        elif pkg_obj.is_upgradable:
+            log.info(f"upgrading debian package: {pkg} (start service: nextbox-updater)")
+            services.start("nextbox-updater")
+        else:
+            log.debug(f"no need to upgrade or install debian package: {pkg}")
 
         shield.set_led_state("ready")
-
 
 class GenericStatusUpdateJob(BaseJob):
     name = "GenericStatusUpdate"
@@ -203,6 +237,13 @@ class TrustedDomainsJob(BaseJob):
 
     def _run(self, cfg, board, kwargs):
         self.interval = 900
+
+        # only set trusted domains, if nextcloud is installed
+        if not self.nc.is_installed:
+            log.debug("cannot set trusted_domains - uninitialized nextcloud")
+            self.interval = 15
+            return False
+
         try:
             trusted_domains = self.nc.get_config("trusted_domains")
         except NextcloudError:
