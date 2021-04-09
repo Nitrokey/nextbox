@@ -13,6 +13,6 @@ Replaces: nextbox
 Architecture: all
 # armh64 only (gpio)
 #Depends: python3, python3-flask, python3-requests, python3-gpiozero, python3-yaml, python3-psutil, python3-rpi.gpio, ${misc:Depends}, ${python3:Depends}
-Depends: python3, python3-flask, python3-requests, python3-gpiozero, python3-yaml, python3-psutil, python3-filelock, python3-gunicorn, docker.io, docker-compose, openssl, ${misc:Depends}, ${python3:Depends}
+Depends: python3, python3-flask, python3-requests, python3-gpiozero, python3-yaml, python3-psutil, python3-filelock, uwsgi-plugin-python3, docker.io, docker-compose, openssl, ${misc:Depends}, ${python3:Depends}
 Description: The Nitrokey - NextBox System Control Daemon
 
