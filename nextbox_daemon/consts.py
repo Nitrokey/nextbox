@@ -7,6 +7,9 @@ MAX_LOG_SIZE = 2**30
 
 NEXTBOX_HDD_LABEL = "NextBoxHardDisk"
 
+NEXTBOX_DEBIAN_PACKAGES = ["nextbox", "nextbox-testing", "nextbox-unstable"]
+
+
 GET_EXT_IP4_URL = "http://v4.ipv6-test.com/api/myip.php"
 GET_EXT_IP6_URL = "http://v6.ipv6-test.com/api/myip.php"
 

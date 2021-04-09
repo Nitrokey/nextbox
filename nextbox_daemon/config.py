@@ -9,7 +9,8 @@ import logging
 
 from filelock import FileLock
 
-from nextbox_daemon.consts import LOGGER_NAME, LOG_FILENAME, MAX_LOG_SIZE, CONFIG_PATH
+from nextbox_daemon.consts import LOGGER_NAME, LOG_FILENAME, MAX_LOG_SIZE, CONFIG_PATH, \
+    NEXTBOX_DEBIAN_PACKAGES
 
 class Config(dict):
     def __init__(self, config_path, *va, **kw):
@@ -117,10 +118,10 @@ class Config(dict):
 def check_filesystem():
     """
     Check local filesystem "integrity":
-    - existance of dirs: /srv/nextcloud, /srv/nextbox, /srv/apache2, 
+    * existance of dirs: /srv/nextcloud, /srv/nextbox, /srv/apache2, 
                          /srv/mariadb, /srv/logdump, /srv/letsencrypt
-    - existance and permissions (uid: 33 gid: 0): /srv/nextcloud/custom_apps
-    - existance (and contents) of: /srv/nextbox/docker.env
+    * existance and permissions (uid: 33 gid: 0): /srv/nextcloud/custom_apps
+    * existance (and contents) of: /srv/nextbox/docker.env
     """
 
     # check/create dirs
@@ -152,7 +153,55 @@ def check_filesystem():
             fd.write(f"MYSQL_ROOT_PASSWORD={random_pass_root}\n")
         print("created /srv/nextbox/docker.env and contents")
 
-# check filesystem and do adjustments, if needed
+
+def check_filesystem_after_init(cfg):
+    """
+    Check integrity of filesystem after the config was initialized
+
+    * /etc/default/nextbox-updater (environment file for nextbox-updater.service)
+    """
+
+    # helper for enviornment-file writing (/etc/default/nextbox-updater.service)
+    def write_env_file(path, pkg):
+        with open(path, "w") as fd:
+            fd.write(f"PACKAGE={pkg}\n")
+            fd.write("DEBIAN_FRONTEND=noninteractive\n")
+        return True
+
+    pkg = cfg["config"]["debian_package"]
+    # illegal configuration, fallback to default 'stable' package
+    if pkg not in NEXTBOX_DEBIAN_PACKAGES:
+        pkg = "nextbox"
+        # fix faulty configuration
+        cfg["config"]["debian_package"] = pkg
+        cfg.save()
+
+    # nextbox-updater.service environment file
+    nb_upd_env_path = "/etc/default/nextbox-updater"
+    if not Path(nb_upd_env_path).exists():
+        log.info(f"creating nextbox-updater.service env-file: {nb_upd_env_path}")
+        write_env_file(nb_upd_env_path, pkg)
+    else:
+        write_file = False
+        with open(nb_upd_env_path, "r") as fd:
+            for line in fd:
+                if "PACKAGE" in line:
+                    try:
+                        _, my_pkg = line.split("=")
+                        if my_pkg.strip() != pkg:
+                            write_file = True
+                    except Exception as e:
+                        log.error("failed extracting 'PACKAGE' from env file", exc_info=e)
+                        log.info(f"re-creating faulty: {nb_upd_env_path}")
+                        write_file = True
+                    break
+        if write_file:
+            log.info(f"(re-)creating env-file: {nb_upd_env_path}")
+            write_env_file(nb_upd_env_path, pkg)
+
+
+
+# 1st filesystem integrity check
 check_filesystem()
 
 # logger setup + rotating file handler
@@ -164,7 +213,12 @@ log.addHandler(log_handler)
 log_format = logging.Formatter("{asctime} {module} {levelname} => {message}", style='{')
 log_handler.setFormatter(log_format)
 
-log.info("starting nextbox-daemon")
+log.info("=================================")
+log.info("==== starting nextbox-daemon ====")
+log.info("=================================")
 
 # config load
 cfg = Config(CONFIG_PATH)
+
+# 2nd filesystem integrity check, using loaded configuration
+check_filesystem_after_init(cfg)
