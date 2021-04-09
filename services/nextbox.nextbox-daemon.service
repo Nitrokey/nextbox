@@ -3,9 +3,12 @@ Description=NextBox System Daemon
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/nextbox-daemon 
+
+WorkingDirectory=/usr/lib/python3/dist-packages/nextbox_daemon
+ExecStart=uwsgi_python3 --http-socket 0.0.0.0:18585 --wsgi-file start.py --callable app --processes 1 --threads 4 --enable-threads --master
+
 Restart=always
-RestartSec=10
+RestartSec=5
 
 StandardOutput=journal
 StandardError=journal
