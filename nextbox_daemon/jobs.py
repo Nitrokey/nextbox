@@ -251,3 +251,10 @@ class TrustedDomainsJob(BaseJob):
                 log.warning("failed to write all trusted_domains")
                 self.interval = 15
 
+
+ACTIVE_JOBS = [
+    LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob, 
+    SelfUpdateJob, GenericStatusUpdateJob, HardwareStatusUpdateJob,
+    TrustedDomainsJob
+]
+

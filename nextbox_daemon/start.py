@@ -19,15 +19,11 @@ from nextbox_daemon.utils import error, success, \
     tail, local_ip, requires_auth
 
 from nextbox_daemon.command_runner import CommandRunner
-from nextbox_daemon.consts import *
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_mgr, job_queue, worker
 from nextbox_daemon.status_board import board
 from nextbox_daemon.shield import shield
-
-from nextbox_daemon.jobs import TrustedDomainsJob, EnableNextBoxAppJob, LEDJob, \
-    GenericStatusUpdateJob, BackupRestoreJob, HardwareStatusUpdateJob, SelfUpdateJob, \
-    FactoryResetJob
+from nextbox_daemon.jobs import ACTIVE_JOBS
 
 # blueprint for the sub-pages/apis
 from nextbox_daemon.api.storage import storage_api
@@ -39,15 +35,12 @@ from nextbox_daemon.api.remote import remote_api
 app = Flask(__name__)
 app.secret_key = cfg["config"]["nk_token"] if cfg["config"]["nk_token"] else "dummy"
 
-
 app.register_blueprint(generic_api)
 app.register_blueprint(backup_api)
 app.register_blueprint(remote_api)
 app.register_blueprint(storage_api)
 
-
 shield.set_led_state("started")
-
 
 #@app.before_request
 #def limit_remote_addr():
@@ -77,20 +70,7 @@ def after_request_func(response):
 ### end CORS section
 
 
-
-def signal_handler(sig, frame):
-    global job_queue, worker
-
-    print("Exit handler, delivering worker exit job now")
-    job_queue.put("exit")
-    worker.join()
-    print("Joined worker - exiting now...")
-    
-    sys.exit(1)
-
-
 class NextBoxApplication(BaseApplication):
-
     def __init__(self, app, options=None):
         self.options = options or {}
         self.application = app
@@ -106,34 +86,39 @@ class NextBoxApplication(BaseApplication):
         return self.application
 
 
-def main():
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+# register all to-be-activated jobs at job-mgr
+for job_cls in ACTIVE_JOBS:
+    job_mgr.register_job(job_cls)
 
-    job_mgr.register_job(TrustedDomainsJob)
-    job_mgr.register_job(EnableNextBoxAppJob)
-    job_mgr.register_job(GenericStatusUpdateJob)
-    job_mgr.register_job(BackupRestoreJob)
-    job_mgr.register_job(HardwareStatusUpdateJob)
-    job_mgr.register_job(SelfUpdateJob)
-    job_mgr.register_job(LEDJob)
-    job_mgr.register_job(FactoryResetJob)
+# shutdown handler for background-process (dispatched via gunicorn)
+def end_background_worker(worker_thread, server):
+    global job_queue, worker
 
+    print("exit handler, delivering worker exit job now")
+    job_queue.put("exit")
+    worker.join()
+    print("joined worker - exiting now...")
 
+# start our background-worker-thread
+def start_background_worker(worker_thread):
     worker.start()
 
+# main-entrypoint
+def main():
+    global job_queue, worker
+
+    # rest-api-server (gunicorn) startup-options
     options = {
         "bind": '%s:%s' % ('0.0.0.0', '18585'),
         "workers": 1,
-        "threads": 3
+        "threads": 3,
+        "log-level": "info",
+        "post_worker_init": start_background_worker,
+        "worker_exit": end_background_worker
     }
 
     NextBoxApplication(app, options).run()
-
-    #app.run(host="0.0.0.0", port=18585, debug=False, threaded=True, processes=1, use_reloader=False)
-
-    signal.pause()
-
-
+    
 if __name__ == "__main__":
     main()
+    sys.exit(1)

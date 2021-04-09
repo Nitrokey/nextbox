@@ -213,9 +213,9 @@ log.addHandler(log_handler)
 log_format = logging.Formatter("{asctime} {module} {levelname} => {message}", style='{')
 log_handler.setFormatter(log_format)
 
-log.info("=================================")
-log.info("==== starting nextbox-daemon ====")
-log.info("=================================")
+log.info("=" * 40)
+log.info("====> starting nextbox-daemon")
+log.info("=" * 40)
 
 # config load
 cfg = Config(CONFIG_PATH)

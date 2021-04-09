@@ -1,6 +1,7 @@
 
 from queue import Empty
 from threading import Thread
+import threading
 from time import sleep
 import logging
 from queue import Queue
@@ -39,13 +40,15 @@ class JobManager:
         self.board = board
 
     def register_job(self, job):
+        """register job by `job.name` and construct their instances"""
         log.info(f"registering job {job.name}")
         if job.name in self.jobs:
             log.warning(f"overwriting job (during register) with name: {job.name}")
+
         self.jobs[job.name] = job()
 
-
     def handle_job(self, job_name, job_kwargs):
+        """check if job registered and run/call/execute task's: `run()`"""
         if job_name not in self.jobs:
             log.error(f"could not find job with name: {job_name}")
             return
@@ -57,10 +60,10 @@ class JobManager:
             log.error(f"failed running job: {job_name}")
             log.error(msg="EXC", exc_info=e)
 
-    def get_recurring_job(self):
-        for name, job in self.jobs.items():
-            if job.is_due():
-                return name
+    def get_recurring_jobs(self):
+        """return list-of-pairs [name, args] for due tasks"""
+        return [ (name, None) for name, job in self.jobs.items() \
+            if job.is_due() ]
 
 
 class Worker(Thread):
@@ -71,36 +74,36 @@ class Worker(Thread):
         self.job_mgr = job_mgr
 
     def run(self):
+        # behold the mighty worker-loop
         while True:
+            pending_jobs = []
             try:
                 job = self.my_job_queue.get(timeout=1)
                 
-                # put either "jobname" or ("jobname", "args") into job_queue 
-                if job is None:
-                    job_name = None
-                    job_args = None
-                
-                elif isinstance(job, str):
-                    job_name = job
-                    job_args = None
-                
+                if isinstance(job, str):
+                    # handle job w/o args, comes as `name: str`
+                    pending_jobs.append((job, None))
                 else:
-                    job_name, job_args = job
+                    # already comes as `(name: str, args: tupel)`
+                    pending_jobs.append(job)
 
             except Empty:
-                job_name = self.job_mgr.get_recurring_job()
-                job_args = None
+                # returns: list[job: tuple[str, tuple]]
+                pending_jobs = self.job_mgr.get_recurring_jobs()
 
-            if job_name is None:
-                sleep(1)
+            # nothing to do => power nap
+            if len(pending_jobs) == 0:
+                sleep(0.5)
                 continue
-
             
-            # special job "exit" will stop the worker-queue
-            if job_name == "exit":
-                break
+            for job_name, job_args in pending_jobs:
+                # special job "exit" will stop the worker-queue
+                if job_name == "exit":
+                    log.info("exiting (background worker) by request")
+                    return
 
-            self.job_mgr.handle_job(job_name, job_args)
+                # finally handle (dispatch): `job_name` + `job_args`
+                self.job_mgr.handle_job(job_name, job_args)
 
 
 job_mgr = JobManager(cfg, board)
