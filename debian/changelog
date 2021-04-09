@@ -1,3 +1,32 @@
+%%PKG%% (0.9.2.8-1) groovy; urgency=low
+
+  * daemon: factory-reset as sysd-service; self-updating as sysd-service
+  * daemon: scripts: add nextbox-set-led.sh
+  * daemon: ensure system-file: '/etc/default/nextbox-updater'
+  * daemon: nextcloud: add docstrings; cleanups
+  * daemon: services: add docstrings; add services; log on check-error
+  * daemon: add Nextcloud.is_installed property
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 09 Apr 2021 04:52:49 +0200
+
+%%PKG%% (0.9.2.7-1) groovy; urgency=low
+
+  * daemon: ensure nk_token/serial persistance across factory-resets
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 07 Apr 2021 15:57:53 +0200
+
+%%PKG%% (0.9.2.6-1) groovy; urgency=low
+
+  * daemon: factory reset using hardware button
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 06 Apr 2021 18:20:58 +0200
+
+%%PKG%% (0.9.2.5-1) groovy; urgency=low
+
+  * daemon: realize 3 different LED states
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 31 Mar 2021 12:14:28 +0200
+
 %%PKG%% (0.9.2.4-1) groovy; urgency=low
 
   * daemon: timeout for jobqueue to 1sec
