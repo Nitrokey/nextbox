@@ -13,11 +13,16 @@ class Nextcloud:
     config_value_keys = ["overwritehost", "overwriteprotocol", "overwritewebroot", "overwritecondaddr"]
     config_list_keys = ["trusted_domains", "trusted_proxies"]
 
+    can_install_path = "/srv/nextcloud/config/CAN_INSTALL"
+
     def __init__(self):
         pass
+    
+    @property
+    def is_installed(self):
+        return not Path(self.can_install_path).exists()
 
     def run_cmd(self, *args):
-        #log.debug(f"run (nextcloud): {self.occ_cmd + args}")
         cr = CommandRunner(self.occ_cmd + args, block=True)
         if cr.returncode != 0:
             cr.log_output()
