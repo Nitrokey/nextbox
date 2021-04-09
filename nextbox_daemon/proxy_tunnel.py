@@ -3,7 +3,7 @@ import urllib.request, urllib.error
 import json
 
 from nextbox_daemon.config import log
-from nextbox_daemon.services import Services
+from nextbox_daemon.services import services
 from nextbox_daemon.consts import PROXY_REGISTER_URL
 
 from filelock import FileLock
@@ -49,14 +49,12 @@ class ProxyTunnel:
                 yaml.dump(rtun_conf, fd)
         
     def start(self):
-        ctrl = Services()
-        ctrl.enable("reverse-tunnel")
-        ctrl.restart("reverse-tunnel")
+        services.enable("reverse-tunnel")
+        services.restart("reverse-tunnel")
 
     def stop(self):
-        ctrl = Services()
-        ctrl.disable("reverse-tunnel")
-        ctrl.stop("reverse-tunnel")
+        services.disable("reverse-tunnel")
+        services.stop("reverse-tunnel")
 
     def register_at_server(self, token, subdomain, scheme):
         # send register request to proxy-server

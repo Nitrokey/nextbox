@@ -10,7 +10,7 @@ from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.config import log
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.raw_backup_restore import RawBackupRestore
-from nextbox_daemon.services import Services
+from nextbox_daemon.services import services
 from nextbox_daemon.shield import shield
 from nextbox_daemon.worker import BaseJob
 
@@ -43,7 +43,6 @@ class FactoryResetJob(BaseJob):
         shield.set_led_state("factory-reset")
 
         # actual factory-reset is executed by systemd
-        services = Services()
         services.start("nextbox-factory-reset")
 
 
@@ -159,8 +158,6 @@ class SelfUpdateJob(BaseJob):
                 # debian package is not available...
                 # nextbox debian (ppa) repository not available ???!!
                 return 
-
-        services = Services()
 
         # install package (i.e., other nextbox package is already installed)
         # will trigger for e.g., 'nextbox' to 'nextbox-testing' switching

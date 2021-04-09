@@ -11,7 +11,7 @@ from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.utils import requires_auth, success, error, tail
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
-from nextbox_daemon.services import Services
+from nextbox_daemon.services import services
 from nextbox_daemon.proxy_tunnel import ProxyTunnel
 from nextbox_daemon.status_board import board
 from nextbox_daemon.consts import *
@@ -137,11 +137,10 @@ def ssh_set():
 @generic_api.route("/service/<name>/<operation>")
 @requires_auth
 def service_operation(name, operation):
-    ctrl = Services()
-    if not ctrl.check(name, operation):
+    if not services.check(name, operation):
         return error("not allowed")
         
-    dct = ctrl.exec(name, operation)
+    dct = services.exec(name, operation)
     return success(data=dct)
     
 

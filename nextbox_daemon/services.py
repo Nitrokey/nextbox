@@ -66,3 +66,5 @@ class Services:
             "return-code": cr.returncode,
             "output":      output
         }
+
+services = Services()
