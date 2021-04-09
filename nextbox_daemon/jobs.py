@@ -205,12 +205,14 @@ class GenericStatusUpdateJob(BaseJob):
         self.interval = None
 
         pkg = cfg["config"]["debian_package"]
-        cmd = f"dpkg -s {pkg}"
-        cr = CommandRunner(cmd, block=True)
-        for line in cr.output:
-            if "Version:" in line:
-                version = line.strip().split(":")[1]
-                break
+
+        try:
+            cache = apt.cache.Cache()
+            version = cache[pkg].installed.version
+        except Exception as e:
+            log.error(f"failed getting pkg-info for: {pkg}", exc_info=e)
+            return
+            
         board.set("pkginfo", {"version": version, "pkg": pkg})
 
 
