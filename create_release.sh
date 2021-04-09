@@ -1,18 +1,23 @@
 #!/bin/bash
 
+last_full_version=$(head -n 1 debian/changelog | grep -Eo '[0-9\.\-]*')
+last_version=$(echo $last_full_version | cut -d "-" -f 1)
+last_release=$(echo $last_full_version | cut -d "-" -f 2)
+
+echo
+echo "[i] CURRENT DIR/REPO: $(basename `pwd`)"
+echo "[i] CURRENT VERSION:  ${last_full_version}" 
+echo
 
 if [[ "$1" == "" || "$2" == "" || "$3" != "" ]]; then
-	echo "usage: $0 <version> <release>"
+	echo "[ERR] missing argument(s)... "
+	echo "[i] usage: ./$0 <version> <release>"
 	exit 1
 fi
 
 version=$1
 release=$2
 tmp_path=/tmp/changelog.tmp.debian.nextbox.txt
-
-last_full_version=$(head -n 1 debian/changelog | grep -Eo '[0-9\.\-]*')
-last_version=$(echo $last_full_version | cut -d "-" -f 1)
-last_release=$(echo $last_full_version | cut -d "-" -f 2)
 
 pushd repos/daemon > /dev/null
 if ! git diff-index --quiet HEAD --; then
@@ -36,16 +41,10 @@ else
 fi
 popd > /dev/null
 
-echo "---"
-echo $daemon_changes
-echo $app_changes
-echo "---"
-
-
 
 if [[ `vercmp ${last_version} ${version}` != "-1" ]]; then
-	echo ERROR: \"$version\" is not 'newer' compared to: \"$last_version\"
-	echo ERROR: exiting, please pass valid version
+	echo [ERR] \"$version\" is not 'newer' compared to: \"$last_version\"
+	echo [ERR] exiting, please pass valid version
 	exit 1
 fi
 
