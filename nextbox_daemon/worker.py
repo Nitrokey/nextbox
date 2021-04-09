@@ -44,11 +44,11 @@ class JobManager:
 
     def register_job(self, job):
         """register job by `job.name` and construct their instances"""
-        log.info(f"registering job {job.name}")
         if job.name in self.jobs:
             log.warning(f"overwriting job (during register) with name: {job.name}")
 
         self.jobs[job.name] = job()
+        log.info(f"registered job: {job.name}")
 
     def handle_job(self, job_name, job_kwargs):
         """check if job registered and run/call/execute task's: `run()`"""
@@ -60,8 +60,7 @@ class JobManager:
         try:
             self.jobs[job_name].run(self.cfg, self.board, job_kwargs)
         except Exception as e:
-            log.error(f"failed running job: {job_name}")
-            log.error(msg="EXC", exc_info=e)
+            log.error(f"failed running job: {job_name}", exc_info=e)
 
     def get_recurring_jobs(self):
         """return list-of-pairs [name, args] for due tasks"""

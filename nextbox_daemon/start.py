@@ -76,20 +76,26 @@ for job_cls in ACTIVE_JOBS:
 def signal_handler(sig, frame):
     global job_queue, worker
 
-    print("Exit handler, delivering worker exit job now")
+    log.info("signal-handler, sending 'exit' as job for graceful termination")
+
     job_queue.put("exit")
     worker.join()
-    print("Joined worker - exiting now...")
-    #signal.pause()
+    
+    log.info("joined background-worker - exiting now...")
+    log.info("^" * 60)
+    
     sys.exit(1)
 
 
-# bind signals to handler (for graceful background-worker exit)
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
+def main():
 
-# start background worker
-worker.start()
+    # bind signals to handler (for graceful background-worker exit)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
-# exit once done, never ok, as we always want to run!
-sys.exit(1)
+    worker.start()
+
+    app.run(host="0.0.0.0", port=18585, debug=False, threaded=True, processes=1, use_reloader=False)
+
+if __name__ == "__main__":
+    main()

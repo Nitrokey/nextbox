@@ -4,16 +4,14 @@ After=network.target
 
 [Service]
 
-WorkingDirectory=/usr/lib/python3/dist-packages/nextbox_daemon
-ExecStart=uwsgi_python3 --http-socket 0.0.0.0:18585 --wsgi-file start.py --callable app --processes 1 --threads 4 --enable-threads --master
+Environment="PYTHONUNBUFFERED=x"
+ExecStart=/usr/bin/nextbox-daemon
 
 Restart=always
 RestartSec=5
 
 StandardOutput=journal
 StandardError=journal
-
-
 
 [Install]
 WantedBy=multi-user.target
