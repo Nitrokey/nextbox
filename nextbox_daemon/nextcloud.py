@@ -45,7 +45,7 @@ class Nextcloud:
     def set_config(self, key, data, idx=None):
         """
         Set config value identified by `key` to `data`.
-        
+
         * determining the type is based on `key` in any of `config_{list,value}_keys`.
         * `idx: int` may be passed to set just one item of a list/array config
         * `data: [list, str]` strictly based on `key`
@@ -55,8 +55,8 @@ class Nextcloud:
             # single item in config list (data as item at `idx` in list)
             if idx is not None:
                 self.run_cmd("config:system:set", key, str(idx), "--value", data)
-                return 
-            
+                return
+
             # all items in data (as list)
             for idx, item in enumerate(data):
                 self.run_cmd("config:system:set", key, str(idx), "--value", item)
