@@ -14,7 +14,6 @@ from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
 from nextbox_daemon.certificates import Certificates
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
-from nextbox_daemon.services import Services
 from nextbox_daemon.proxy_tunnel import ProxyTunnel, ProxySetupError
 from nextbox_daemon.consts import *
 

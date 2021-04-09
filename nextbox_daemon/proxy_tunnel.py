@@ -50,13 +50,13 @@ class ProxyTunnel:
         
     def start(self):
         ctrl = Services()
-        ctrl.exec("reverse-tunnel", "enable")
-        ctrl.exec("reverse-tunnel", "restart")
+        ctrl.enable("reverse-tunnel")
+        ctrl.restart("reverse-tunnel")
 
     def stop(self):
         ctrl = Services()
-        ctrl.exec("reverse-tunnel", "disable")
-        ctrl.exec("reverse-tunnel", "stop")
+        ctrl.disable("reverse-tunnel")
+        ctrl.stop("reverse-tunnel")
 
     def register_at_server(self, token, subdomain, scheme):
         # send register request to proxy-server
