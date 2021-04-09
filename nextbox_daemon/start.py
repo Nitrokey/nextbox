@@ -13,8 +13,6 @@ from queue import Queue
 from flask import Flask, render_template, request, flash, redirect, Response, \
     url_for, send_file, Blueprint, render_template, jsonify, make_response
 
-from gunicorn.app.base import BaseApplication
-
 from nextbox_daemon.utils import error, success, \
     tail, local_ip, requires_auth
 
@@ -70,55 +68,28 @@ def after_request_func(response):
 ### end CORS section
 
 
-class NextBoxApplication(BaseApplication):
-    def __init__(self, app, options=None):
-        self.options = options or {}
-        self.application = app
-        super().__init__()
-
-    def load_config(self):
-        config = {key: value for key, value in self.options.items()
-                  if key in self.cfg.settings and value is not None}
-        for key, value in config.items():
-            self.cfg.set(key.lower(), value)
-
-    def load(self):
-        return self.application
-
-
 # register all to-be-activated jobs at job-mgr
 for job_cls in ACTIVE_JOBS:
     job_mgr.register_job(job_cls)
 
-# shutdown handler for background-process (dispatched via gunicorn)
-def end_background_worker(worker_thread, server):
+
+def signal_handler(sig, frame):
     global job_queue, worker
 
-    print("exit handler, delivering worker exit job now")
+    print("Exit handler, delivering worker exit job now")
     job_queue.put("exit")
     worker.join()
-    print("joined worker - exiting now...")
-
-# start our background-worker-thread
-def start_background_worker(worker_thread):
-    worker.start()
-
-# main-entrypoint
-def main():
-    global job_queue, worker
-
-    # rest-api-server (gunicorn) startup-options
-    options = {
-        "bind": '%s:%s' % ('0.0.0.0', '18585'),
-        "workers": 1,
-        "threads": 3,
-        "log-level": "info",
-        "post_worker_init": start_background_worker,
-        "worker_exit": end_background_worker
-    }
-
-    NextBoxApplication(app, options).run()
-    
-if __name__ == "__main__":
-    main()
+    print("Joined worker - exiting now...")
+    #signal.pause()
     sys.exit(1)
+
+
+# bind signals to handler (for graceful background-worker exit)
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
+# start background worker
+worker.start()
+
+# exit once done, never ok, as we always want to run!
+sys.exit(1)
