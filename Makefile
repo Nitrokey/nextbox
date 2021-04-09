@@ -36,7 +36,7 @@ clean:
 	make PKG=nextbox GIT_TAG=main deb-clean
 
 
-main-target: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian $(PKG)/rtun-linux-arm64 deb-src
+main-target: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/scripts $(PKG)/nextbox-compose $(PKG)/debian $(PKG)/rtun-linux-arm64 deb-src
 
 
 $(PKG)/debian: debian
@@ -47,6 +47,8 @@ $(PKG)/debian: debian
 	cp repos/daemon/services/nextbox.nextbox-compose.service $(PKG)/debian/$(PKG).nextbox-compose.service
 	cp repos/daemon/services/nextbox.nextbox-image-load.service $(PKG)/debian/$(PKG).nextbox-image-load.service
 	cp repos/daemon/services/nextbox.reverse-tunnel.service $(PKG)/debian/$(PKG).reverse-tunnel.service
+	cp repos/daemon/services/nextbox.nextbox-factory-reset.service $(PKG)/debian/$(PKG).nextbox-factory-reset.service
+	cp repos/daemon/services/nextbox.nextbox-updater.service $(PKG)/debian/$(PKG).nextbox-updater.service
 
 repos:
 	mkdir -p repos
@@ -94,6 +96,10 @@ $(PKG)/nextbox_daemon: repos/daemon $(PKG)/debian
 	# daemon itself
 	rsync -r repos/daemon/nextbox_daemon $(PKG)
 	cp repos/daemon/setup.py $(PKG)/
+
+$(PKG)/scripts: repos/daemon/scripts $(PKG)/debian
+	mkdir -p $(PKG)/scripts
+	cp repos/daemon/scripts/* $(PKG)/scripts
 
 $(PKG)/rtun-linux-arm64: $(PKG)/debian
 	cd $(PKG) && \
