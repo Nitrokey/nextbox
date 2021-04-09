@@ -33,16 +33,19 @@ class FactoryResetJob(BaseJob):
     def __init__(self):
         super().__init__(initial_interval=None)
 
-        shield.button.when_pressed = lambda: shield.set_led_state("button")
-        shield.button.when_released = lambda: shield.set_led_state("ready")
+        self.running = False
+
+        shield.button.when_pressed = lambda: not self.running and shield.set_led_state("button")
+        shield.button.when_released = lambda: not self.running and shield.set_led_state("ready")
         shield.button.when_held = self._run
 
     def _run(self, cfg=None, board=None, kwargs=None):
-        log.warning("Starting factory-reset operation")
         
+        self.running = True
+        
+        # factory-reset is executed by systemd
+        log.warning("Starting factory-reset operation")
         shield.set_led_state("factory-reset")
-
-        # actual factory-reset is executed by systemd
         services.start("nextbox-factory-reset")
 
 
