@@ -10,7 +10,9 @@ version=$1
 release=$2
 tmp_path=/tmp/changelog.tmp.debian.nextbox.txt
 
-
+last_full_version=$(head -n 1 debian/changelog | grep -Eo '[0-9\.\-]*')
+last_version=$(echo $last_full_version | cut -d "-" -f 1)
+last_release=$(echo $last_full_version | cut -d "-" -f 2)
 
 pushd repos/daemon > /dev/null
 if ! git diff-index --quiet HEAD --; then
@@ -19,6 +21,7 @@ if ! git diff-index --quiet HEAD --; then
 		exit 1
 else
 		echo "[+] daemon repository clean"
+		daemon_changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2-)
 fi
 popd > /dev/null
 
@@ -29,23 +32,37 @@ if ! git diff-index --quiet HEAD --; then
 		exit 1
 else
 		echo "[+] app repository clean"
+		app_changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2-)
 fi
 popd > /dev/null
 
-echo "[i] LAST RELEASE: $(head -n 1 debian/changelog | grep -Eo '[0-9\.\-]*')"
+echo "---"
+echo $daemon_changes
+echo $app_changes
+echo "---"
+
+
+
+if [[ `vercmp ${last_version} ${version}` != "-1" ]]; then
+	echo ERROR: \"$version\" is not 'newer' compared to: \"$last_version\"
+	echo ERROR: exiting, please pass valid version
+	exit 1
+fi
+
+
+echo "[i] LAST RELEASE: ${last_version}-${last_release}"
 echo "[i] THIS RELEASE: ${version}-${release}"
 
 
 cat > ${tmp_path} <<EOL
 %%PKG%% (${version}-${release}) groovy; urgency=low
 
-  * %%CHANGELOG_1%%
+  * app: ${app_changes}
+	* daemon: ${daemon_changes}
 
  -- Markus Meissner (Debian) <coder@safemailbox.de>  $(date -R)
 
 EOL
-
-echo "TODO: git log ${last_version}..HEAD --oneline >> changelog"
 
 echo "[?] Should I continue and add the version tags? (ctrl+c to cancel)"
 read
