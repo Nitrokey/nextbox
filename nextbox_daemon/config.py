@@ -30,8 +30,8 @@ class Config(dict):
                 "last_restore": None,
                 "http_port":    80,
                 "https_port":   None,
-                "hostname":     "NextBox",
-                "log_lvl":      logging.INFO,
+                "hostname":     "nextbox",
+                "log_lvl":      logging.DEBUG,
 
                 "domain":       None,
                 "email":        None,
@@ -200,7 +200,6 @@ def check_filesystem_after_init(cfg):
             write_nextbox_updater_env_file(nb_upd_env_path, pkg)
 
 
-
 # 1st filesystem integrity check
 check_filesystem()
 
@@ -210,15 +209,41 @@ log.setLevel(logging.DEBUG)
 log_handler = logging.handlers.RotatingFileHandler(
         LOG_FILENAME, maxBytes=MAX_LOG_SIZE, backupCount=5)
 log.addHandler(log_handler)
-log_format = logging.Formatter("{asctime} {module} {levelname} => {message}", style='{')
+
+# adapt logging-record-factory for a more condensed log
+module_mapping = {
+    "command_runner"    : "cmd_run",   "status_board"      : "board",
+    "raw_backup_restore": "rbackup",   "proxy_tunnel"      : "ptun",
+    "certificates"      : "certs",     "partitions"        : "parts",
+}
+
+level_mapping = {"CRITICAL": "[!]", "ERROR": "[E]", "WARNING": "[W]", 
+    "INFO": "[i]", "DEBUG": "[D]" 
+}
+
+record_factory = logging.getLogRecordFactory()
+def my_record_factory(*va, **kw):
+    rec = record_factory(*va, **kw)
+    rec.origin = module_mapping.get(rec.module, rec.module)
+    rec.symlvl = level_mapping.get(rec.levelname, rec.levelname)
+    return rec
+# apply wrapped record factory
+logging.setLogRecordFactory(my_record_factory)
+
+
+# logging format
+log_format = logging.Formatter("{asctime} {symlvl} {origin:<9} {message}", style='{')
 log_handler.setFormatter(log_format)
 
-log.info("=" * 40)
+# welcome banner (into log)
+log.info("=" * 60)
 log.info("====> starting nextbox-daemon")
-log.info("=" * 40)
 
 # config load
 cfg = Config(CONFIG_PATH)
+
+# set log-level from config
+log.setLevel(cfg["config"]["log_lvl"])
 
 # 2nd filesystem integrity check, using loaded configuration
 check_filesystem_after_init(cfg)
