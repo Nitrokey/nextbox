@@ -2,10 +2,8 @@ from datetime import datetime as dt
 from time import sleep
 from pathlib import Path
 import os
-
 import psutil
 import apt
-
 
 from nextbox_daemon.consts import *
 from nextbox_daemon.command_runner import CommandRunner
@@ -14,27 +12,7 @@ from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.raw_backup_restore import RawBackupRestore
 from nextbox_daemon.services import Services
 from nextbox_daemon.shield import shield
-
-class BaseJob:
-    name = None
-
-    def __init__(self, initial_interval):
-        self.interval = initial_interval
-        self.last_run = dt.now()
-
-    def is_due(self):
-        if self.interval is None:
-            return False
-        return (dt.now() - self.last_run).seconds > self.interval
-
-    def run(self, cfg, board, kwargs):
-        log.debug(f"starting worker job: {self.name}")
-        self.last_run = dt.now()
-        self._run(cfg, board, kwargs)
-        log.debug(f"finished worker job: {self.name}")
-
-    def _run(self, cfg, board, kwargs):
-        raise NotImplementedError()
+from nextbox_daemon.worker import BaseJob
 
 
 class LEDJob(BaseJob):
@@ -67,6 +45,7 @@ class FactoryResetJob(BaseJob):
         # actual factory-reset is executed by systemd
         services = Services()
         services.start("nextbox-factory-reset")
+
 
 class BackupRestoreJob(BaseJob):
     name = "BackupRestore"
@@ -144,6 +123,7 @@ class EnableNextBoxAppJob(BaseJob):
         except NextcloudError:
             pass
 
+
 class SelfUpdateJob(BaseJob):
     name = "SelfUpdate"
 
@@ -195,6 +175,7 @@ class SelfUpdateJob(BaseJob):
 
         shield.set_led_state("ready")
 
+
 class GenericStatusUpdateJob(BaseJob):
     name = "GenericStatusUpdate"
 
@@ -227,6 +208,7 @@ class HardwareStatusUpdateJob(BaseJob):
         temp = Path("/sys/class/hwmon/hwmon0/temp1_input").read_text().strip()
 
         board.set("hwinfo", {"temp": temp})
+
 
 class TrustedDomainsJob(BaseJob):
     name = "TrustedDomains"
@@ -268,35 +250,4 @@ class TrustedDomainsJob(BaseJob):
             except NextcloudError:
                 log.warning("failed to write all trusted_domains")
                 self.interval = 15
-                
-
-class JobManager:
-    def __init__(self, config, board):
-        self.cfg = config
-        self.jobs = { }
-        self.board = board
-
-    def register_job(self, job):
-        log.info(f"registering job {job.name}")
-        if job.name in self.jobs:
-            log.warning(f"overwriting job (during register) with name: {job.name}")
-        self.jobs[job.name] = job()
-
-
-    def handle_job(self, job_name, job_kwargs):
-        if job_name not in self.jobs:
-            log.error(f"could not find job with name: {job_name}")
-            return
-
-        # run actual job
-        try:
-            self.jobs[job_name].run(self.cfg, self.board, job_kwargs)
-        except Exception as e:
-            log.error(f"failed running job: {job_name}")
-            log.error(msg="EXC", exc_info=e)
-
-    def get_recurring_job(self):
-        for name, job in self.jobs.items():
-            if job.is_due():
-                return name
 
