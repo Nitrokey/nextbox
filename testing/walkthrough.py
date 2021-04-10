@@ -282,19 +282,22 @@ def setup_and_test_proxy():
 
 @tracer        
 def setup_and_test_static_dns():
-    if not nextbox_sub_ensure(5):
+    if not nextbox_sub_ensure(6):
         return False
 
-    ret = input_into_text_field('//*[@id="app-content-vue"]/div/div[2]/input', conf["static_domain"])
+    button_xp = '//*[@id="app-content-vue"]/div/div[2]/button'
+    input_xp = '//*[@id="app-content-vue"]/div/div[2]/input'
+
+    ret = input_into_text_field(input_xp, conf["static_domain"])
     if not ret:
-        click_xpath('//*[@id="app-content-vue"]/div/div[2]/button')
+        click_xpath(button_xp)
         chat("looks like it's already active, ok let's disable it and retry!")
-        if not input_into_text_field('//*[@id="app-content-vue"]/div/div[2]/input', conf["static_domain"]):
+        if not input_into_text_field(input_xp, conf["static_domain"]):
             chat("failed again, failing overall...")
             return False
         chat("cool, worked out")
     
-    if not test_and_click_button('//*[@id="app-content-vue"]/div/div[2]/button'):
+    if not test_and_click_button(button_xp):
         return False
 
     chat("looks good so far, let's see if we can connect")
@@ -305,23 +308,30 @@ def setup_and_test_tls():
     if not nextbox_sub_ensure(7):
         return False
 
+    button_xp = '//*[@id="app-content-vue"]/div/div/div/div/button'
+
     if not input_into_text_field('//*[@id="app-content-vue"]/div/div/div/div/input', conf["email"]):
-        chat("mmmh, maybe we are enabled already, this might be painful...")
-        if not test_and_click_button('//*[@id="app-content-vue"]/div/div/div/div/button'):
-            chat("okok? disable click also failed, aborting ...")
+        
+        chat("mmmh, TLS already enabled, uha: this might be painful...")
+        
+        if not test_and_click_button(button_xp):
             return False
-        chat("now waiting for the apache to restart, then jump back to non-https (i.e., retry!)")
+        
+        chat("now waiting (~15secs) for apache restart => jump back to non-https (i.e., recurse!)")
+
         br.delete_all_cookies()
 
+        sleep(5)
         return setup_and_test_tls()
 
     sleep(1)
 
-    if not test_and_click_button('//*[@id="app-content-vue"]/div/div/div/div/button'):
+    if not test_and_click_button(button_xp):
         chat("cannot click button to activate, giving up...")
         return False
 
     chat("ok, certificate is on the way, let's wait some secs then check, if it works")
+    sleep(10)
 
     return test_for_valid_login_page(conf["static_domain"], "https")
 
@@ -351,31 +361,15 @@ goto_nextbox()
 storages_backup_avail()
 backup_test()
 
+sleep(5)
+
 # test static dns
+goto_nextbox()
 setup_and_test_static_dns()
 
+sleep(5)
 
-
-
-
-
-
-
-# # logging in again
-# regular_login()
-# #navigate_around_and_nextbox_app()
-# for idx in range(8):
-#     goto_nextbox_nav(idx)
-#     chatty_sleep(f"checking out nav with index: {idx}")
-
-# ### storage management (mount / umount test)
-# storage_mount_umount()
-
-# ### test backup onto mounted storage
-# backup_test()
-
-# setup_and_test_proxy()
-
-# setup_and_test_static_dns()
-# setup_and_test_tls()
+# set up TLS (with static domain)
+goto_nextbox()
+setup_and_test_tls()
 

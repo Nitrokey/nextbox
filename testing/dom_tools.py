@@ -30,8 +30,6 @@ def goto_nextbox_nav(idx):
             return False
         sleep(1)
 
-    #navs = get_xpath('//*[@id="app-navigation-vue"]', as_list=True)
-
     navs = get_xpath('//*[@id="app-navigation-vue"]').find_elements(By.TAG_NAME, "li")
     navs = [nav.find_element(By.TAG_NAME, "a") for nav in navs]
 
