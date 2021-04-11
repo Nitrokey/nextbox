@@ -1,5 +1,5 @@
 <template>
-	<div class="dyndns">
+	<div id="dyndns">
 		<div class="section">
 			<h2>Guided Dynamic DNS Configuration</h2>
 			This wizard will guide you through the process of setting up remote access to your
@@ -338,7 +338,7 @@ export default {
 
 <style scoped>
 
-.dyndns {
+#dyndns {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;

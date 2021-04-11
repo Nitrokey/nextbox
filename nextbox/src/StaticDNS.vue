@@ -1,5 +1,5 @@
 <template>
-	<div class="static_dyndns">
+	<div id="static_dyndns">
 		<div class="section">
 			<h2>Static Domain Configuration</h2>
 			This is needed, if you configured a domain to point to your 
@@ -166,7 +166,7 @@ export default {
 	display: block !important;
 }
 
-.static_dyndns {
+#static_dyndns {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;

@@ -1,5 +1,5 @@
 <template>
-	<div class="proxy">
+	<div id="proxy">
 		<div class="section">
 			<h2>Backwards Proxy Remote Access for Your NextBox</h2>
 			The easiest way to make your personal Cloud available from everywhere.<br>
@@ -187,7 +187,7 @@ export default {
 	display: block !important;
 }
 
-.proxy {
+#proxy {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;

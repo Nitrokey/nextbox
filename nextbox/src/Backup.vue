@@ -1,5 +1,5 @@
 <template>
-	<div class="backup-restore">
+	<div id="backup-restore">
 		<div v-if="progress" class="section">
 			<h2>{{ progressWhat }} in Progress</h2>
 			<br>
@@ -311,7 +311,7 @@ export default {
 
 <style scoped>
 
-.backup-restore {
+#backup-restore {
 	display: flex;
 	width: 100%;
 	min-width: 0px;

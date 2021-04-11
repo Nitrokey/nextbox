@@ -1,5 +1,5 @@
 <template>
-	<div class="storage">
+	<div id="storage">
 		<AppContentList class="section storage-list" show-details>
 			<h2>Mounted Storages</h2>
 
@@ -207,10 +207,9 @@ export default {
 	/*height: fit-content !important;*/
 }
 
-.storage {
-	/*height: 
-	45vh;*/
-}
+/*#storage {
+	
+}*/
 
 .empty {
 	height: 0px;

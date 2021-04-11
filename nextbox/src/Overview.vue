@@ -1,5 +1,5 @@
 <template>
-	<div class="overview">
+	<div id="overview">
 		<!-- External availability  -->
 		<div class="section">
 			<h2>Remote Access for Your NextBox</h2>
@@ -136,7 +136,7 @@ export default {
 
 <style scoped>
 
-.overview {
+#overview {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;

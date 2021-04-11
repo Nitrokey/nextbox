@@ -1,5 +1,5 @@
 <template>
-	<div class="custom_dns">
+	<div id="custom_dns">
 		<div class="section">
 			<h2>Custom Dynamic DNS Configuration</h2>
 			Using this configuration you can configure any dynamic DNS service, which is supported
@@ -246,7 +246,7 @@ export default {
 	display: block !important;
 }
 
-.custom_dns {
+#custom_dns {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;

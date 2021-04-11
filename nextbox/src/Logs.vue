@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div id="logs">
 		<AppContentDetails v-for="line in lines" :key="line">
 			{{ line }}
 		</AppContentDetails>
@@ -48,5 +48,8 @@ export default {
 
 
 <style scoped>
-.logline { color: black }
+.logline { 
+	color: black 
+}
+
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<div class="remote">
+	<div id="remote">
 		<!-- Done View -->
 		<div v-if="config.dns_mode !== 'off' || config.proxy_active" class="section">
 			<h2>Remote Access - Status</h2>
@@ -201,7 +201,7 @@ export default {
 
 <style scoped>
 
-.remote {
+#remote {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;

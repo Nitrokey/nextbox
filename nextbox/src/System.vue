@@ -1,7 +1,6 @@
 <template>
-	<div class="system">
-					
-			
+	<div id="system">
+
 		<div class="section">
 			<h2>System Logs</h2>
 			Downloading the system logs will allow you an extensive view into the state of your system.<br>
@@ -167,7 +166,7 @@ export default {
 
 <style scoped>
 
-.system {
+#system {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;
