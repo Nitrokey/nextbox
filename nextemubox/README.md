@@ -19,4 +19,14 @@ Next(Q)EMUBox
 
 * you should now find `initrd.img-*-arm64` and `vmlinuz-*-arm64` in your working directory
 
+* take a look into `start-nextemubox.sh` and adapt the `KERNEL_IMG` and `INITRD_IMG` version(s) 
+	accordingly
+
+* start using `$ bash start-nextemubox.sh` 
+
+
+What's missing from here to a horde of Next(Q)EmuBoxes ?
+* Networking configuration (also for more than one running)
+* The image is *only* a debian image, w/o all the quirks and stuff, which are part of `pi-gen`
+* Clarify if this really brings any benefits compared to a Debian x86 VirtualBox 
 
