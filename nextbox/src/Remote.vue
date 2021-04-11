@@ -37,7 +37,7 @@
 			<h2>Remote Access - Not Configured</h2>
 			Your NextBox is not yet configured for remote access. Please select one of the possible configurations below.
 			<ul>
-				<li v-tooltip="ttProxy" class="remote-action" @click="$emit('newPage', 'remote_proxy')">
+				<li class="remote-action" @click="$emit('newPage', 'remote_proxy')">
 					<span class="remote-icon icon-star" />
 					Backwards Proxy Configuration (recommended)
 				</li>
@@ -49,7 +49,7 @@
 					<span class="remote-icon icon-settings" />
 					Custom Dynamic DNS Configuration
 				</li-->
-				<li v-tooltip="ttStatic" class="remote-action" @click="$emit('newPage', 'remote_static_dns')">
+				<li class="remote-action" @click="$emit('newPage', 'remote_static_dns')">
 					<span class="remote-icon icon-public" />
 					Static Domain Configuration
 				</li>

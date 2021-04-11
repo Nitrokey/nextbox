@@ -1,5 +1,5 @@
 <template>
-	<div class="tls">
+	<div id="tls">
 		<div class="section">
 			<h2>HTTPS / TLS Configuration</h2>
 			<div v-if="!dns_mode.endsWith('_done')" icon="icon-close">
@@ -60,8 +60,8 @@
 					</button>
 				</div><br>
 				Enabling or Disabling HTTPS might need a restart of your Browser to properly
-				access your Nextcloud afterwards as caching sometimes leads to issues. <br>
-				It might also be needed to clear you browser cache/cookies, once you enable or disable TLS.
+				access your Nextcloud afterwards, as caching sometimes leads to issues. <br>
+				It might also be needed to clear your browser cache/cookies, once you enable or disable TLS.
 			</div>
 		</div>
 	</div>
@@ -260,7 +260,7 @@ export default {
 
 <style scoped>
 
-.tls {
+#tls {
 	display: flex;
 	min-width: 0px;
 	min-height: 0px;
