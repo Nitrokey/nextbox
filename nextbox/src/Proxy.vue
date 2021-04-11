@@ -31,7 +31,8 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
+// import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
+import { showError, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 

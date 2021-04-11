@@ -55,7 +55,8 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
+// import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
+import { showError, showMessage } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
 import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'

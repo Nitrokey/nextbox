@@ -1,7 +1,7 @@
 {
 	"name": "nextbox",
 	"description": "NextBox Configuration App",
-	"version": "0.0.1",
+	"version": "0.9.2.10",
 	"author": "Markus Meissner <meissner@nitrokey.com>",
 	"contributors": [],
 	"bugs": {
@@ -28,6 +28,7 @@
 		"@nextcloud/dialogs": "^3.1.1",
 		"@nextcloud/router": "^1.2.0",
 		"@nextcloud/vue": "^3.3.2",
+		"bundle-stats": "^2.8.0",
 		"qs": "^6.9.4",
 		"vue": "^2.6.12"
 	},
@@ -58,6 +59,7 @@
 		"eslint-plugin-standard": "^4.1.0",
 		"eslint-plugin-vue": "^6.2.2",
 		"file-loader": "^6.2.0",
+		"js-file-download": "^0.4.12",
 		"node-sass": "^4.14.1",
 		"sass-loader": "^8.0.2",
 		"stylelint": "^13.8.0",
@@ -68,7 +70,6 @@
 		"vue-loader": "^15.9.6",
 		"vue-template-compiler": "^2.6.12",
 		"webpack": "^4.45.0",
-		"webpack-cli": "^3.3.12",
-		"js-file-download": "^0.4.12"
+		"webpack-cli": "^3.3.12"
 	}
 }

@@ -87,22 +87,17 @@ import qs from 'qs'
 
 // import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
-import Actions from '@nextcloud/vue/dist/Components/Actions'
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
-import ActionRadio from '@nextcloud/vue/dist/Components/ActionRadio'
-import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
+// import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
+// import Actions from '@nextcloud/vue/dist/Components/Actions'
+// import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+// import ActionRadio from '@nextcloud/vue/dist/Components/ActionRadio'
+// import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
 export default {
 	name: 'DynDNS',
 
 	components: {
-		AppContentDetails,
-		Actions,
-		ActionRadio,
-		ActionButton,
-		ActionInput,
 	},
 
 	data() {

@@ -50,7 +50,8 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-import { showError, showSuccess } from '@nextcloud/dialogs'
+// import { showError, showSuccess } from '@nextcloud/dialogs'
+import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 
@@ -62,6 +63,7 @@ const FileDownload = require('js-file-download')
 
 export default {
 	name: 'System',
+
 	components: {
 	},
 

@@ -41,18 +41,21 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-import { showError, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
-import qs from 'qs'
+//import qs from 'qs'
 
 // import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
+// import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
+
+
+// import { showError, showSuccess } from '@nextcloud/dialogs'
+
+
 
 export default {
 	name: 'Overview',
 	components: {
-		AppContentDetails,
 	},
 
 	data() {
