@@ -25,7 +25,7 @@ Next(Q)EMUBox
 * start using `$ bash start-nextemubox.sh` 
 
 
-What's missing from here to a horde of Next(Q)EmuBoxes ?
+**What's missing from here to get a horde of Next(Q)EmuBoxes ?**
 * Networking configuration (also for more than one running)
 * The image is *only* a debian image, w/o all the quirks and stuff, which are part of `pi-gen`
 * Clarify if this really brings any benefits compared to a Debian x86 VirtualBox 
