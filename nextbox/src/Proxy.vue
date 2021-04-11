@@ -80,7 +80,7 @@ export default {
 	computed: {
 		activateDisabled() {
 			return this.loadingButton || !this.checkDomain()
-		}
+		},
 	},
 
 	async mounted() {
@@ -133,7 +133,7 @@ export default {
 				const data = {
 					proxy_domain: this.update.proxy_domain,
 					proxy_active: true,
-					nk_token: this.config.nk_token
+					nk_token: this.config.nk_token,
 				}
 				const url = '/apps/nextbox/forward/proxy/register'
 				const options = {

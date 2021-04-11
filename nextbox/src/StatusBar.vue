@@ -21,9 +21,9 @@ import { showError } from '@nextcloud/dialogs'
 export default {
 	name: 'StatusBar',
 
-	props: ['state', 'icon', 'content', 'extra', 'tooltip', 'obj'],
-
 	components: { },
+
+	props: ['state', 'icon', 'content', 'extra', 'tooltip', 'obj'],
 
 	data() {
 		return {
@@ -32,9 +32,9 @@ export default {
 		}
 	},
 
-	async mounted() { },
-
 	computed: { },
+
+	async mounted() { },
 	
 	methods: { },
 }

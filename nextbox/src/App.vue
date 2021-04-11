@@ -36,7 +36,6 @@
 			<StaticDNS v-if="page === 'remote_static_dns'" />
 			<TLS v-if="page === 'tls'" />
 			<Remote v-if="page === 'remote'" @newPage="set_page" />
-			
 		</AppContent>
 	</div>
 </template>
@@ -83,7 +82,7 @@ export default {
 		Backup,
 		Storage,
 		Proxy,
-		TLS
+		TLS,
 	},
 	data() {
 		return {

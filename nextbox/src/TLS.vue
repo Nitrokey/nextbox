@@ -6,7 +6,6 @@
 				To activate TLS encryption for your NextBox, first finish a DNS Configuration.
 			</div>
 			<div v-else>
-				
 				<span v-if="testResolve === null" class="tag neutral"><span class="icon icon-loading-small" />
 					Testing, if {{ domain }} resolves correctly
 				</span>
@@ -36,7 +35,6 @@
 						type="button" 
 						:disabled="loadingButton" 
 						@click="disable()">
-
 						<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
 						Disable HTTPS
 					</button>
@@ -54,7 +52,6 @@
 						type="button" 
 						:disabled="enableDisabled" 
 						@click="enable()">
-						
 						<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 						Enable HTTPS 
 					</button>
@@ -123,14 +120,14 @@ export default {
 		}
 	},
 
-	async mounted() {
-		await this.refresh()
-	},
-
 	computed: {
 		enableDisabled() {
 			return this.loadingButton || !this.validateEMail()
 		},
+	},
+
+	async mounted() {
+		await this.refresh()
 	},
 
 	methods: {
@@ -239,14 +236,14 @@ export default {
 		validateEMail() {
 			if (this.update.email === '' || this.update.email.length < 4) {
 				this.userMessage.email = [
-					'Please enter an e-mail address'
+					'Please enter an e-mail address',
 				]
 				return false
 			}
 			const pat = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 			if (!pat.test(this.update.email)) {
 				this.userMessage.email = [
-					'Please enter a valid e-mail address'
+					'Please enter a valid e-mail address',
 				]
 				return false
 			}

@@ -23,7 +23,6 @@
 				<span class="icon icon-confirm" />
 				Continue...
 			</button>
-
 		</div>
 
 		<div v-if="!progress" class="section">
@@ -49,17 +48,17 @@
 				v-model="selectedBackup"
 				:options="device_backups(selectedDevice)"
 				:disabled="!Boolean(selectedDevice)"
-				@update="validateBackupLocation"
 				placeholder="Select Backup Location"
-				track-by="path" 
-				label="name" /><br>
+				track-by="path"
+				label="name" 
+				@update="validateBackupLocation" /><br>
 			Alternatively, create a new backup:<br>
 			<input 
 				v-model="newBackup" 
 				type="text" 
 				:disabled="selectedBackup || !selectedDevice" 
-				@change="validateBackupLocation"
-				placeholder="Name of new backup"><br>
+				placeholder="Name of new backup"
+				@change="validateBackupLocation"><br>
 			<span v-if="userMessage.newBackup" class="error-txt">{{ userMessage.newBackup.join(" ") }}</span><br>
 			<br>
 
@@ -225,7 +224,7 @@ export default {
 
 			if (this.newBackup === '' && Boolean(this.selectedDevice)) {
 				this.userMessage.newBackup = [
-					'Please select a location or enter a new backup location'
+					'Please select a location or enter a new backup location',
 				]
 				this.backupLocation = ''
 				return false
@@ -234,14 +233,14 @@ export default {
 			const pat = /^[a-zA-Z0-9_]+$/
 			if (!pat.test(this.newBackup)) {
 				this.userMessage.newBackup = [
-					'Invalid new backup location - use only alphanumeric letters and underscores.'
+					'Invalid new backup location - use only alphanumeric letters and underscores.',
 				]
 				this.backupLocation = ''
 				return false
 			}
 			if (this.newBackup.length < 4) {
 				this.userMessage.newBackup = [
-					'Invalid new backup location - at least 4 characters length required.'
+					'Invalid new backup location - at least 4 characters length required.',
 				]
 				this.backupLocation = ''
 				return false
@@ -257,7 +256,7 @@ export default {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
 			const data = qs.stringify({
-				tar_path: this.backupLocation
+				tar_path: this.backupLocation,
 			})
 
 			const res = await axios.post(generateUrl(url), data, options).catch((e) => {
@@ -293,7 +292,7 @@ export default {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
 			const data = qs.stringify({
-				src_path: this.selectedRestore.path
+				src_path: this.selectedRestore.path,
 			})
 
 			const res = await axios.post(generateUrl(url), data, options).catch((e) => {

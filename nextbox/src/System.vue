@@ -1,6 +1,5 @@
 <template>
 	<div id="system">
-
 		<div class="section">
 			<h2>System Logs</h2>
 			Downloading the system logs will allow you an extensive view into the state of your system.<br>

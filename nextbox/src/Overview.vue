@@ -25,7 +25,6 @@
 			<span v-else class="tag error"><span class="icon icon-error" />Cannot connect to the Backend</span>
 			
 			<span class="tag neutral"><span class="icon icon-checkmark" />NextBox Software Version: {{ version }}</span>
-			
 		</div>
 
 		<!-- div class="section">

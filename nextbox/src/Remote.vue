@@ -136,7 +136,7 @@ export default {
 					this.status.resolve = {
 						state: 'success',
 						icon: 'icon-checkmark',
-						content: `Successfully resolved: ${this.config.domain} to: ${res.data.data.ip}`
+						content: `Successfully resolved: ${this.config.domain} to: ${res.data.data.ip}`,
 					}
 				} else {
 					let suffix = ''
@@ -146,7 +146,7 @@ export default {
 					this.status.resolve = {
 						state: 'error',
 						icon: 'icon-close',
-						content: `Failed resolving: ${this.config.domain} ${suffix}`
+						content: `Failed resolving: ${this.config.domain} ${suffix}`,
 					}
 				}
 			}).catch((e) => {
@@ -160,13 +160,13 @@ export default {
 					this.status.http = {
 						state: 'success',
 						icon: 'icon-checkmark',
-						content: `Successfully tested reachability for: ${this.config.domain}`
+						content: `Successfully tested reachability for: ${this.config.domain}`,
 					}
 				} else {
 					this.status.http = {
 						state: 'error',
 						icon: 'icon-close',
-						content: `Failed reachability for: ${this.config.domain}`
+						content: `Failed reachability for: ${this.config.domain}`,
 					}
 				}
 			}).catch((e) => {
@@ -180,13 +180,13 @@ export default {
 					this.status.proxy = {
 						state: 'success',
 						icon: 'icon-checkmark',
-						content: `Successfully tested reachability for: ${this.config.proxy_domain}`
+						content: `Successfully tested reachability for: ${this.config.proxy_domain}`,
 					}
 				} else {
 					this.status.proxy = {
 						state: 'error',
 						icon: 'icon-close',
-						content: `Failed reachability for: ${this.config.proxy_domain}`
+						content: `Failed reachability for: ${this.config.proxy_domain}`,
 					}
 				}
 			}).catch((e) => {
