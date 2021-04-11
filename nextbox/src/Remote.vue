@@ -139,10 +139,14 @@ export default {
 						content: `Successfully resolved: ${this.config.domain} to: ${res.data.data.ip}`
 					}
 				} else {
+					let suffix = ''
+					if (res.data.data) {
+						suffix = `need: ${res.data.data.ip} found: ${res.data.data.resolve_ip}`
+					}
 					this.status.resolve = {
 						state: 'error',
 						icon: 'icon-close',
-						content: `Failed resolving: ${this.config.domain} need: ${res.data.data.ip || '(None)'} found: ${res.data.data.resolve_ip || '(None)'}`
+						content: `Failed resolving: ${this.config.domain} ${suffix}`
 					}
 				}
 			}).catch((e) => {
