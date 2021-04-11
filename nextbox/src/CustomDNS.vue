@@ -1,5 +1,5 @@
 <template>
-	<div id="custom_dns">
+	<div id="custom_dns" v-if="!loading">
 		<div class="section">
 			<h2>Custom Dynamic DNS Configuration</h2>
 			Using this configuration you can configure any dynamic DNS service, which is supported
@@ -63,7 +63,7 @@ export default {
 	data() {
 		return {
 			// generics
-			loading: false,
+			loading: true,
 			userMessage: {
 				domain: [],
 				config: [],

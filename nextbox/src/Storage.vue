@@ -1,5 +1,5 @@
 <template>
-	<div id="storage">
+	<div id="storage" v-if="!loading">
 		<AppContentList class="section storage-list" show-details>
 			<h2>Mounted Storages</h2>
 
@@ -113,7 +113,6 @@ export default {
 	},
 
 	async mounted() {
-		this.loading = true
 		await this.refreshStorage()
 		this.loading = false
 	},

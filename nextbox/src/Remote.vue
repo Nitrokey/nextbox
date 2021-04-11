@@ -1,5 +1,5 @@
 <template>
-	<div id="remote">
+	<div id="remote" v-if="!loading">
 		<!-- Done View -->
 		<div v-if="config.dns_mode !== 'off' || config.proxy_active" class="section">
 			<h2>Remote Access - Status</h2>
@@ -87,7 +87,7 @@ export default {
 	data() {
 		return {
 			// generics
-			loading: false,
+			loading: true,
 
 			config: {
 				https_port: false,
@@ -118,6 +118,7 @@ export default {
 
 	async mounted() {
 		await this.refresh()
+		this.loading = false
 	},
 
 	methods: {

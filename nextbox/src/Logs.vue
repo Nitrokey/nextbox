@@ -1,5 +1,5 @@
 <template>
-	<div id="logs">
+	<div id="logs" v-if="!loading">
 		<AppContentDetails v-for="line in lines" :key="line">
 			{{ line }}
 		</AppContentDetails>

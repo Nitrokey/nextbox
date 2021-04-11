@@ -1,5 +1,5 @@
 <template>
-	<div id="overview">
+	<div id="overview" v-if="!loading">
 		<!-- External availability  -->
 		<div class="section">
 			<h2>Remote Access for Your NextBox</h2>

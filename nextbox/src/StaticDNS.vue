@@ -1,5 +1,5 @@
 <template>
-	<div id="static_dyndns">
+	<div id="static_dyndns" v-if="!loading">
 		<div class="section">
 			<h2>Static Domain Configuration</h2>
 			This is needed, if you configured a domain to point to your 
@@ -67,7 +67,7 @@ export default {
 	data() {
 		return {
 			// generics
-			loading: false,
+			loading: true,
 			loadingButton: false,
 
 			// user messaging

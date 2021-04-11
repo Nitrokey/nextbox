@@ -1,5 +1,5 @@
 <template>
-	<div id="proxy">
+	<div id="proxy" v-if="!loading">
 		<div class="section">
 			<h2>Backwards Proxy Remote Access for Your NextBox</h2>
 			The easiest way to make your personal Cloud available from everywhere.<br>
@@ -57,7 +57,7 @@ export default {
 	data() {
 		return {
 			// generics
-			loading: false,
+			loading: true,
 			loadingButton: false,
 			
 			// user messaging
@@ -91,6 +91,7 @@ export default {
 
 	async mounted() {
 		this.refresh()
+		this.loading = false
 	},
 
 	methods: {

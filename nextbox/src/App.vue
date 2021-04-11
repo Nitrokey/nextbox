@@ -96,8 +96,10 @@ export default {
 	},
 
 	async mounted() {
+
 		try {
-			const response = await axios.get(generateUrl('/apps/nextbox/overview'))
+			// we don't really care about the status, just checking if the backend is there
+			const response = await axios.get(generateUrl('/apps/nextbox/forward/status'))
 		} catch (e) {
 			console.error(e)
 			showError(t('nextbox', 'Could not fetch overview'))

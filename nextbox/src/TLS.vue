@@ -1,5 +1,5 @@
 <template>
-	<div id="tls">
+	<div id="tls" v-if="!loading">
 		<div class="section">
 			<h2>HTTPS / TLS Configuration</h2>
 			<div v-if="!dns_mode.endsWith('_done')" icon="icon-close">
@@ -88,6 +88,7 @@ export default {
 	data() {
 		return {
 			// generics
+			loading: true,
 			loadingButton: false,
 
 			// config (refreshed)
@@ -128,6 +129,7 @@ export default {
 
 	async mounted() {
 		await this.refresh()
+		this.loading = false
 	},
 
 	methods: {

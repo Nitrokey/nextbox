@@ -1,5 +1,5 @@
 <template>
-	<div id="dyndns">
+	<div id="dyndns" v-if="!loading">
 		<div class="section">
 			<h2>Guided Dynamic DNS Configuration</h2>
 			This wizard will guide you through the process of setting up remote access to your
@@ -103,7 +103,7 @@ export default {
 	data() {
 		return {
 			// generics
-			loading: false,
+			loading: true,
 			userMessage: {},
 			
 			config: {
