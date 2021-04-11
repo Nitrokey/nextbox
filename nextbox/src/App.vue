@@ -127,7 +127,7 @@ input[type='text'] {
 	padding: 5px;
 	border-radius: var(--border-radius);
 	color: var(--color-primary-text);
-	width: 50vw;
+	width: 90%;
 	display: block;
 	height: fit-content;
 }
