@@ -27,7 +27,7 @@
 			<span class="bold">{{ update.domain }}</span><br><br>
 			
 			<button type="button" :disabled="config.https_port" @click="disable()">
-				<span class="icon icon-confirm" />
+				<span class="icon icon-close" />
 				Disable Static Domain Configuration
 			</button>
 
