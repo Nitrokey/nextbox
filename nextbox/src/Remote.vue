@@ -142,7 +142,7 @@ export default {
 					this.status.resolve = {
 						state: 'error',
 						icon: 'icon-close',
-						content: `Failed resolving: ${this.config.domain} need: ${res.data.data.ip} found: ${res.data.data.resolve_ip || '(None)'}`
+						content: `Failed resolving: ${this.config.domain} need: ${res.data.data.ip || '(None)'} found: ${res.data.data.resolve_ip || '(None)'}`
 					}
 				}
 			}).catch((e) => {
