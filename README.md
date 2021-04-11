@@ -27,5 +27,5 @@ This repository is the home of the following tools:
 * `nextemubox` contains the toolchain to build and run
   a NextBox from within QEMU. Still a WIP, but a Debian 
 	arm64 image can already be built and started with QEMU.
-	See the [`README`](https://github.com/Nitrokey/nextbox/nextemubox/README.md)
+	See the [`README`](https://github.com/Nitrokey/nextbox/tree/master/nextemubox)
 	for more details
