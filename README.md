@@ -18,8 +18,14 @@ This repository is the home of the following tools:
 
 * image building toolchain based on `pi-gen` (arm64), 
   currently the build only works reliably if build 
-	on an arm64 architecture.
+	on an arm64 architecture
 
 * harddrive preparation tooling, which is needed for
   the harddisk, which shall be used as the *internal*
 	harddisk for the NextBox
+
+* `nextemubox` contains the toolchain to build and run
+  a NextBox from within QEMU. Still a WIP, but a Debian 
+	arm64 image can already be built and started with QEMU.
+	See the [`README`](https://github.com/Nitrokey/nextbox/nextemubox/README.md)
+	for more details
