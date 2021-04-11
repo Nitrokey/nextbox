@@ -4,6 +4,7 @@
 			<h2>Backwards Proxy Remote Access for Your NextBox</h2>
 			The easiest way to make your personal Cloud available from everywhere.<br>
 		</div>
+		
 		<div v-if="!config.proxy_active" class="section">
 			<h2>Domain for NextBox</h2>
 			Insert the designated full domain for your NextBox. The domain must end with <span class="bold">.nextbox.link</span><br>
@@ -14,13 +15,14 @@
 				Activate Quickstart Remote Access
 			</button>
 		</div>
+
 		<div v-else class="section">
 			Your <span class="bold">NextBox Quickstart Remote Access</span> is
 			active, you can access your Nextcloud instance using 
 			<a :href="'https://' + config.proxy_domain" class="bold">{{ config.proxy_domain }}</a>.<br>
 
-			<button type="button" @click="disable()">
-				<span class="icon icon-confirm" />
+			<button type="button" :disabled="disableDisabled" @click="disable()">
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
 				Disable Quickstart Remote Access
 			</button>
 		</div>
@@ -80,6 +82,10 @@ export default {
 	computed: {
 		activateDisabled() {
 			return this.loadingButton || !this.checkDomain()
+		},
+
+		disableDisabled() {
+			return this.loadingButton
 		},
 	},
 
@@ -156,10 +162,11 @@ export default {
 		},
 
 		async disable() {
+			this.loadingButton = true
 			await this.update_config({
 				proxy_active: false,
 			})
-
+			this.loadingButton = false
 		},
 		
 		async update_config(update) {
