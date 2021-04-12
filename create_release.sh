@@ -65,7 +65,8 @@ EOL
 
 echo "[?] Should I continue and add the version tags? (ctrl+c to cancel)"
 echo
-echo "[!] Did you change the 'app.xml' version, if the nextcloud app was updated????"
+echo "[!] Did you change the 'appinfo/info.xml' version, if the nextcloud app was updated????"
+echo "[!] Did you change the 'package.json' version, if the nextcloud app was updated????"
 read
 
 pushd repos/daemon > /dev/null
