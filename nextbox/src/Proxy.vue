@@ -90,7 +90,7 @@ export default {
 	},
 
 	async mounted() {
-		this.refresh()
+		await this.refresh()
 		this.loading = false
 	},
 

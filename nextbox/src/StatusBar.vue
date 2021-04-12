@@ -1,10 +1,10 @@
 <template>
 	<div>
-		<span :class="'tag ' + state">
-			<span :class="'tag-icon ' + icon" />
-			<span class="tag-text"><slot></slot>{{ text }}</span>
+		<span :class="'tag ' + showState">
+			<span :class="'tag-icon ' + showIcon" />
+			<span class="tag-text" v-html="showText"></span>
 			<span class="tag-middle" />
-			<span class="tag-extra">{{ extra }}</span>
+			<span class="tag-extra">{{ showExtra }}</span>
 		</span>
 	</div>
 </template>
@@ -12,10 +12,10 @@
 
 <script>
 
-import '@nextcloud/dialogs/styles/toast.scss'
+//import '@nextcloud/dialogs/styles/toast.scss'
 //import { generateUrl } from '@nextcloud/router'
 // import { showError, showSuccess } from '@nextcloud/dialogs'
-import { showError } from '@nextcloud/dialogs'
+//import { showError } from '@nextcloud/dialogs'
 // import axios from '@nextcloud/axios'
 
 export default {
@@ -24,53 +24,50 @@ export default {
 	components: { },
 
 	props: {
-		initIcon: String,
-		initState: String,
-		initText: String,
-		initExtra: String,
-		statusGetter: Function,
+		icon: { type: String, default: null },
+		state: { type: String, default: 'neutral' },
+		text: { type: String, default: '' },
+		extra: { type: String, default: '' },
+		status: Object
 	},
 
 	data() {
 		return {
-			curIcon: null,
-			curState: null,
-			curText: null,
-			curExtra: null,
-
-			defaultIcon: 'icon-loading-small',
-			defaultState: 'neutral',
-			defaultText: '',
-			defaultExtra: '',
+			
 
 		}
 	},
 
 	computed: { 
-		text() {
-			return (this.curText || this.initText) || this.defaultText
+		showText() {
+			return (this.status && 'text' in this.status) ? this.status.text : this.text
 		},
-		icon() {
-			return (this.curIcon || this.initIcon) || this.defaultIcon
+		showIcon() {
+			// shall be one of 'success', 'error', 'warning' and 'neutral'
+			let dynamic = 'loading-small'
+			// set icon based on 'this.status' member 'icon'
+			if (this.status && 'icon' in this.status) {
+				dynamic = this.status.icon
+			// set icon based on property 'icon'
+			} else if (this.icon !== null) {
+				dynamic = this.icon
+			// none of the above apply, so map 'this.showState' to default icon set
+			} else {
+				if (this.showState === 'success') dynamic = 'checkmark'
+				else if (this.showState === 'error') dynamic = 'error'
+				else if (this.showState === 'warning') dynamic = 'stop'
+			} 
+			return 'icon icon-' + dynamic
 		},
-		state() {
-			return (this.curState || this.initState) || this.defaultState
+		showState() {
+			return (this.status && 'state' in this.status) ? this.status.state : this.state
 		},
-		extra() {
-			return (this.curExtra || this.initExtra) || this.defaultExtra
+		showExtra() {
+			return (this.status && 'extra' in this.status) ? this.status.extra : this.extra
 		},
 	},
 
-	async mounted() {
-		if (this.statusGetter) {
-			const res = this.statusGetter()
-			this.curIcon = res.icon
-			this.curText = res.text
-			this.curState = res.state
-			this.curExtra = res.extra
-			// tooltip ??
-		}
-	 },
+	async mounted() { },
 	
 	methods: { },
 }
@@ -84,7 +81,7 @@ export default {
 	padding: 5px;
 	border-radius: var(--border-radius);
 	color: var(--color-primary-text);
-	width: 50vw;
+	width: 90%;
 	display: block;
 	height: fit-content;
 }

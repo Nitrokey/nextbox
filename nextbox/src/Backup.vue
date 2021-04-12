@@ -4,18 +4,8 @@
 			<h2>{{ progressWhat }} in Progress</h2>
 			<br>
 
-			<span v-if="progress.state === 'completed'" class="tag success"><span class="icon icon-checkmark" />
-				Completed {{ progressWhat }} successfully
-			</span>
-			<span v-else-if="progress.state === 'failed'" class="tag error"><span class="icon icon-error" />
-				Failed {{ progressWhat }} operation during {{ progress.who }}
-			</span>
-			<span v-else class="tag neutral"><span class="icon icon-loading-small" />
-				{{ progressWhat }} - 
-				Current State: <span class="bold">{{ progress.state }}</span> 
-				Component: <span class="bold">{{ progress.who }}</span>
-				Percent Done: <span class="bold">{{ progress.percent }}%</span>
-			</span>
+			<StatusBar :status="progressStatus" />
+
 			<br>
 			<br>
 			
@@ -30,9 +20,8 @@
 			You can create a new backup of your NextBox, or incrementally
 			update an already existing backup.<br>
 
-			<span v-if="lastBackup" class="tag success"><span class="icon icon-checkmark" />Your last backup was done at: <span class="bold">{{ new Date(lastBackup * 1e3).toLocaleString() }}</span></span>
-			<span v-else class="tag warning"><span class="icon icon-close" />You have not yet run a backup - please do so</span><br>
-			
+			<StatusBar :status="backupStatus" />
+
 			First select a device on which the backup should reside. You can
 			only select devices mounted inside Storage Management:<br>
 			<Multiselect 
@@ -98,9 +87,13 @@ import qs from 'qs'
 
 import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
-import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
-import Modal from '@nextcloud/vue/dist/Components/Modal'
-import ProgressBar from '@nextcloud/vue/dist/Components/ProgressBar'
+// import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+// import Modal from '@nextcloud/vue/dist/Components/Modal'
+// import ProgressBar from '@nextcloud/vue/dist/Components/ProgressBar'
+
+
+import StatusBar from './StatusBar'
+
 
 export default {
 	name: 'Backup',
@@ -108,9 +101,7 @@ export default {
 	components: {
 		Multiselect, 
 		ActionButton, 
-		EmptyContent,
-		Modal,
-		ProgressBar,
+		StatusBar,
 	},
 
 	data() {
@@ -148,6 +139,31 @@ export default {
 
 		progressWhat() {
 			return (this.progress.what === 'export') ? 'Backup' : 'Restore'
+		},
+
+		progressStatus() {
+			if (this.progress.state === 'completed') {
+				return { state: 'success', icon: 'confirm', text: `Completed ${this.progressWhat} successfully` }
+			} else if (this.progress.state === 'failed') {
+				return { state: 'error', icon: 'close', text: `Failed ${this.progressWhat} operation during ${this.progress.who}` }
+			} else {
+				const desc = `${this.progressWhat} - state: ${this.progress.state} - component: ${this.progress.who}`
+				return { state: 'success', icon: 'confirm', text: desc, extra: `${this.progress.percent}%` }
+			}
+		},
+
+		backupStatus() {
+			if (this.lastBackup) {
+				return {
+					state: 'success',
+					text: `Your last backup was done at: <span class="bold">${new Date(this.lastBackup * 1e3).toLocaleString()}</span>`,
+				}
+			} else {
+				return {
+					state: 'warning',
+					text: 'You have not yet run a backup - please do so',
+				}
+			}
 		},
 	},
 

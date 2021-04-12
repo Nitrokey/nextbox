@@ -120,49 +120,7 @@ export default {
 <style>
 	
 input[type='text'] {
-	width: 50vw;
-}
-
-.tag {
-	margin-top: 8px;
-	padding: 5px;
-	border-radius: var(--border-radius);
-	color: var(--color-primary-text);
 	width: 90%;
-	display: block;
-	height: fit-content;
-}
-
-.tag-content {
-	width: 100px; 
-	overflow: hidden;
-}
-
-.tag-middle {
-	width: 1px;
-}
-
-.tag-extra {
-	/*width: 100px; */
-	float: right; 
-	text-align: right;
-	padding-right: 10px;
-}
-
-.tag-action {
-	padding-left: 8px;
-	padding-right: 8px;
-}
-
-.tag-icon {
-	opacity: 1;
-	background-position-y: -1px;
-	margin-right: 8px;
-	margin-left: 4px;
-	background-size: 16px;
-	background-repeat: no-repeat;
-	display: inline-block;
-	vertical-align: middle !important;
 }
 
 .warning {

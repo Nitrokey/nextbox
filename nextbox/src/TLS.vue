@@ -6,31 +6,17 @@
 				To activate TLS encryption for your NextBox, first finish a DNS Configuration.
 			</div>
 			<div v-else>
-				<span v-if="testResolve === null" class="tag neutral"><span class="icon icon-loading-small" />
-					Testing, if {{ domain }} resolves correctly
-				</span>
-				<span v-else-if="testResolve === false" class="tag error"><span class="icon icon-stop" />
-					Failed resolving for {{ domain }} need: {{ testResolveData.ip }}, found: {{ testResolveData.resolve_ip }}
-				</span>
-				<span v-else class="tag success"><span class="icon icon-checkmark" />
-					Successfully resolving for {{ domain }} to: {{ testResolveData.ip }}
-				</span>
-				
-				<span v-if="testReachable === null" class="tag neutral"><span class="icon icon-loading-small" />
-					Testing reachability of {{ domain }}
-				</span>
-				<span v-else-if="testReachable === false" class="tag error"><span class="icon icon-stop" />
-					Failed reachability test for {{ domain }}
-				</span>
-				<span v-else class="tag success"><span class="icon icon-checkmark" />
-					Successfully tested reachability for {{ domain }}
-				</span>
+				<StatusBar :status="statusResolve" :text="`Testing, if ${this.domain} resolves correctly`" />
+				<StatusBar :status="statusReachable" :text="`Testing reachability of ${this.domain}`" />
 				
 				<div v-if="https">
-					<span class="tag success"><span class="icon icon-checkmark" />
-						HTTPS / TLS is activated, your Nextcloud is available via 
-						<a :href="'https://' + domain">{{ domain }}</a>
-					</span><br>
+					<StatusBar 
+						state='success' 
+						icon='checkmark'
+						:text="`HTTPS / TLS is activated, your Nextcloud is available via <a href='https://${this.domain}'>${this.domain}</a>`" />
+			
+					<br>
+
 					<button v-tooltip="ttDisable" 
 						type="button" 
 						:disabled="loadingButton" 
@@ -40,9 +26,8 @@
 					</button>
 				</div>
 				<div v-else>
-					<span class="tag warning"><span class="icon icon-error" />
-						HTTPS / TLS is not activated
-					</span><br>
+					<StatusBar state='warning' icon='error' text='HTTPS / TLS is not activated' />
+					<br>
 					To activate HTTPS / TLS for your configured domain:
 					<span class="bold">"{{ domain }}"</span> please provide a valid E-Mail,
 					which will be used to acquire a Let's Encrypt Certificate.
@@ -79,10 +64,15 @@ import qs from 'qs'
 //import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 //import Modal from '@nextcloud/vue/dist/Components/Modal'
 
+
+import StatusBar from './StatusBar'
+
+
 export default {
 	name: 'TLS',
 	
 	components: {
+		StatusBar,
 	},
 
 	data() {
@@ -101,7 +91,7 @@ export default {
 			testResolve: null,
 			testResolveData: {},
 			testReachable: null,
-			
+
 			// update-ables
 			update: {
 				email: '',
@@ -125,6 +115,25 @@ export default {
 		enableDisabled() {
 			return this.loadingButton || !this.validateEMail()
 		},
+		statusResolve() {
+			if (this.testResolve === false) {
+				const text = `Failed reachability test for ${this.domain}`
+				return { state: 'error', icon: 'stop', text }
+			} else {
+				const text = `Successfully tested reachability for ${this.domain}`
+				return { state: 'success', icon: 'checkmark', text }
+			}
+		},
+		statusReachable() {
+			if (this.testReachable === false) {
+				const text = `Failed resolving for ${this.domain} need: ${this.testResolveData.ip}, found: ${this.testResolveData.resolve_ip}`
+				return { state: 'error', icon: 'stop', text }
+			} else {
+				const text = `Successfully resolving for ${this.domain} to: ${this.testResolveData.ip || '(loading)'}`
+				return { state: 'success', icon: 'checkmark', text }
+			}
+		},
+
 	},
 
 	async mounted() {

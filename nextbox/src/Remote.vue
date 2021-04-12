@@ -4,30 +4,10 @@
 		<div v-if="config.dns_mode !== 'off' || config.proxy_active" class="section">
 			<h2>Remote Access - Status</h2>
 			
-			<div>
-				<span v-if="config.domain" :class="'tag ' + status.resolve.state"><span :class="'tag-icon ' + status.resolve.icon" />
-					<span class="tag-content">{{ status.resolve.content }}</span>
-					<span class="tag-middle" />
-					<span class="tag-extra">{{ status.resolve.extra }}</span>
-				</span>
-			</div>
-
-			<div>
-				<span v-if="config.domain" :class="'tag ' + status.http.state"><span :class="'tag-icon ' + status.http.icon" />
-					<span class="tag-content">{{ status.http.content }}</span>
-					<span class="tag-middle" />
-					<span class="tag-extra">{{ status.http.extra }}</span>
-				</span>
-			</div>
-
-			<div v-if="config.proxy_active">
-				<span :class="'tag ' + status.proxy.state"><span :class="'tag-icon ' + status.proxy.icon" />
-					<span class="tag-content">{{ status.proxy.content }}</span>
-					<span class="tag-middle" />
-					<span class="tag-extra">{{ status.proxy.extra }}</span>
-				</span>
-			</div>
-
+			<StatusBar v-if="config.domain" :status="status.resolve" />
+			<StatusBar v-if="config.domain" :status="status.http" />
+			<StatusBar v-if="config.proxy_active" :status="status.proxy" />
+				
 			<div v-if="status.help">
 				{{ status.help }}
 			</div>
@@ -78,10 +58,16 @@ import axios from '@nextcloud/axios'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
+
+import StatusBar from './StatusBar'
+
+
+
 export default {
 	name: 'Remote',
 
 	components: {
+		StatusBar
 	},
 
 	data() {
@@ -102,9 +88,9 @@ export default {
 			userMessage: {},
 			
 			status: {
-				resolve: { state: 'neutral', icon: 'icon-loading-small', content: 'DNS resolve testing pending', extra: '' },
-				http: { state: 'neutral', icon: 'icon-loading-small', content: 'Reachability waiting to be tested', extra: '' },
-				proxy: { state: 'neutral', icon: 'icon-loading-small', content: 'Quickstart remote access test pending', extra: '' },
+				resolve: { state: 'neutral', icon: 'loading-small', text: 'DNS resolve testing pending' },
+				http: { state: 'neutral', icon: 'loading-small', text: 'Reachability waiting to be tested' },
+				proxy: { state: 'neutral', icon: 'loading-small', text: 'Quickstart remote access test pending' },
 			},
 
 			// variables
@@ -136,8 +122,8 @@ export default {
 				if (res.data.result === 'success') {
 					this.status.resolve = {
 						state: 'success',
-						icon: 'icon-checkmark',
-						content: `Successfully resolved: ${this.config.domain} to: ${res.data.data.ip}`,
+						icon: 'checkmark',
+						text: `Successfully resolved: ${this.config.domain} to: ${res.data.data.ip}`,
 					}
 				} else {
 					let suffix = ''
@@ -146,8 +132,8 @@ export default {
 					}
 					this.status.resolve = {
 						state: 'error',
-						icon: 'icon-close',
-						content: `Failed resolving: ${this.config.domain} ${suffix}`,
+						icon: 'close',
+						text: `Failed resolving: ${this.config.domain} ${suffix}`,
 					}
 				}
 			}).catch((e) => {
@@ -160,14 +146,14 @@ export default {
 				if (res.data.result === 'success') {
 					this.status.http = {
 						state: 'success',
-						icon: 'icon-checkmark',
-						content: `Successfully tested reachability for: ${this.config.domain}`,
+						icon: 'checkmark',
+						text: `Successfully tested reachability for: ${this.config.domain}`,
 					}
 				} else {
 					this.status.http = {
 						state: 'error',
-						icon: 'icon-close',
-						content: `Failed reachability for: ${this.config.domain}`,
+						icon: 'close',
+						text: `Failed reachability for: ${this.config.domain}`,
 					}
 				}
 			}).catch((e) => {
@@ -180,14 +166,14 @@ export default {
 				if (res.data.result === 'success') {
 					this.status.proxy = {
 						state: 'success',
-						icon: 'icon-checkmark',
-						content: `Successfully tested reachability for: ${this.config.proxy_domain}`,
+						icon: 'checkmark',
+						text: `Successfully tested reachability for: ${this.config.proxy_domain}`,
 					}
 				} else {
 					this.status.proxy = {
 						state: 'error',
-						icon: 'icon-close',
-						content: `Failed reachability for: ${this.config.proxy_domain}`,
+						icon: 'close',
+						text: `Failed reachability for: ${this.config.proxy_domain}`,
 					}
 				}
 			}).catch((e) => {
