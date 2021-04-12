@@ -2,7 +2,7 @@
 	<div>
 		<span :class="'tag ' + state">
 			<span :class="'tag-icon ' + icon" />
-			<span class="tag-content">{{ content }}</span>
+			<span class="tag-text"><slot></slot>{{ text }}</span>
 			<span class="tag-middle" />
 			<span class="tag-extra">{{ extra }}</span>
 		</span>
@@ -23,18 +23,54 @@ export default {
 
 	components: { },
 
-	props: ['state', 'icon', 'content', 'extra', 'tooltip', 'obj'],
+	props: {
+		initIcon: String,
+		initState: String,
+		initText: String,
+		initExtra: String,
+		statusGetter: Function,
+	},
 
 	data() {
 		return {
-			loading: true,
-			lines: [],
+			curIcon: null,
+			curState: null,
+			curText: null,
+			curExtra: null,
+
+			defaultIcon: 'icon-loading-small',
+			defaultState: 'neutral',
+			defaultText: '',
+			defaultExtra: '',
+
 		}
 	},
 
-	computed: { },
+	computed: { 
+		text() {
+			return (this.curText || this.initText) || this.defaultText
+		},
+		icon() {
+			return (this.curIcon || this.initIcon) || this.defaultIcon
+		},
+		state() {
+			return (this.curState || this.initState) || this.defaultState
+		},
+		extra() {
+			return (this.curExtra || this.initExtra) || this.defaultExtra
+		},
+	},
 
-	async mounted() { },
+	async mounted() {
+		if (this.statusGetter) {
+			const res = this.statusGetter()
+			this.curIcon = res.icon
+			this.curText = res.text
+			this.curState = res.state
+			this.curExtra = res.extra
+			// tooltip ??
+		}
+	 },
 	
 	methods: { },
 }

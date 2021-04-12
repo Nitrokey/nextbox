@@ -24,7 +24,9 @@
 			<span v-if="running" class="tag success"><span class="icon icon-checkmark" />The Backend is up and running</span>
 			<span v-else class="tag error"><span class="icon icon-error" />Cannot connect to the Backend</span>
 			
-			<span class="tag neutral"><span class="icon icon-checkmark" />NextBox Software Version: {{ version }}</span>
+			<!--span class="tag neutral"><span class="icon icon-checkmark" />NextBox Software Version: {{ version }}</span-->
+			<!-- StatusBar initIcon="icon icon-info" :initText="'NextBox Software Version: ' + version" /-->
+			<StatusBar initIcon="icon icon-info">NextBox Software Version: {{ version }}</StatusBar>
 		</div>
 
 		<!-- div class="section">
@@ -51,10 +53,13 @@ import axios from '@nextcloud/axios'
 // import { showError, showSuccess } from '@nextcloud/dialogs'
 
 
+import StatusBar from './StatusBar'
+
 
 export default {
 	name: 'Overview',
 	components: {
+		StatusBar
 	},
 
 	data() {
