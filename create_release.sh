@@ -64,6 +64,8 @@ cat > ${tmp_path} <<EOL
 EOL
 
 echo "[?] Should I continue and add the version tags? (ctrl+c to cancel)"
+echo
+echo "[!] Did you change the 'app.xml' version, if the nextcloud app was updated????"
 read
 
 pushd repos/daemon > /dev/null

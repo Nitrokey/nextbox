@@ -1,3 +1,21 @@
+%%PKG%% (0.9.2.11-1) groovy; urgency=low
+
+  * app: globally applied StatusBar component
+  * app: all pages: 'loading' used to v-if top-lvl div; loading cleared in mounted once
+  * app: switch icon on static-domain disable
+  * app: disable-button now with loading indication
+  * app: stylelint fixes
+  * app: eslint warning warning auto-fixes
+  * app: migrate all top-lvl comp-elems from 'class' to 'id', makes the tester happy
+  * app: increase width of tag-/statusbars to 90%
+  * app: remove anyways stale tooltips from remote overview
+  * app: fix erronous err-msg
+  * app: import and generic cleanups; reduce pack size...
+  * daemon: selenium-tests-standalone: (1st)login,backup,storage-mgnt,proxy,static-domain,tls
+  * daemon: improved LED behavior during button-press/factory-reset
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 12 Apr 2021 18:57:38 +0200
+
 %%PKG%% (0.9.2.10-1) groovy; urgency=low
 
   * daemon: roll-back to flask-server for serving due to graceful(lest)-thread-handling
