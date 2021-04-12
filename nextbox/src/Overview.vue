@@ -71,7 +71,7 @@ export default {
 
 	computed: {
 		statusConnection() {
-			const preText = 'NextBox Backend Connection'
+			const preText = 'NextBox Backend Connection: '
 			return {
 				icon: (this.running) ? 'checkmark' : 'loading-small',
 				state: (this.running) ? 'success' : 'neutral',

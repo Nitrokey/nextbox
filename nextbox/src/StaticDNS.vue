@@ -32,6 +32,7 @@
 			</button>
 
 			<div v-if="config.https_port">
+				<br>
 				Disabling the Static Domain Configuration is not allowed with activated TLS.
 			</div>
 		</div>

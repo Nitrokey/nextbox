@@ -133,7 +133,6 @@ export default {
 				return { state: 'success', icon: 'checkmark', text }
 			}
 		},
-
 	},
 
 	async mounted() {
