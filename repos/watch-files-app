@@ -6,6 +6,7 @@ app/nextbox/src/Logs.vue
 app/nextbox/src/Proxy.vue
 app/nextbox/src/Remote.vue
 app/nextbox/src/StaticDNS.vue
+app/nextbox/src/StatusBar.vue
 app/nextbox/src/Storage.vue
 app/nextbox/src/System.vue
 app/nextbox/src/TLS.vue

@@ -78,6 +78,10 @@ git push ssh --tags
 echo "[i] added tag 'v${version}' for app repo"
 popd > /dev/null
 
+########
+######## sed -E 's/^.*version.*$/        "version": "4.3.5",/g' package.json
+########
+
 
 cat debian/changelog >> ${tmp_path}
 cp ${tmp_path} debian/changelog
