@@ -1,8 +1,15 @@
 <template>
 	<div id="overview" v-if="!loading">
+		<!-- Welcome  -->
+		<div class="section">
+			<h2>NextBox Administration and Overview</h2>
+			Welcome to the NextBox Administration Nextcloud App.<br>
+			Please find further information and documentation at <a target="_blank" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a>.
+		</div>
+		
 		<!-- External availability  -->
 		<div class="section">
-			<h2>Remote Access for Your NextBox</h2>
+			<h2>Remote Access</h2>
 			<StatusBar :status="statusRemote" />
 		</div>
 
@@ -145,6 +152,14 @@ export default {
 	min-height: 0px;
 	max-width: none;
 	height: fit-content !important;
+}
+
+a {
+	font-weight: bold;
+}
+
+a:hover {
+	text-decoration: underline;
 }
 
 </style>
