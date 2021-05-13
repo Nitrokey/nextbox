@@ -6,14 +6,15 @@
 				To activate TLS encryption for your NextBox, first finish a DNS Configuration.
 			</div>
 			<div v-else>
-				<StatusBar :status="statusResolve" :text="`Testing, if ${this.domain} resolves correctly`" />
-				<StatusBar :status="statusReachable" :text="`Testing reachability of ${this.domain}`" />
+				<StatusBar v-if="domain" preset="resolve_ipv4" />
+				<StatusBar v-if="domain" preset="resolve_ipv6" />
+				<StatusBar v-if="domain" preset="reach_http" />
 				
 				<div v-if="https">
 					<StatusBar 
 						state='success' 
 						icon='checkmark'
-						:text="`HTTPS / TLS is activated, your Nextcloud is available via <a href='https://${this.domain}'>${this.domain}</a>`" />
+						:text="`HTTPS / TLS is activated, your Nextcloud is available via <a href='https://${domain}'>${domain}</a>`" />
 			
 					<br>
 
@@ -28,11 +29,13 @@
 				<div v-else>
 					<StatusBar state='warning' icon='error' text='HTTPS / TLS is not activated' />
 					<br>
-					To activate HTTPS / TLS for your configured domain:
-					<span class="bold">"{{ domain }}"</span> please provide a valid E-Mail,
-					which will be used to acquire a Let's Encrypt Certificate.
-					<input v-model="update.email" type="text" @change="validateEMail">
-					<br><span v-if="userMessage.email" class="error-txt">{{ userMessage.email.join(" ") }}</span><br>
+					Activate HTTPS / TLS for your configured domain: <span class="bold">"{{ domain }}"</span>
+					<div v-if="dns_mode !== 'desec_done'">
+						Please provide a valid E-Mail,
+						which will be used to acquire a Let's Encrypt Certificate.
+						<input v-model="update.email" type="text" @change="validateEMail">
+						<br><span v-if="userMessage.email" class="error-txt">{{ userMessage.email.join(" ") }}</span>
+					</div><br>
 					<button v-tooltip="ttEnable" 
 						type="button" 
 						:disabled="enableDisabled" 

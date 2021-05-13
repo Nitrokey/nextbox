@@ -9,7 +9,10 @@
 		<div v-if="config.dns_mode === 'off'" class="section">
 			<h2>Domain for NextBox</h2>
 			Insert the designated full domain for your NextBox. <br>
-			<input v-model="update.domain" type="text" class="txt">
+			<input v-model="update.domain" 
+				type="text" 
+				class="txt" 
+				@change="checkDomain()">
 			<br><span v-if="userMessage.domain" class="error-txt">{{ userMessage.domain.join(" ") }}</span><br>
 		
 			<!-- Raw ddclient configuration -->
@@ -17,10 +20,13 @@
 			By directly configuring DDClient you may use any supported Dynamic DNS service.
 			The documentation for DDClient can be found 
 			<a class="bold" href="https://ddclient.net/usage.html">here</a><br>
-			<textarea v-model="update.conf" class="txtmult" /><br>
-			<button type="button" @click="activate()">
-				<span class="icon icon-confirm" />
-				Finalize Configuration
+			<textarea v-model="update.conf" 
+				class="txtmult" 
+				@change="checkConf()" />
+			<br><span v-if="userMessage.conf" class="error-txt">{{ userMessage.conf.join(" ") }}</span><br>
+			<button type="button" :disabled="activateDisabled" @click="activate()">
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
+				Activate Configuration
 			</button>
 		</div>
 		<div v-else-if="config.dns_mode !== 'config_done'" class="section">
@@ -28,10 +34,18 @@
 			configuration you have to disable your existing configuration first.
 		</div>
 		<div v-else class="section">
-			<button type="button" @click="disable()">
+			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
+			<StatusBar v-if="config.domain" preset="resolve_ipv6" /><br>
+			This DNS configuration is active for the domain: <span class="bold">{{ update.domain }}</span><br><br>
+			<button type="button" :disabled="config.https_port" @click="disable()">
 				<span class="icon icon-confirm" />
 				Disable Custom Dynamic DNS Configuration
 			</button>
+
+			<div v-if="config.https_port">
+				<br>
+				Disabling this configuration is not allowed with activated TLS.
+			</div>
 		</div>
 	</div>
 </template>
@@ -54,26 +68,34 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
+
+import StatusBar from './StatusBar'
+
+
 export default {
 	name: 'CustomDNS',
 
 	components: {
+		StatusBar,
 	},
 
 	data() {
 		return {
 			// generics
 			loading: true,
+			loadingButton: false,
+
+			// user messaging
 			userMessage: {
 				domain: [],
-				config: [],
+				conf: [],
 			},
 			
 			config: {
 				dns_mode: 'off',
 				conf: '',
 				domain: '',
-				email: '',
+				https_port: false,
 			},
 			
 			// variables
@@ -81,15 +103,14 @@ export default {
 				dns_mode: 'off',
 				conf: '',
 				domain: '',
-				captcha_png: '',
-				captcha_id: '',
-				captcha: '',
-				email: '',
 			},
 		}
 	},
 
 	computed: {
+		activateDisabled() {
+			return this.loadingButton || !this.checkDomain() || !this.checkConf()
+		},
 	},
 
 	async mounted() {
@@ -107,104 +128,45 @@ export default {
 			this.config = res.data.data
 			this.update.dns_mode = this.config.dns_mode
 			this.update.domain = this.config.domain
-			this.update.conf = this.config.conf.join('\n')
-			this.update.desec_token = this.config.desec_token
-			this.update.email = this.config.email
+			this.update.conf = this.config.conf
+			this.update.https_port = this.config.https_port
+		},
 
-			if (this.config.dns_mode === 'desec') {
-				this.refresh_captcha()
+		checkDomain() {
+			const pat = /^((?:(?:(?:\w[.\-+]?)*)\w)+)((?:(?:(?:\w[.\-+]?){0,62})\w)+)\.(\w{2,6})$/
+			if (!pat.test(this.update.domain)) {
+				this.userMessage.domain = ['Please insert a valid domain']
+				return false
 			}
+			this.userMessage.domain = []
+			return true
 		},
 
-		async enable_https() {
-			const url = '/apps/nextbox/forward/https/enable'
-			const res = await axios.post(generateUrl(url)) 
-				.then((res) => {
-					// unreachable, will never return with success as this leads to server restart
-				}).catch((e) => {
-					this.status.nextMode = 'reload'
-					this.status.mode = 'wait'
-					this.status.waitFor = 30
-					this.config.https = 443
-					this.status.https.content = 'Enabling HTTPS done - reload pending...'
-					showMessage('Switching from HTTP to HTTPS done')
-					showMessage('Reloading in 30 secs')
-					this.status.waitCallback = function(myThis, secs) {
-						myThis.status.https.extra = (secs <= 0) ? '' : `reload in ${secs} secs`
-					}
-				})
+		checkConf() {
+			if (this.update.conf.length < 3) {
+				this.userMessage.conf = ['Please insert a ddclient configuration']
+				return false
+			}
+			this.userMessage.conf = []
+			return true
 		},
 
-		async disable_https() {
-			const url = '/apps/nextbox/forward/https/disable'
-			const res = await axios.post(generateUrl(url)) 
-				.then((res) => {
-					// unreachable, will never return with success as this leads to server restart
-				}).catch((e) => {
-					this.status.nextMode = 'reload'
-					this.status.mode = 'wait'
-					this.status.waitFor = 30
-					this.config.https = false
-					this.status.https.content = 'Disabling HTTPS done - reload pending...'
-					showMessage('Switching from HTTPS to HTTP done')
-					showMessage('Reloading in 30 secs')
-					this.status.waitCallback = function(myThis, secs) {
-						myThis.status.https.extra = (secs <= 0) ? '' : `reload in ${secs} secs`
-					}
+		async activate() {
+			if (this.checkDomain() && this.checkConf()) {
+				this.loadingButton = true
+				await this.update_config({ 
+					domain: this.update.domain,
+					conf: this.update.conf,
+					dns_mode: 'config_done',
 				})
+				this.loadingButton = false
+			}
 		},
 
 		async disable() {
 			this.update_config({
 				dns_mode: 'off',
-				conf: '',
-				domain: '',
 			})
-		},
-
-		check_domain() {
-			if (this.update.domain === null || !this.update.domain.includes('.')) {
-				this.userMessage.domain = ['Please insert a valid Domain']
-				return false
-			}
-
-			this.userMessage.domain = []
-			return true
-		},
-
-		async update_dns_mode() {
-			this.userMessage = {}
-			this.update_config({ dns_mode: this.update.dns_mode })
-		},
-
-		async finalize_config() {
-			if (!this.check_email()) {
-				return false
-			}
-
-			this.update_config({ 
-				conf: this.update.conf,
-				domain: this.update.domain,
-				email: this.update.email,
-				dns_mode: 'config_done',
-			})
-			this.restart_ddclient()
-		},
-
-		async setup_ddclient_config(ipType, domain, pwd) {
-			const updateip = (ipType === 'ipv6') ? 'update6.dedyn.io' : 'update.dedyn.io'
-			const ddclientConfig = 'protocol=dyndns2\n'
-				+ `use=web, web=https://check${ipType}.dedyn.io/\n`
-				+ 'ssl=yes\n'
-				+ `server=${updateip}\n`
-				+ `login='${domain}'\n`
-				+ `password='${pwd}'\n`
-				+ `${domain}\n`
-			
-			this.update_config({ 
-				conf: ddclientConfig,
-			})
-			await this.restart_ddclient()
 		},
 
 		async restart_ddclient() {
@@ -234,6 +196,7 @@ export default {
 				})
 			this.refresh()
 		},
+
 	},
 }
 </script>

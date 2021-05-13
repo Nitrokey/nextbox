@@ -3,57 +3,60 @@
 		<div class="section">
 			<h2>Guided Dynamic DNS Configuration</h2>
 			This wizard will guide you through the process of setting up remote access to your
-			NextBox using the <a class="bold" href="http://desec.org">DeSEC</a> dynamic DNS service.<br>
+			NextBox using the <a target="_blank" class="bold" href="http://desec.org">DeSEC</a> dynamic DNS service.<br>
 			For a proper configuration you should know what kind of internet connection you are using 
-			(IPv4, IPv6, DS-Lite) and how to configure port-forwarding on your internet router.
+			(IPv4, IPv6, Dual-Stack, DS-Lite) and how to access your internet router. Please find further 
+			documentation at <a target="_blank" class="bold" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a>.
 		</div>
 		
-		<!-- E-Mail Configuration -->
+		
 		<div v-if="config.dns_mode === 'off'" class="section">
-			<h2>E-Mail Address</h2>
-			Insert a valid E-Mail for the registrations to be used. You need access to this E-Mail 
-			to complete Let's encrypt certificate acquisition, thus setting up TLS. 
+			<!-- E-Mail Configuration -->
+			<h2>Step One: E-Mail Address & Domain for DeSEC Registration</h2>
+			Insert a valid E-Mail for the registration to be used. You need access to this E-Mail.
 			<span v-if="config.dns_mode === 'desec'">
 				The guided registration process for the deSEC dynamic DNS service.
 			</span>
 			<br>
 			<input v-model="update.email" type="text">
-			<br><span v-if="userMessage.email" class="error-txt">
-				{{ userMessage.email.join(" ") }}
-			</span><br>
+			<br><span v-if="userMessage.email" class="error-txt">{{ userMessage.email.join(" ") }}</span><br>
 		
 			<!-- Domain -->
-			<h2>Domain for NextBox</h2>
 			Insert the designated full domain for your NextBox. The domain always has to end with <span class="bold">.dedyn.io</span>.<br>
 			<input v-model="update.domain" type="text">
-			<br><span v-if="userMessage.domain" class="error-txt">{{ userMessage.domain.join(" ") }}</span><br>
+			<br><span v-if="userMessage.domain" class="error-txt" v-html="userMessage.domain.join(' ')" /><br>
 		
-			<!-- Captcha deSEC & start registration... -->
-			<h2>Captcha for DeSEC registration</h2>
-			Plase solve this Captcha to verify for the dynamic DNS service (deSEC) that you are a human.<br>
-			<img :src="update.captcha_png"><span class="icon icon-history" @click="refresh_captcha()" /><br>
-			<input v-model="update.captcha" type="text" class="captcha-txt"><br>
-			<span v-if="userMessageCaptcha" class="error-txt">
-				{{ userMessageCaptcha }}
-			</span><br>
-			<button type="button" @click="register_desec(update)">
-				<span class="icon icon-confirm" />
-				Start registration ...
-			</button><br>
+			<button type="button" :disabled="activateRegister" @click="register_desec()">
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
+				Register at deSEC
+			</button>
+			<button type="button" 
+				class="right" 
+				:disabled="activateRegister" 
+				@click="next_step()">
+				
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-play-next')" />
+				Next (without register)
+			</button>
+			<br><span v-if="userMessage.global" class="error-txt" v-html="userMessage.global.join(' ')" /><br>
 		</div>
-
-		<!-- deSEC token and finalize registration -->
+		
 		<div v-else-if="config.dns_mode === 'desec_2'" class="section">
-			<h2>deSEC Activation Token</h2>
-			<span class="bold">The registration using your provided E-Mail was successful</span>.<br>
+			<!-- deSEC token -->
+			<h2>Step Two: deSEC Activation Token</h2>
+			<span class="bold">After completing registration with deSEC and verifing your E-Mail.</span><br>
+			Please put in the token you have received from deSEC<br>
 
-			You should have received an E-Mail with an activation link. Please 
-			click on this link and copy the presented token into this field:<br>
-
-			<input v-model="update.desec_token" type="text"><br>
-			<button type="button" @click="finalize_desec()">
+			<input v-model="update.desec_token" type="text">
+			<br><span v-if="userMessage.desec_token" class="error-txt">{{ userMessage.desec_token.join(" ") }}</span><br>
+		
+			<button type="button" :disabled="activateDisabled" @click="finalize_desec()">
 				<span class="icon icon-confirm" />
 				Finalize Configuration
+			</button>
+			<button type="button" class="right" @click="last_step()">
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-play-previous')" />
+				Back
 			</button><br>
 			<br>
 			If you have not received an E-Mail this means you have already 
@@ -63,16 +66,35 @@
 			password is set, in order to acquire one you have to 
 			<a class="bold" href="https://desec.io/reset-password">reset your password</a>.
 		</div>
-		<div v-else-if="config.dns_mode !== 'desec_done'" class="section">
-			There is an active DNS Configuration. To activate the guided dynamic  
-			DNS configuration you have to disable your existing configuration first.
-		</div>
-		<div v-else class="section">
-			<button type="button" @click="disable()">
-				<span class="icon icon-confirm" />
-				Disable Guided Dynamic DNS Configuration
+		
+		<div v-else-if="config.dns_mode === 'desec_done'" class="section">
+			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
+			<StatusBar v-if="config.domain" preset="resolve_ipv6" /><br>
+			This DNS configuration is active for the domain: <span class="bold">{{ update.domain }}</span><br><br>
+			<button type="button" @click="$emit('newPage', 'tls')">
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
+				Continue to TLS activation
 			</button>
+			<button type="button" 
+				class="right" 
+				:disabled="config.https_port" 
+				@click="disable()">
+
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
+				Disable Configuration
+			</button>
+			<div v-if="config.https_port">
+				<br>
+				Disabling this configuration is not allowed with activated TLS.
+			</div>
 		</div>
+
+		<div v-else class="section">
+			There is an active DNS configuration.
+			To activate the guided dynamic DNS configuration you have to disable your existing configuration first.
+		</div>
+		
+		
 	</div>
 </template>
 
@@ -94,47 +116,55 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
+
+import StatusBar from './StatusBar'
+
+
 export default {
 	name: 'DynDNS',
 
+
 	components: {
+		StatusBar,
 	},
 
 	data() {
 		return {
 			// generics
 			loading: true,
-			userMessage: {},
+			loadingButton: false,
+
+			userMessage: {
+				email: [],
+				domain: [],
+				desec_token: [],
+				global: [],
+			},
 			
 			config: {
 				dns_mode: 'off',
-				conf: '',
 				domain: '',
 				email: '',
+				desec_token: '',
+				https_port: false,
 			},
 						
 			// variables
 			update: {
 				dns_mode: 'off',
-				conf: '',
 				domain: '',
-				captcha_png: '',
-				captcha_id: '',
-				captcha: '',
 				email: '',
+				desec_token: ''
 			},
 		}
 	},
 
 	computed: {
-		userMessageCaptcha() {
-			if (this.userMessage.captcha) {
-				const out = Object.keys(this.userMessage.captcha).map((key) => 
-					this.userMessage.captcha[key].join(' ')).join('<br>')
-				console.error(out)
-				return out
-			}
-			return ''
+		activateRegister() {
+			return this.loadingButton || !this.checkDomain() || !this.checkEMail()
+		},
+		activateDisabled() {
+			return this.loadingButton || !this.checkDomain() || !this.checkEMail() || !this.checkToken()
 		},
 	},
 
@@ -153,115 +183,101 @@ export default {
 			this.config = res.data.data
 			this.update.dns_mode = this.config.dns_mode
 			this.update.domain = this.config.domain
-			this.update.conf = this.config.conf.join('\n')
-			this.update.desec_token = this.config.desec_token
+			this.update.desec_token = this.config.desec_token || ''
 			this.update.email = this.config.email
-
-			if (this.config.dns_mode !== 'desec_2') {
-				this.refresh_captcha()
-			}
 		},
 
-		async refresh_captcha() {
-			const captchaUrl = generateUrl('/apps/nextbox/forward/dyndns/captcha')
-			const captchaRes = await axios.post(captchaUrl).catch((e) => {
-				showError('Cannot aquire captcha from deSEC')
-				console.error(e)
-			})
-			this.update.captcha_png = `data:image/png;base64,${captchaRes.data.data.challenge}`
-			this.update.captcha_id = captchaRes.data.data.id
-			this.update.captcha = ''
-		},
-
-		async enable_https() {
-			const url = '/apps/nextbox/forward/https/enable'
-			const res = await axios.post(generateUrl(url)) 
-				.then((res) => {
-					// unreachable, will never return with success as this leads to server restart
-				}).catch((e) => {
-					this.status.nextMode = 'reload'
-					this.status.mode = 'wait'
-					this.status.waitFor = 30
-					this.config.https = 443
-					this.status.https.content = 'Enabling HTTPS done - reload pending...'
-					showMessage('Switching from HTTP to HTTPS done')
-					showMessage('Reloading in 30 secs')
-					this.status.waitCallback = function(myThis, secs) {
-						myThis.status.https.extra = (secs <= 0) ? '' : `reload in ${secs} secs`
-					}
-				})
-		},
-
-		async disable_https() {
-			const url = '/apps/nextbox/forward/https/disable'
-			const res = await axios.post(generateUrl(url)) 
-				.then((res) => {
-					// unreachable, will never return with success as this leads to server restart
-				}).catch((e) => {
-					this.status.nextMode = 'reload'
-					this.status.mode = 'wait'
-					this.status.waitFor = 30
-					this.config.https = false
-					this.status.https.content = 'Disabling HTTPS done - reload pending...'
-					showMessage('Switching from HTTPS to HTTP done')
-					showMessage('Reloading in 30 secs')
-					this.status.waitCallback = function(myThis, secs) {
-						myThis.status.https.extra = (secs <= 0) ? '' : `reload in ${secs} secs`
-					}
-				})
-		},
-
-		check_email() {
-			if (this.update.email === null || !this.update.email.includes('.') || !this.update.email.includes('@')) {
-				this.userMessage.email = ['Please insert a valid E-Mail address']
+		checkEMail() {
+			if (this.update.email === '' || this.update.email.length < 4) {
+				this.userMessage.email = [
+					'Please enter an e-mail address',
+				]
 				return false
 			}
-			if ('email' in this.userMessage) delete this.userMessage.email
-
+			const pat = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+			if (!pat.test(this.update.email)) {
+				this.userMessage.email = [
+					'Please enter a valid e-mail address',
+				]
+				return false
+			}
+			this.userMessage.email = []
 			return true
 		},
 
-		check_domain() {
-			if (this.update.domain === null || !this.update.domain.includes('.')) {
-				this.userMessage.domain = ['Please insert a valid Domain']
+		checkDomain() {
+			const pat = /^((?:(?:(?:\w[.\-+]?)*)\w)+)((?:(?:(?:\w[.\-+]?){0,62})\w)+)\.(\w{2,6})$/
+			if (!pat.test(this.update.domain)) {
+				this.userMessage.domain = ['Please insert a valid domain']
 				return false
 			}
 			if (!this.update.domain.endsWith('.dedyn.io')) {
 				this.userMessage.domain = ['The Domain has to end with: <span class="bold">.dedyn.io</span>']
+				return false
 			}
-
-			if ('domain' in this.userMessage) delete this.userMessage.domain
-
+			this.userMessage.domain = []
 			return true
 		},
 
-		async update_dns_mode() {
-			this.userMessage = {}
-			this.update_config({ dns_mode: this.update.dns_mode })
+		checkToken() {
+			const needlen = 28
+			this.update.desec_token = this.update.desec_token.trim()
+			const haslen = this.update.desec_token.length
+			if (haslen !== needlen) {
+				this.userMessage.desec_token = [`The token needs a length of exactly ${needlen} characters - currently: ${haslen}`]
+				return false
+			}
+			this.userMessage.desec_token = []
+			return true
 		},
 
 		async finalize_desec() {
-			if (this.update.desec_token.length !== 28) {
-				showError('The token is not valid')
-				return
+			this.loadingButton = true
+			if (!this.checkEMail() || !this.checkDomain() || !this.checkToken()) {
+				return false
 			}
 
-			this.setup_ddclient_config(this.status.useIpType, this.config.domain, this.update.desec_token)
+			this.setup_ddclient_config(this.config.domain, this.update.desec_token)
 
 			this.update_config({ 
 				desec_token: this.update.desec_token, 
 				dns_mode: 'desec_done',
 			})
-
-			this.init_status()
 		},
 
-		async setup_ddclient_config(ipType, domain, pwd) {
-			const updateip = (ipType === 'ipv6') ? 'update6.dedyn.io' : 'update.dedyn.io'
+		async last_step() {
+			this.update_config({ 
+				desec_token: this.update.desec_token, 
+				dns_mode: 'off',
+			})
+			this.refresh()
+		},
+
+		async next_step() {
+			this.update_config({ 
+				dns_mode: 'desec_2',
+				domain: this.update.domain,
+				email: this.update.email,
+			})
+			this.refresh()
+		},
+
+		/*daemon=300
+		protocol=dyndns2
+		use=web, web=https://check${ipType}.dedyn.io/\n
+		ssl=yes
+		server=update.dedyn.io
+		login=staticnextbox2.dedyn.io
+		password='xsaxsaxaxasxxsas'
+		staticnextbox2.dedyn.io*/
+
+		async setup_ddclient_config(domain, pwd) {
+			//const updateip = (ipType === 'ipv6') ? 'update6.dedyn.io' : 'update.dedyn.io'
 			const ddclientConfig = 'protocol=dyndns2\n'
-				+ `use=web, web=https://check${ipType}.dedyn.io/\n`
+				+ 'daemon=300\n'
+				+ 'use=cmd, cmd=\'curl https://checkipv4.dedyn.io/\'\n'
 				+ 'ssl=yes\n'
-				+ `server=${updateip}\n`
+				+ 'server=update.dedyn.io\n'
 				+ `login='${domain}'\n`
 				+ `password='${pwd}'\n`
 				+ `${domain}\n`
@@ -287,9 +303,9 @@ export default {
 				})
 		},
 
-		async register_desec(update) {
-			if (!this.check_email() || !this.check_domain()) {
-				this.refresh_captcha()
+		async register_desec() {
+			this.loadingButton = true
+			if (!this.checkEMail() || !this.checkDomain()) {
 				return false
 			}
 
@@ -297,26 +313,31 @@ export default {
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			}
-			const res = await axios.post(generateUrl(url), qs.stringify(update), options)
+			const res = await axios.post(generateUrl(url), qs.stringify(this.update), options)
 				.catch((e) => {
 					showError('Connection failed')
 					console.error(e)
 				})
 
 			if (res.data.result !== 'success') {
-				this.userMessage = res.data.data
-				if (this.userMessage.detail) {
-					showError(this.userMessage.detail)
+				if (res.data.data) {
+					if ('domain' in res.data.data) {
+						this.userMessage.global = res.data.data.domain
+					}
+					if ('email' in res.data.data) {
+						this.userMessage.global = res.data.data.email
+					}
 				}
 				showError(res.data.msg)
-				this.refresh_captcha()
 			} else {
 				this.update_config({
-					dns_mode: 'desec_2',
 					domain: this.update.domain,
 					email: this.update.email,
+					dns_mode: 'desec_2',
 				})
+				showMessage('Success sending registration, check your emails...')
 			}
+			this.loadingButton = false
 		},
 
 		async update_config(update) {
@@ -365,5 +386,13 @@ export default {
 	background-size: 24px !important;
 	vertical-align: unset !important;
 }
+
+
+.right {
+	float: right;
+	margin-right: 10%;
+}
+
+
 
 </style>

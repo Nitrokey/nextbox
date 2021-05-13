@@ -21,6 +21,8 @@
 			active, you can access your Nextcloud instance using 
 			<a :href="'https://' + config.proxy_domain" class="bold">{{ config.proxy_domain }}</a>.<br>
 
+			<StatusBar v-if="config.proxy_active" preset="reach_proxy" /><br>
+
 			<button type="button" :disabled="disableDisabled" @click="disable()">
 				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
 				Disable Quickstart Remote Access
@@ -47,11 +49,14 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
+import StatusBar from './StatusBar'
+
+
 export default {
 	name: 'Proxy',
 
 	components: {
-
+		StatusBar,
 	},
 
 	data() {

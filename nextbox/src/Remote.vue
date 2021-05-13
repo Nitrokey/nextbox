@@ -4,13 +4,11 @@
 		<div v-if="config.dns_mode !== 'off' || config.proxy_active" class="section">
 			<h2>Remote Access - Status</h2>
 			
-			<StatusBar v-if="config.domain" :status="status.resolve" />
-			<StatusBar v-if="config.domain" :status="status.http" />
-			<StatusBar v-if="config.proxy_active" :status="status.proxy" />
+			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
+			<StatusBar v-if="config.domain" preset="resolve_ipv6" />
+			<StatusBar v-if="config.domain" preset="reach_http" />
+			<StatusBar v-if="config.proxy_active" preset="reach_proxy" />
 				
-			<div v-if="status.help">
-				{{ status.help }}
-			</div>
 		</div>
 		<!-- no status view -->
 		<div v-else class="section">
@@ -24,11 +22,11 @@
 				<!--li v-tooltip="ttDesec" class="remote-action" @click="$emit('newPage', 'remote_dyndns')">
 					<span class="remote-icon icon-comment" />
 					Guided Dynamic DNS Configuration (DeSEC)
-				</li>
+				</li-->
 				<li v-tooltip="ttConfig" class="remote-action" @click="$emit('newPage', 'remote_custom_dns')">
 					<span class="remote-icon icon-settings" />
 					Custom Dynamic DNS Configuration
-				</li-->
+				</li>
 				<li class="remote-action" @click="$emit('newPage', 'remote_static_dns')">
 					<span class="remote-icon icon-public" />
 					Static Domain Configuration
@@ -67,7 +65,7 @@ export default {
 	name: 'Remote',
 
 	components: {
-		StatusBar
+		StatusBar,
 	},
 
 	data() {
@@ -87,12 +85,6 @@ export default {
 			// user messaging
 			userMessage: {},
 			
-			status: {
-				resolve: { state: 'neutral', icon: 'loading-small', text: 'DNS resolve testing pending' },
-				http: { state: 'neutral', icon: 'loading-small', text: 'Reachability waiting to be tested' },
-				proxy: { state: 'neutral', icon: 'loading-small', text: 'Quickstart remote access test pending' },
-			},
-
 			// variables
 			update: {
 			},
@@ -117,69 +109,13 @@ export default {
 				showError(t('nextbox', 'Connection Failed'))
 			}
 
-			// get ipv4 resolve
-			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv4')).then((res) => {
-				if (res.data.result === 'success') {
-					this.status.resolve = {
-						state: 'success',
-						icon: 'checkmark',
-						text: `Successfully resolved: ${this.config.domain} to: ${res.data.data.ip}`,
-					}
-				} else {
-					let suffix = ''
-					if (res.data.data) {
-						suffix = `need: ${res.data.data.ip} found: ${res.data.data.resolve_ip}`
-					}
-					this.status.resolve = {
-						state: 'error',
-						icon: 'close',
-						text: `Failed resolving: ${this.config.domain} ${suffix}`,
-					}
-				}
-			}).catch((e) => {
-				console.error(e)
-				showError(t('nextbox', 'Connection Failed'))
-			})
 			
-			// get general (http) reachability
-			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/http')).then((res) => {
-				if (res.data.result === 'success') {
-					this.status.http = {
-						state: 'success',
-						icon: 'checkmark',
-						text: `Successfully tested reachability for: ${this.config.domain}`,
-					}
-				} else {
-					this.status.http = {
-						state: 'error',
-						icon: 'close',
-						text: `Failed reachability for: ${this.config.domain}`,
-					}
-				}
-			}).catch((e) => {
-				console.error(e)
-				showError(t('nextbox', 'Connection Failed'))
-			})
 
-			// get proxy reachability
-			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/proxy')).then((res) => {
-				if (res.data.result === 'success') {
-					this.status.proxy = {
-						state: 'success',
-						icon: 'checkmark',
-						text: `Successfully tested reachability for: ${this.config.proxy_domain}`,
-					}
-				} else {
-					this.status.proxy = {
-						state: 'error',
-						icon: 'close',
-						text: `Failed reachability for: ${this.config.proxy_domain}`,
-					}
-				}
-			}).catch((e) => {
-				console.error(e)
-				showError(t('nextbox', 'Connection Failed'))
-			})
+			
+			
+			
+
+			
 		},
 	},
 }

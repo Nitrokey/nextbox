@@ -23,8 +23,9 @@
 			domain configuration you have to disable your existing configuration first.
 		</div>
 		<div v-else class="section">
-			Your StaticDNS configuration is enabled for the domain: 
-			<span class="bold">{{ update.domain }}</span><br><br>
+			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
+			<StatusBar v-if="config.domain" preset="resolve_ipv6" /><br>
+			This DNS configuration is active for the domain: <span class="bold">{{ update.domain }}</span><br><br>
 			
 			<button type="button" :disabled="config.https_port" @click="disable()">
 				<span class="icon icon-close" />
@@ -33,7 +34,7 @@
 
 			<div v-if="config.https_port">
 				<br>
-				Disabling the Static Domain Configuration is not allowed with activated TLS.
+				Disabling this configuration is not allowed with activated TLS.
 			</div>
 		</div>
 	</div>
@@ -57,12 +58,14 @@ import qs from 'qs'
 // import ActionRadio from '@nextcloud/vue/dist/Components/ActionRadio'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
+import StatusBar from './StatusBar'
+
 
 export default {
 	name: 'StaticDNS',
 
 	components: {
-		
+		StatusBar,
 	},
 
 	data() {

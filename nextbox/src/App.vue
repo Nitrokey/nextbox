@@ -12,8 +12,8 @@
 					@click="set_page('remote')">
 					<template>
 						<AppNavigationItem :title="t('nextbox', 'Backwards Proxy')" icon="icon-star" @click="set_page('remote_proxy')" />
-						<!-- AppNavigationItem :title="t('nextbox', 'Guided Dynamic DNS')" icon="icon-comment" @click="set_page('remote_dyndns')" /-->
-						<!-- AppNavigationItem :title="t('nextbox', 'Custom Dynamic DNS')" icon="icon-settings" @click="set_page('remote_custom_dns')" /-->
+						<AppNavigationItem :title="t('nextbox', 'Guided Dynamic DNS')" icon="icon-comment" @click="set_page('remote_dyndns')" />
+						<AppNavigationItem :title="t('nextbox', 'Custom Dynamic DNS')" icon="icon-settings" @click="set_page('remote_custom_dns')" />
 						<AppNavigationItem :title="t('nextbox', 'Static Domain')" icon="icon-public" @click="set_page('remote_static_dns')" />
 						<AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" />
 					</template>
@@ -30,11 +30,11 @@
 			<Backup v-if="page === 'backup'" />
 			<System v-if="page === 'system'" />
 			<Logs v-if="page === 'logs'" />
-			<Proxy v-if="page === 'remote_proxy'" />
-			<DynDNS v-if="page === 'remote_dyndns'" />
-			<CustomDNS v-if="page === 'remote_custom_dns'" />
-			<StaticDNS v-if="page === 'remote_static_dns'" />
-			<TLS v-if="page === 'tls'" />
+			<Proxy v-if="page === 'remote_proxy'" @newPage="set_page" />
+			<DynDNS v-if="page === 'remote_dyndns'" @newPage="set_page" />
+			<CustomDNS v-if="page === 'remote_custom_dns'" @newPage="set_page" />
+			<StaticDNS v-if="page === 'remote_static_dns'" @newPage="set_page" />
+			<TLS v-if="page === 'tls'" @newPage="set_page" />
 			<Remote v-if="page === 'remote'" @newPage="set_page" />
 		</AppContent>
 	</div>
