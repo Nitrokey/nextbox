@@ -153,7 +153,26 @@ def check_filesystem():
             fd.write(f"MYSQL_ROOT_PASSWORD={random_pass_root}\n")
         print("created /srv/nextbox/docker.env and contents")
 
-
+    # make sure is correct: /etc/default/ddclient
+    ddclient_env = Path("/etc/default/ddclient")
+    content = "\n".join([
+        'run_dhclient="false"',
+        'run_ipup="true"',
+        'run_daemon="true"',
+        'daemon_interval="300"', ''
+    ])
+    if not ddclient_env.exists():
+        with ddclient_env.open("w") as fd:
+            fd.write(content)
+        print("created /etc/default/ddclient")
+    else:
+        with ddclient_env.open("r") as fd:
+            file_content = fd.read()
+        if content != file_content:
+            with ddclient_env.open("w") as fd:
+                fd.write(content)
+            print("re-written /etc/default/ddclient")
+            
 # helper for enviornment-file writing (/etc/default/nextbox-updater.service)
 def write_nextbox_updater_env_file(path, pkg):
     with open(path, "w") as fd:

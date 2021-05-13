@@ -150,7 +150,7 @@ def handle_config():
     if request.method == "GET":
         data = dict(cfg["config"])
         try:
-            data["conf"] = Path(DDCLIENT_CONFIG_PATH).read_text("utf-8").split("\n")
+            data["conf"] = Path(DDCLIENT_CONFIG_PATH).read_text("utf-8")
         except FileNotFoundError:
             data["conf"] = ""
         return success(data=data)
@@ -165,7 +165,17 @@ def handle_config():
                 if old_conf != val:
                     log.info("writing ddclient config and restarting service")
                     Path(DDCLIENT_CONFIG_PATH).write_text(val, "utf-8")
-                    service_operation("ddclient", "restart")
+                    
+                elif len(val.strip()) == 0:
+                    log.info("writing empty ddclient config")
+                    Path(DDCLIENT_CONFIG_PATH).write_text(val, "utf-8")
+                    services.stop("ddclient")
+                    services.disable("ddclient")
+                    
+                if len(val.strip()) > 0:
+                    services.enable("ddclient")
+                    services.restart("ddclient")
+
 
             elif key in AVAIL_CONFIGS and val is not None:
                 if key == "dns_mode" and val not in DYNDNS_MODES:

@@ -17,12 +17,12 @@ PROXY_REGISTER_URL = "https://nextbox.link/register"
 
 CONFIG_PATH = "/srv/nextbox/nextbox.conf"
 
-DDCLIENT_CONFIG_PATH = "/etc/ddclient/ddclient.conf"
+DDCLIENT_CONFIG_PATH = "/etc/ddclient.conf"
 
 
 LOG_FILENAME = "/var/log/nextbox.log"
 
-DDCLIENT_BIN = "ddclient"
+DDCLIENT_BIN = "/usr/sbin/ddclient"
 
 
 DYNDNS_MODES = ["desec", "desec_2", "static", "config", "off",
