@@ -26,10 +26,17 @@
 			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
 			<StatusBar v-if="config.domain" preset="resolve_ipv6" /><br>
 			This DNS configuration is active for the domain: <span class="bold">{{ update.domain }}</span><br><br>
-			
-			<button type="button" :disabled="config.https_port" @click="disable()">
+			<button type="button" @click="$emit('newPage', 'tls')">
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
+				Continue to TLS activation
+			</button>
+			<button type="button" 
+				class="right" 
+				:disabled="config.https_port" 
+				@click="disable()">
+
 				<span class="icon icon-close" />
-				Disable Static Domain Configuration
+				Disable Configuration
 			</button>
 
 			<div v-if="config.https_port">
@@ -197,5 +204,12 @@ export default {
 	background-size: 24px !important;
 	vertical-align: unset !important;
 }
+
+
+.right {
+	float: right;
+	margin-right: 10%;
+}
+
 
 </style>

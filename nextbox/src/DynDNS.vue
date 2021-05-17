@@ -262,6 +262,13 @@ export default {
 			this.refresh()
 		},
 
+		async disable() {
+			this.update_config({
+				dns_mode: 'off',
+			})
+			showMessage('Disabled config')
+		},
+
 		/*daemon=300
 		protocol=dyndns2
 		use=web, web=https://check${ipType}.dedyn.io/\n
