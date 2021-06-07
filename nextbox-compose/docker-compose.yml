@@ -16,6 +16,7 @@ services:
 
   app:
     image: nextcloud:21-apache
+    entrypoint: "/bin/sh -c 'echo \"start delayed by 60secs...\" && sleep 60 && /entrypoint.sh apache2-foreground'"
     restart: always
     extra_hosts:
       - dockerhost:172.18.238.1
