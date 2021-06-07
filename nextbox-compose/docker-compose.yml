@@ -15,7 +15,8 @@ services:
     restart: always
 
   app:
-    image: nextcloud:20.0.8-apache
+    image: nextcloud:21-apache
+    command: "sh -c 'sleep 60 && apache2-foreground'"
     restart: always
     extra_hosts:
       - dockerhost:172.18.238.1
@@ -37,7 +38,7 @@ services:
       - redis
 
   cron:
-    image: nextcloud:20.0.8-apache
+    image: nextcloud:21-apache
     restart: always
     volumes:
       - nextcloud:/var/www/html
