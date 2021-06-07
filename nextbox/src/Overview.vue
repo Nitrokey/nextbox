@@ -23,7 +23,7 @@
 		<div class="section">
 			<h2>NextBox System Daemon Status</h2>
 			<StatusBar :status="statusConnection" />
-			<StatusBar icon="info" :text="`NextBox Software Version: ${this.version}`" />
+			<StatusBar icon="info" :status="statusVersion" />
 		</div>
 
 		<!-- div class="section">
@@ -111,6 +111,15 @@ export default {
 					: 'You have not yet run a backup - please do so',
 			}
 		},
+
+		statusVersion() {
+			return {
+				icon: 'info',
+				text: (this.version) 
+					? `NextBox Daemon Version: ${this.version}` 
+					: 'Checking NextBox Daemon Version'
+			}
+		}
 	},
 
 	methods: {
@@ -135,6 +144,7 @@ export default {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/status'))
 				this.board = JSON.stringify(res.data, null, 2)
 				this.version = res.data.data.pkginfo.version
+
 			} catch (e) {
 				console.error('failed loading status board')
 			}
