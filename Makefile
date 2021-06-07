@@ -1,6 +1,6 @@
 VERSION=$(shell head -n 1 debian/changelog | grep -Eo '[0-9\.\-]*')
 
-IMAGE_NAME=dev-docker
+IMAGE_NAME=nextbox-build
 
 #PKG=nextbox
 #PKG=nextbox-testing
@@ -84,7 +84,7 @@ repos/app/nextbox/package-lock.json:
 		npm install		
 
 repos/app/nextbox/js/nextbox-main.js: repos/app repos/app/nextbox/package-lock.json
-	make -C repos/app/nextbox build-js-production
+	docker exec -it $(IMAGE_NAME) make -C /build/repos/app/nextbox build-js-production
 
 $(PKG)/nextbox-compose: repos/daemon
 	# nextbox-compose

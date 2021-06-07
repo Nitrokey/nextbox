@@ -15,7 +15,8 @@ RUN apt-get update
 RUN apt-get install -y dh-python python3-setuptools python3-all dh-systemd \
 	python3 python3-flask python3-flask python3-gpiozero python3-yaml python3-psutil \
 	debhelper build-essential python3-requests docker-compose docker.io vim npm \
-	software-properties-common dput devscripts gnupg dh-make lintian
+	software-properties-common dput devscripts gnupg dh-make lintian \
+	php phpunit
 
 RUN add-apt-repository -y ppa:nitrokey/nextbox
 
