@@ -303,7 +303,7 @@ class RawBackupRestore:
             if key.startswith("size_"):
                 _, what = key.split("_")
                 # check meta-size > 0
-                if not val > 0 and what != "letsencrypt":
+                if not val > 0 and what not in ["letsencrypt", "apps"]:
                     log.error(f"check cancel - {src_path}: size for '{what}'' not > 0")
                     return False
                 # check existance of dir
