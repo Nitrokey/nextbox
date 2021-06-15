@@ -5,11 +5,14 @@ from pathlib import Path
 from datetime import datetime
 from filelock import FileLock
 import shutil
-
+import yaml
+import re
 
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.config import log, cfg
+from nextbox_daemon.services import services
+from nextbox_daemon.certificates import Certificates
 
 class RawBackupRestore:
     dirs = {
@@ -19,13 +22,17 @@ class RawBackupRestore:
         "config":       "/srv/nextcloud/config",
         "letsencrypt":  "/srv/letsencrypt",
     }
-    db_env = "/srv/nextbox/docker.env"
+
+    nextbox_db_env = "docker.env"
+    nextbox_conf = "nextbox.conf"
+    nextbox_rtun = "rtun.yaml"
+
     sql_dump_fn = "dump.sql"
 
     db_export_cmd = "/usr/bin/docker exec nextbox-compose_db_1 /usr/bin/mysqldump nextcloud -u root --lock-tables --password={pwd} > {path}"
-    db_import_cmd = "/usr/bin/docker exec -i nextbox-compose_db_1 /usr/bin/mysql nextcloud -u root --password={pwd} < {path}"
-    db_cmd = "/usr/bin/docker exec nextbox-compose_db_1 /usr/bin/mysql -u root --password={pwd} -e '{sql}'"
-    
+    db_import_cmd = "/usr/bin/docker exec -i nextbox-compose_db_1 /usr/bin/mysql {db} -u root --password={pwd} < {path}"
+    db_cmd = "/usr/bin/docker exec nextbox-compose_db_1 /usr/bin/mysql -u root --password={pwd} -B --disable-column-names -e '{sql}'"
+
     rsync_base_cmd = "/usr/bin/rsync --delete -av {src} {tar}"
     rsync_stats_cmd = "/usr/bin/rsync -a --dry-run --stats {src} {tar}"
 
@@ -43,7 +50,7 @@ class RawBackupRestore:
     # Number of regular files transferred: 0
     # Total file size: 123,412,32
 
-    def rsync_dir(self, key, src_dir, tar_dir):
+    def rsync_dir(self, key, src_dir, tar_dir, block_main=False):
         """
         rsync is used to copy files for export & import.
         * a --dry-run is parsed 1st to determine the number of files (paths) to be created on the target side 
@@ -87,7 +94,7 @@ class RawBackupRestore:
                 data_dct["ratio"] = int(round(min(1, max(0, data_dct["line"] / cnt)), 2) * 100)
 
         cmd = self.rsync_base_cmd.format(src=src_dir, tar=tar_dir)
-        self.rsync_proc = CommandRunner(cmd, cb_parse=parse, block=False)
+        self.rsync_proc = CommandRunner(cmd, cb_parse=parse, block=block_main)
         return False
 
     ###
@@ -126,24 +133,37 @@ class RawBackupRestore:
         if self.rsync_stats:
             self.update_meta(tar_dir, {"size_" + key: self.rsync_stats.get("size", 0)})
         
-    def import_dir(self, key, src_dir):
+    def import_dir(self, key, src_dir, block=False):
         self.activity_desc = (key, "import")
         src_dir = Path(src_dir)
         key_path = Path(self.dirs[key])
         src_path = src_dir / key_path.name
         tar_path = key_path.parent
-        self.rsync_dir("data", src_path.as_posix(), tar_path.as_posix())
+        self.rsync_dir("data", src_path.as_posix(), tar_path.as_posix(), block_main=block)
         log.info(f"starting {key} import")
         
-    def get_sql_password(self):
-        with Path(self.db_env).open() as fd:
+    def get_env_data(self, docker_env_path=None):
+        if docker_env_path is None:
+            docker_env_path = Path(self.dirs["nextbox"]) / self.nextbox_db_env
+
+        dct = {}
+        with Path(docker_env_path).open() as fd:
             for line in fd:
-                if "MYSQL_ROOT_PASSWORD" in line:
-                    _, val = line.split("=", 1)
-                    return val.strip()
+                toks = line.split("=")
+                if len(toks) == 2:
+                    key, val = toks
+                    dct[key.strip()] = val.strip()
+        return dct
+
+    def set_env_data(self, docker_env_path, data_dct):
+        with Path(docker_env_path).open("w") as fd:
+            for key, val in sorted(data_dct.items()):
+                fd.write(f"{key}={val}\n")
+        log.debug(f"(re)wrote {docker_env_path} during restore")
 
     def export_sql(self, tar_path):
-        pwd = self.get_sql_password()
+        db_env_dct = self.get_env_data()
+        pwd = db_env_dct["MYSQL_ROOT_PASSWORD"]
         if pwd is None:
             log.error("cannot get sql password for export, aborting...")
             return False
@@ -169,10 +189,31 @@ class RawBackupRestore:
 
         return cr.returncode == 0
 
+
+    def sql_move_all_tables(self, root_pwd, src_db, tar_db):
+        # get all tables from source db
+        cmd = self.db_cmd.format(pwd=root_pwd, sql=f"USE {src_db}; show tables")
+        cr = CommandRunner.retries(5, cmd, block=True)
+        
+        if cr.returncode != 0:
+            log.error(f"failed determining all tables in {src_db}")
+            return False
+
+        # build mass-table-rename query and run it to move 'src_db.*' to 'tar_db.*'
+        tables = [f"{src_db}.{tbl.strip()} to {tar_db}.{tbl.strip()}" \
+            for tbl in cr.output if tbl.strip()]
+        query = "rename table " + ", ".join(tables)
+        cmd = self.db_cmd.format(pwd=root_pwd, sql=query)
+        cr = CommandRunner.retries(5, cmd, block=True)
+        
+        return cr.returncode == 0
+
     def import_sql(self, src_path):
-        pwd = self.get_sql_password()
+        db_env_dct = self.get_env_data()
+        pwd = db_env_dct["MYSQL_ROOT_PASSWORD"]
+        
         if pwd is None:
-            log.error("cannot get sql password for import, aborting...")
+            log.error("cannot get (root) sql password for import, aborting...")
             return False
 
         src_sql_path = Path(src_path) / self.sql_dump_fn
@@ -180,37 +221,95 @@ class RawBackupRestore:
             log.error("sql-import data path not found, aborting...")
             return False
 
+        # drop (new) database
+        cmd = self.db_cmd.format(pwd=pwd, sql="DROP DATABASE IF EXISTS new_nextcloud")
+        cr = CommandRunner.retries(5, cmd, block=True)
+        
+        # create new database
+        cmd = self.db_cmd.format(pwd=pwd, sql="CREATE DATABASE new_nextcloud")
+        cr = CommandRunner.retries(5, cmd, block=True)
+        
+        # import sql-dump
+        cmd = self.db_import_cmd.format(db="new_nextcloud", pwd=pwd, path=src_sql_path.as_posix())
+        cr = CommandRunner(cmd, block=True, shell=True)
+        
+        # exit here if import failed, no changes done to live-db (nextcloud)
+        if cr.returncode != 0:
+            cr.log_output()
+            log.error("failed importing sql-dump into new database")
+            return False
+
+        log.info("success importing sql-dump into temp database")
         try:
             self.nc.set_maintenance_on()
         except NextcloudError as e:
             log.error("could not switch on maintainance mode, stopping restore")
             log.error(exc_info=e)
             return False
+
+        # drop databases (old_nextcloud)
+        cmd = self.db_cmd.format(pwd=pwd, sql="DROP DATABASE IF EXISTS old_nextcloud")
+        cr = CommandRunner.retries(5, cmd, block=True)
         
-        # drop database
-        cmd = self.db_cmd.format(pwd=pwd, sql="DROP DATABASE nextcloud")
-        cr = CommandRunner(cmd, block=True)
-
-        # create new database
-        cmd = self.db_cmd.format(pwd=pwd, sql="CREATE DATABASE nextcloud")
-        cr = CommandRunner(cmd, block=True)
-
-        # grant 'nextcloud' permissions to user: 'nextcloud'
-        cmd = self.db_cmd.format(pwd=pwd, sql="GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'localhost'")
-        cr = CommandRunner(cmd, block=True)
-
-        # import sql-dump
-        cmd = self.db_import_cmd.format(pwd=pwd, path=src_sql_path.as_posix())
-        cr = CommandRunner(cmd, block=True, shell=True)
+        # create new database (old_nextcloud) to move 'nextcloud' into
+        cmd = self.db_cmd.format(pwd=pwd, sql="CREATE DATABASE old_nextcloud")
+        cr = CommandRunner.retries(5, cmd, block=True)
         
+        # move current to old_nextcloud, make thus nextcloud will be empty
+        res = self.sql_move_all_tables(pwd, "nextcloud", "old_nextcloud")
+        if not res:
+            log.error("failed moving tables from 'nextcloud' to 'old_nextcloud'")
+
+        # move newly imported database into live database nextcloud
+        self.sql_move_all_tables(pwd, "new_nextcloud", "nextcloud")
+        if not res:
+            log.error("failed moving tables from 'new_nextcloud' to 'nextcloud'")
+
         try:
             self.nc.set_maintenance_off()
         except NextcloudError as e:
-            log.error("could not switch off maintainance mode, stopping restore")
-            log.error(exc_info=e)
+            log.error("could not switch off maintainance mode, stopping restore", exc_info=e)
             return False
 
-        return cr.returncode == 0
+        log.info("completed sql-database import")
+        return True
+
+    def import_nextbox_dir(self, src_path):
+        # copy rtun.yaml
+        shutil.copy(src_path / "nextbox" / self.nextbox_rtun, self.dirs["nextbox"])
+
+        # copy nextbox.conf
+        shutil.copy(src_path / "nextbox" / self.nextbox_conf, self.dirs["nextbox"])
+        
+        # skipping docker.env, as we always keep the one on the device!
+
+        return True
+
+    def import_config_dir(self, src_path):
+        # regulary copy over all files
+        self.import_dir("config", src_path, block=True)
+
+        log.info("copied configs done - updating db-password")
+
+        # afterwards make sure the password for sql is correct inside config.php
+        cfg_path = Path(self.dirs["config"]) / "config.php"
+        cfg_content = cfg_path.read_text()
+
+        # get pass from docker.env
+        db_env_dct = self.get_env_data()
+        dbpass = db_env_dct["MYSQL_PASSWORD"]
+
+        # read config, regex dbpassword, replace with new pass (from docker.env)
+        pat = re.compile(r"'dbpassword'[^=]*=>[^']*'([^']*)'[^,]*,")
+        res = pat.search(cfg_content)
+        old_pass = res.group()
+        new_pass = f"'dbpassword' => '{dbpass}',"
+        with cfg_path.open("w") as fd:
+            fd.write(cfg_content.replace(old_pass, new_pass))
+
+        log.info("updated config.php with 'nextcloud' db password")
+
+        return True
 
     ###
     ### meta data handling
@@ -401,10 +500,10 @@ class RawBackupRestore:
 
         steps = [
             ("sql",         lambda: self.import_sql(src_path)),
+            ("config",      lambda: self.import_config_dir(src_path)),
+            ("nextbox",     lambda: self.import_nextbox_dir(src_path)),
             ("data",        lambda: self.import_dir("data", src_path)), 
             ("apps",        lambda: self.import_dir("apps", src_path)), 
-            ("nextbox",     lambda: self.import_dir("nextbox", src_path)),
-            ("config",      lambda: self.import_dir("config", src_path)),
             ("letsencrypt", lambda: self.import_dir("letsencrypt", src_path)),
         ]
 
@@ -414,18 +513,24 @@ class RawBackupRestore:
         self.check_backup(src_path)
 
         failed = False
+        log.info("starting full import")
         for step_key, step_func in steps:
+            log.debug(f"full import step: {step_key}")
+
             # blocking step (sql)
             ret = step_func()
 
             # blocking call, eval directly and yield state
-            if step_key == "sql":
+            if step_key in ["sql", "nextbox", "config"]:
                 if ret == True:
-                    yield ("finished", ("sql", "import"), 100)
+                    log.debug(f"finished import step: {step_key}")
+                    yield ("finished", (step_key, "import"), 100)
                     continue
                 else:
+                    log.debug(f"failed import step: {step_key}")
                     failed = True
-                    yield ("failed", ("sql", "import"), 100)
+                    
+                    yield ("failed", (step_key, "import"), 100)
                     break
 
             # non-blocking call(s) check_progress() and yield state
@@ -433,13 +538,54 @@ class RawBackupRestore:
                 act, desc, percent = self.check_progress()
                 if act != "active":
                     if act == "failed":
+                        log.debug(f"failed import step: {step_key}")
                         failed = True
+                    else:
+                        log.debug(f"finished import step: {step_key}")
                     yield (act, desc, 100)
                     break
                 time.sleep(1)
                 yield (act, desc, percent)
 
+        # final restore steps
         if not failed:
+            # recreate apache config based on current (imported) config
+            conf_path = Path(self.dirs["nextbox"]) / self.nextbox_conf
+            new_cfg = yaml.safe_load(conf_path.open()).get("config", {})
+            has_https = new_cfg.get("https_port")
+            if has_https:
+                domain = new_cfg.get("domain")
+                
+                certs = Certificates()
+                my_cert = certs.get_cert(domain)
+                if not my_cert:
+                    log.error(f"expected https/ssl, but could not find certificate: {domain}")
+                    log.error("switching apache2 config to non-ssl")
+                    certs.set_apache_config(ssl=False)
+                    #### naaah this is evil:
+                    new_cfg["https_port"] = None
+                    dct = {"config": new_cfg}
+                    yaml.safe_dump(dct, conf_path.open("w"))
+                else:
+                    log.info(f"found certificate for {domain} - activating ssl")
+
+                    certs.write_apache_ssl_conf(
+                        my_cert["domains"][0], 
+                        my_cert["fullchain_path"], 
+                        my_cert["privkey_path"]
+                    )
+                    if not certs.set_apache_config(ssl=True):
+                        log.error("failed enabling ssl config for apache")
+                    else:
+                        log.info("re-enabled ssl for imported configuration")
+
+            log.debug("wrote apache config according to restored data")
+
+            # restart daemon 
+            log.info("finalized import - all seems good!")
+            log.info(".... restarting daemon")
+            services.restart("nextbox-daemon")
+
             yield ("completed", ("all", "import"), 100)
 
 
@@ -447,7 +593,10 @@ if __name__ == "__main__":
     from time import sleep 
 
     back = RawBackupRestore()
-    
+    print(back.get_env_data())
+    print(back.get_env_data("/srv/nextbox/docker.env"))
+    print(back.get_env_data("/media/extra-1/izguzgzu/nextbox/docker.env"))
+
     # tar_path = Path("/srv/test")
     # it = back.full_export(tar_path)
     # while True:
