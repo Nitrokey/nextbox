@@ -33,7 +33,7 @@ class CommandRunner:
     @classmethod
     def retries(cls, count, *vargs, **kwargs):
         # cannot retry, if non-blocking
-        if kwargs.get("block"):
+        if not kwargs.get("block"):
             log.warning("trying CommandRunner-retries w/o block: no retries are done!")
             return cls(*vargs, **kwargs)
 
