@@ -29,6 +29,27 @@ class CommandRunner:
         if start:
             self.start()
 
+
+    @classmethod
+    def retries(cls, count, *vargs, **kwargs):
+        # cannot retry, if non-blocking
+        if kwargs.get("block"):
+            log.warning("trying CommandRunner-retries w/o block: no retries are done!")
+            return cls(*vargs, **kwargs)
+
+        # if 'block' is set, retry until returncode == 0
+        for idx in range(count):
+            res = cls(*vargs, **kwargs)
+            if res.returncode == 0:
+                return res
+            log.debug(f"retry #{idx+1}, returncode: {res.returncode}")
+
+        # failed retries
+        log.error("retried hard for {count} times, failed anyways")
+        res.log_output()
+        return res
+
+
     def start(self):
         if self.started:
             log.warning(f"trying to start already started: {self.cmd}")
