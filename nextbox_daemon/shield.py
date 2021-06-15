@@ -48,6 +48,7 @@ class Shield:
         * 'stopped'         => red
         * 'factory-reset'   => red-blinking
         * 'button'          => blue
+        * 'maintenance'     => purple
         """
 
         if state == "ready":
@@ -62,6 +63,8 @@ class Shield:
             self.set_led_blink(1, 0, 0)
         elif state == "button":
             self.set_led(0, 0, 1)
+        elif state == "maintenance":
+            self.set_led(0.5, 0, 1)
         else:
             self.set_led(0, 1, 0)
         

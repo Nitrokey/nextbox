@@ -19,12 +19,18 @@ class LEDJob(BaseJob):
     name = "LED"
 
     def __init__(self):
-        super().__init__(initial_interval=1)
+        super().__init__(initial_interval=15)
 
     def _run(self, cfg, board, kwargs):
         #shield.set_led(0, 1, 0)
         #log.debug("LED", id(self.shield))
-        self.interval = None
+        #self.interval = None
+
+        # check for maintenance mode
+        if Nextcloud().is_maintenance:
+            shield.set_led_state("maintenance")
+        else:
+            shield.set_led_state("ready")
 
 
 class FactoryResetJob(BaseJob):
