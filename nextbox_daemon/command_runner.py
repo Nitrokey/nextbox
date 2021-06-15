@@ -43,10 +43,10 @@ class CommandRunner:
             if res.returncode == 0:
                 return res
             log.debug(f"retry #{idx+1}, returncode: {res.returncode}")
+            res.log_output()
 
         # failed retries
         log.error("retried hard for {count} times, failed anyways")
-        res.log_output()
         return res
 
 
