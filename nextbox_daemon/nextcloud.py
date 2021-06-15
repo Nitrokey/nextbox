@@ -18,11 +18,19 @@ class Nextcloud:
     config_list_keys = ["trusted_domains", "trusted_proxies"]
 
     can_install_path = "/srv/nextcloud/config/CAN_INSTALL"
+    config_path = "/srv/nextcloud/config/config.php"
 
     @property
     def is_installed(self):
         """If `can_install_path` exists, nextcloud's initialization is not done"""
         return not Path(self.can_install_path).exists()
+
+    @property
+    def is_maintenance(self):
+        with Path(self.config_path).open() as fd:
+            for line in fd:
+                if "maintenance" in line:
+                    return "true" in line
 
     def run_cmd(self, *args):
         """
