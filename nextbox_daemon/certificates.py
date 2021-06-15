@@ -134,11 +134,11 @@ class Certificates:
             
             if conf_avail_path.exists() and not conf_enabled_path.exists():
                 conf_enabled_path.symlink_to("../mods-available/" + conf_avail_path.name)
-                log.info("enabled: {conf_avail_path.name}")
+                log.info(f"enabled: {conf_avail_path.name}")
 
             if load_avail_path.exists() and not load_enabled_path.exists():
                 load_enabled_path.symlink_to("../mods-available/" + load_avail_path.name)
-                log.info("enabled: {load_avail_path.name}")
+                log.info(f"enabled: {load_avail_path.name}")
 
 
     def reload_apache(self):
