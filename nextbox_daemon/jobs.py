@@ -27,8 +27,13 @@ class LEDJob(BaseJob):
         #self.interval = None
 
         # check for maintenance mode
-        if Nextcloud().is_maintenance:
+        nc = Nextcloud()
+        url = 123
+        if nc.is_maintenance:
             shield.set_led_state("maintenance")
+        # check reachability
+        #elif nc.check_reachability()[0]:
+        #    ...
         else:
             shield.set_led_state("ready")
 
@@ -39,15 +44,7 @@ class FactoryResetJob(BaseJob):
     def __init__(self):
         super().__init__(initial_interval=None)
 
-        self.running = False
-
-        shield.button.when_pressed = lambda: not self.running and shield.set_led_state("button")
-        shield.button.when_released = lambda: not self.running and shield.set_led_state("ready")
-        shield.button.when_held = self._run
-
     def _run(self, cfg=None, board=None, kwargs=None):
-        
-        self.running = True
         
         # factory-reset is executed by systemd
         log.warning("Starting factory-reset operation")
@@ -178,6 +175,8 @@ class SelfUpdateJob(BaseJob):
             services.start("nextbox-updater")
         else:
             log.debug(f"no need to upgrade or install debian package: {pkg}")
+
+        #job_queue.put("LED")
 
         shield.set_led_state("ready")
 

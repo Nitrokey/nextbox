@@ -1,4 +1,6 @@
 from pathlib import Path
+import urllib
+import ssl 
 
 from nextbox_daemon.config import log
 from nextbox_daemon.command_runner import CommandRunner
@@ -31,6 +33,22 @@ class Nextcloud:
             for line in fd:
                 if "maintenance" in line:
                     return "true" in line
+
+    def check_reachability(self, url):
+        try:
+            content = urllib.request.urlopen(url).read().decode("utf-8")   
+        except urllib.error.URLError:
+            return False, "url-error"         
+        except ssl.CertificateError:
+            # this very likely is due to a bad certificate
+            return False, "cert"
+        except Exception:
+            return False, "unknown"
+
+        if "Nextcloud" in content:
+            return True, None
+              
+        return False, "not-nextcloud"
 
     def run_cmd(self, *args):
         """

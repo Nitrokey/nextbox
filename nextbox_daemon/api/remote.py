@@ -173,22 +173,14 @@ def test_http():
     if not domain:
         return error("no domain is set")
 
-    try:
-        content = urllib.request.urlopen(url).read().decode("utf-8")
-    
-    except urllib.error.URLError as e:
-        return error(f"Domain ({what}) test: Not OK", data={"domain": domain, "exc": repr(e)})
+    nc = Nextcloud()
+    res, err_reason = nc.check_reachability(url)
 
-    except ssl.CertificateError as e:
-        # this very likely is due to a bad certificate
-        return error(f"Domain ({what}) test: Not OK - Certificate Error",
-                     data={"reason": "cert", "exc": repr(e)})
-
-    if "Nextcloud" in content:
+    if res:
         return success(f"Domain ({what}) test: OK", data={"domain": domain})
-    else:
-        return error(f"Domain ({what}) test: Not OK",
-                     data={"exc": "none", "reason": "no Nextcloud in 'content'", "domain": domain})
+    
+    return error(f"Domain ({what}) test: Not OK",
+        data={"exc": "none", "reason": err_reason, "domain": domain})
 
 # @remote_api.route("/dyndns/upnp")
 # @requires_auth
