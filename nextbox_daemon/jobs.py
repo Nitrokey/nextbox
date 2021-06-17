@@ -19,24 +19,42 @@ class LEDJob(BaseJob):
     name = "LED"
 
     def __init__(self):
-        super().__init__(initial_interval=15)
+        super().__init__(initial_interval=10)
 
     def _run(self, cfg, board, kwargs):
-        #shield.set_led(0, 1, 0)
-        #log.debug("LED", id(self.shield))
-        #self.interval = None
-
         # check for maintenance mode
         nc = Nextcloud()
-        url = 123
         if nc.is_maintenance:
             shield.set_led_state("maintenance")
+        
         # check reachability
         #elif nc.check_reachability()[0]:
         #    ...
+        
+        # check if app container is up for more than 65secs
+        elif not self.is_app_docker_up():
+            shield.set_led_state("docker-wait")
+
+        # all seems ready
         else:
             shield.set_led_state("ready")
 
+
+    def is_app_docker_up(self):
+        cr = CommandRunner("docker ps --format 'created:{{.CreatedAt}}' --filter name=nextbox-compose_app_1", block=True)
+        #log.debug(str(cr.output))
+        for line in cr.output:
+            if "created" in line:
+                rhs = line.split(":", 1)[1]
+                toks = rhs.split(" ")
+                #log.debug(str(toks))
+                runs_since = dt.fromisoformat(toks[0] + " " + toks[1])
+                #log.debug(runs_since)
+                runs_for = (dt.now() - runs_since).seconds
+                #log.debug(f"nextbox-compose_app_1 runs for {runs_for}secs")
+                if runs_for > 75:
+                    return True
+        return False
 
 class FactoryResetJob(BaseJob):
     name = "FactoryReset"
@@ -138,6 +156,14 @@ class SelfUpdateJob(BaseJob):
     def _run(self, cfg, board, kwargs):
         self.interval = None
 
+
+        # ensure that neither updater nor factory-reset is masked
+        services.unmask("nextbox-updater")
+        services.unmask("nextbox-factory-reset")
+
+        # ensure nextbox-compose is running
+        services.start("nextbox-compose")
+
         shield.set_led_state("updating")
 
         log.info("running 'apt-get update'")
@@ -169,16 +195,18 @@ class SelfUpdateJob(BaseJob):
         # will trigger for e.g., 'nextbox' to 'nextbox-testing' switching
         if not pkg_obj.is_installed:
             log.info(f"installing debian package: {pkg} (start service: nextbox-updater)")
+            services.stop("nextbox-compose")
             services.start("nextbox-updater")
         elif pkg_obj.is_upgradable:
             log.info(f"upgrading debian package: {pkg} (start service: nextbox-updater)")
+            services.stop("nextbox-compose")
             services.start("nextbox-updater")
         else:
             log.debug(f"no need to upgrade or install debian package: {pkg}")
 
         #job_queue.put("LED")
 
-        shield.set_led_state("ready")
+        #shield.set_led_state("ready")
 
 
 class GenericStatusUpdateJob(BaseJob):
