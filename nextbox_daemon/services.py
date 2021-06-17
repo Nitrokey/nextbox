@@ -14,14 +14,14 @@ class Services:
       restricts most services to: 'start', 'restart', 'status', 'is-active'
     """
 
-    SAFE_SERVICE_CTRL = ["start", "restart", "status", "is-active"]
+    SAFE_SERVICE_CTRL = ["start", "restart", "status", "is-active", "unmask"]
     FULL_SERVICE_CTRL = SAFE_SERVICE_CTRL + ["stop", "disable", "enable"]
     
     SERVICES_CTRL = {
         "ddclient": ("ddclient.service", FULL_SERVICE_CTRL),
 
         "nextbox-daemon": ("nextbox-daemon.service", SAFE_SERVICE_CTRL),
-        "nextbox-compose": ("nextbox-compose.service", SAFE_SERVICE_CTRL),
+        "nextbox-compose": ("nextbox-compose.service", FULL_SERVICE_CTRL),
         "nextbox-updater": ("nextbox-updater.service", SAFE_SERVICE_CTRL),
         "nextbox-factory-reset": ("nextbox-factory-reset.service", SAFE_SERVICE_CTRL),
 
@@ -38,6 +38,7 @@ class Services:
     def restart(self, name): return self.exec(name, "restart")
     def enable(self, name): return self.exec(name, "enable")
     def disable(self, name): return self.exec(name, "disable")
+    def unmask(self, name): return self.exec(name, "unmask")
 
     def check(self, name, op):
         """Check, if given service (name) is allowed to run op(eration)"""
