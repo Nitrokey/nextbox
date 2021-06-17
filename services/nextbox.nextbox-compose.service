@@ -9,9 +9,9 @@ RestartSec=5
 
 WorkingDirectory=/usr/lib/nextbox-compose/
 
-ExecStartPre=/usr/bin/docker-compose -f docker-compose.yml down -v
-ExecStart=/usr/bin/docker-compose -f docker-compose.yml up
-ExecStop=/usr/bin/docker-compose -f docker-compose.yml down -v
+ExecStartPre=/usr/bin/nextbox-stop-compose.sh
+ExecStart=/usr/bin/nextbox-start-compose.sh
+ExecStop=/usr/bin/nextbox-stop-compose.sh
 
 [Install]
 WantedBy=multi-user.target

@@ -29,7 +29,11 @@ class Nextcloud:
 
     @property
     def is_maintenance(self):
-        with Path(self.config_path).open() as fd:
+        cpath = Path(self.config_path)
+        if not cpath.exists():
+            return False
+
+        with cpath.open() as fd:
             for line in fd:
                 if "maintenance" in line:
                     return "true" in line
@@ -47,7 +51,7 @@ class Nextcloud:
 
         if "Nextcloud" in content:
             return True, None
-              
+
         return False, "not-nextcloud"
 
     def run_cmd(self, *args):
