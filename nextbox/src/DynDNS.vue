@@ -215,6 +215,12 @@ export default {
 				this.userMessage.domain = ['The Domain has to end with: <span class="bold">.dedyn.io</span>']
 				return false
 			}
+			const dotpat = new RegExp('\\.', 'g')
+			if ((this.update.domain.match(dotpat) || []).length > 2) {
+				this.userMessage.domain = ['The Domain shall not contain multi-level subdomains. Bad: foo.bar.dedyn.io - Good: single.dedyn.io']
+				return false
+			}
+
 			this.userMessage.domain = []
 			return true
 		},
