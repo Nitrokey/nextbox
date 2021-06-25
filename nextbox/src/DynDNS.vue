@@ -182,9 +182,9 @@ export default {
 			})
 			this.config = res.data.data
 			this.update.dns_mode = this.config.dns_mode
-			this.update.domain = this.config.domain
+			this.update.domain = this.config.domain || ''
 			this.update.desec_token = this.config.desec_token || ''
-			this.update.email = this.config.email
+			this.update.email = this.config.email || ''
 		},
 
 		checkEMail() {
