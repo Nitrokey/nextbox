@@ -1,3 +1,19 @@
+%%PKG%% (1.0.4-1) groovy; urgency=low
+
+  * app: bump to version 1.0.4
+  * app: catch and forbid subdomain depth > 1
+  * app: ensure non-null values for domain/email
+  * daemon: use docker py-module to determine, if nextcloud container is up
+  * daemon: skip non-existing log files for export
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 25 Jun 2021 17:20:39 +0200
+
+%%PKG%% (1.0.3-1) groovy; urgency=low
+
+  * daemon: workaround for boxes running 21.0.2
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 18 Jun 2021 00:42:01 +0200
+
 %%PKG%% (1.0.2-1) groovy; urgency=low
 
   * daemon: factor-reset-job: stop nextbox-compose before upgrade

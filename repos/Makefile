@@ -26,7 +26,7 @@ update-daemon:
 	ssh $(DEV_ROOT_USER)@$(DEV_DEVICE) -- systemctl start nextbox-daemon
 
 update-app: app/nextbox/src/
-	docker exec -it dev-docker make -C /build/repos/app/nextbox build-js
+	docker exec -it nextbox-build make -C /build/repos/app/nextbox build-js
 	ssh $(DEV_ROOT_USER)@$(DEV_DEVICE) -- rm -rf /srv/nextcloud/custom_apps/nextbox/js
 	rsync -r --info=progress --exclude='node_modules/*' --exclude='vendor/*' app/nextbox/js \
 		$(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-app/
