@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 import psutil
 import apt
+import docker
 
 from nextbox_daemon.consts import *
 from nextbox_daemon.command_runner import CommandRunner
@@ -41,18 +42,11 @@ class LEDJob(BaseJob):
 
 
     def is_app_docker_up(self):
-        cr = CommandRunner("docker ps --format 'created:{{.CreatedAt}}' --filter name=nextbox-compose_app_1", block=True)
-        #log.debug(str(cr.output))
-        for line in cr.output:
-            if "created" in line:
-                rhs = line.split(":", 1)[1]
-                toks = rhs.split(" ")
-                #log.debug(str(toks))
-                runs_since = dt.fromisoformat(toks[0] + " " + toks[1])
-                #log.debug(runs_since)
-                runs_for = (dt.now() - runs_since).seconds
-                #log.debug(f"nextbox-compose_app_1 runs for {runs_for}secs")
-                if runs_for > 75:
+        client = docker.APIClient()
+        for item in client.containers():
+            names = item.get("Names")
+            if any("app_1" in name for name in names):
+                if dt.now().timestamp() - item["Created"] > 75:
                     return True
         return False
 
