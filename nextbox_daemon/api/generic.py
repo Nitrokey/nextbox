@@ -89,8 +89,9 @@ def get_logs():
         logfiles.append(log_dir / fn)
         
     for path in var_logfiles:
-        shutil.copy(path, log_dir.as_posix())
-        logfiles.append(log_dir / Path(path).name)
+        if Path(path).exists():
+            shutil.copy(path, log_dir.as_posix())
+            logfiles.append(log_dir / Path(path).name)
     
     hash_file = Path(log_dir) / "sha256.txt"
     CommandRunner(f"sha256sum {log_dir.as_posix()}/* > {hash_file.as_posix()}", shell=True, block=True)
