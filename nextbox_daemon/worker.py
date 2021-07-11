@@ -58,7 +58,9 @@ class JobManager:
 
         # run actual job
         try:
+            self.board.set("job_running", job_name)
             self.jobs[job_name].run(self.cfg, self.board, job_kwargs)
+            self.board.delete_key("job_running")
         except Exception as e:
             log.error(f"failed running job: {job_name}", exc_info=e)
 
