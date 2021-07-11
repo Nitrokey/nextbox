@@ -40,6 +40,24 @@
 				Deactivate SSH Access
 			</button>
 		</div>
+
+		<div class="section">
+			<h2>System Power State</h2>
+			<div>
+				There usually is no need to reboot the NextBox. But especially,
+				if you plan to transport the NextBox, powering it off before is 
+				recommended.
+			</div>
+
+			<button type="button" @click="powerop('reboot')">
+				<span class="icon icon-history" />
+				Reboot
+			</button>
+			<button type="button" @click="powerop('poweroff')">
+				<span class="icon icon-close" />
+				Poweroff
+			</button>
+		</div>
 	</div>
 </template>
 
@@ -111,6 +129,21 @@ export default {
 			this.update.nk_token = res.data.data.nk_token
 		},
 		
+		async powerop(op) {
+			let url = ''
+			if (op === 'poweroff') {
+				url = '/apps/nextbox/forward/poweroff' 
+			} else if (op === 'reboot') {
+				url = '/apps/nextbox/forward/reboot'
+			}
+			const res = await axios.post(generateUrl(url)).catch((e) => {
+				showError('Connection failed')
+				console.error(e)
+			})
+
+				
+		},
+
 		check_token() {
 			if (this.update.nk_token === null || this.update.nk_token.length !== 36) {
 				this.userMessage.nk_token = ['Please insert a valid token']
