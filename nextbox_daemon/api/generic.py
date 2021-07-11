@@ -135,6 +135,27 @@ def ssh_set():
         return success()
 
 
+@generic_api.route("/reboot", methods=["POST"])
+@requires_auth
+def reboot():
+    log.info("REBOOTING NOW - by /reboot request")
+    cr = CommandRunner("reboot")
+    if cr.returncode != 0:
+        return error("failed executing: 'reboot'")
+    return success(data={})
+
+@generic_api.route("/poweroff", methods=["POST"])
+@requires_auth
+def poweroff():
+    log.info("POWER-OFF - by /poweroff request")
+    cr = CommandRunner("poweroff")
+    if cr.returncode != 0:
+        return error("failed executing: 'poweroff'")
+    return success(data={})
+
+
+
+
 @generic_api.route("/service/<name>/<operation>")
 @requires_auth
 def service_operation(name, operation):
