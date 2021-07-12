@@ -151,6 +151,9 @@ class SelfUpdateJob(BaseJob):
         self.interval = None
 
 
+        # ensure ddclient is running
+        services.restart("ddclient")
+
         # ensure that neither updater nor factory-reset is masked
         services.unmask("nextbox-updater")
         services.unmask("nextbox-factory-reset")

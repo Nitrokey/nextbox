@@ -119,14 +119,15 @@ def check_filesystem():
     """
     Check local filesystem "integrity":
     * existance of dirs: /srv/nextcloud, /srv/nextbox, /srv/apache2, 
-                         /srv/mariadb, /srv/logdump, /srv/letsencrypt
+                         /srv/mariadb, /srv/logdump, /srv/letsencrypt,
+                         /var/cache/ddclient/
     * existance and permissions (uid: 33 gid: 0): /srv/nextcloud/custom_apps
     * existance (and contents) of: /srv/nextbox/docker.env
     """
 
     # check/create dirs
     dirs_exist = ["/srv/nextcloud", "/srv/nextbox", "/srv/apache2", "/srv/backups", 
-                  "/srv/mariadb", "/srv/logdump", "/srv/letsencrypt"]
+                  "/srv/mariadb", "/srv/logdump", "/srv/letsencrypt", "/var/cache/ddclient/"]
     for p in dirs_exist:
         if not Path(p).exists():
             os.makedirs(p)
