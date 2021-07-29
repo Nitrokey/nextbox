@@ -55,6 +55,7 @@ class Certificates:
     acquire_cmd = "certbot --config-dir {config_dir} certonly --webroot --webroot-path /srv/nextcloud --email {email} --non-interactive --agree-tos -d {domain}"
     delete_cmd = "certbot --config-dir {config_dir} delete -d {domain}"
     list_cmd = "certbot --config-dir {config_dir} certificates"
+    renew_cmd = "certbot --config-dir {config_dir} renew"
 
     #### example output for 'list_cmd'
     # Found the following certs:
@@ -120,6 +121,12 @@ class Certificates:
         # on fail log output
         log.error("could not acquire certificate")
         cr.log_output()
+        return False
+
+    def renew_certs(self):
+        cr = CommandRunner(self.renew_cmd.format(config_dir=self.config_dir), block=True)
+        if cr.returncode == 0:
+            return True
         return False
 
     def ensure_apache_mods(self):

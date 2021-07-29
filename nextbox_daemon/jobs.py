@@ -10,6 +10,7 @@ from nextbox_daemon.consts import *
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.config import log
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
+from nextbox_daemon.certificates import Certificates
 from nextbox_daemon.raw_backup_restore import RawBackupRestore
 from nextbox_daemon.services import services
 from nextbox_daemon.shield import shield
@@ -205,6 +206,15 @@ class SelfUpdateJob(BaseJob):
 
         #shield.set_led_state("ready")
 
+class RenewCertificatesJob(BaseJob):
+    name = "RenewCertificates"
+
+    def __init__(self):
+        super().__init__(initial_interval=3600*24)
+
+    def _run(self, cfg, board, kwargs):
+        c = Certificates()
+        c.renew_certs()
 
 class GenericStatusUpdateJob(BaseJob):
     name = "GenericStatusUpdate"
@@ -285,6 +295,6 @@ class TrustedDomainsJob(BaseJob):
 ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob, 
     SelfUpdateJob, GenericStatusUpdateJob, HardwareStatusUpdateJob,
-    TrustedDomainsJob
+    TrustedDomainsJob, RenewCertificatesJob
 ]
 
