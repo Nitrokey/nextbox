@@ -241,14 +241,47 @@ level_mapping = {"CRITICAL": "[!]", "ERROR": "[E]", "WARNING": "[W]",
     "INFO": "[i]", "DEBUG": "[D]" 
 }
 
+
+
 record_factory = logging.getLogRecordFactory()
 def my_record_factory(*va, **kw):
     rec = record_factory(*va, **kw)
     rec.origin = module_mapping.get(rec.module, rec.module)
     rec.symlvl = level_mapping.get(rec.levelname, rec.levelname)
+        
     return rec
 # apply wrapped record factory
 logging.setLogRecordFactory(my_record_factory)
+
+class RepeatingFilter(logging.Filter):
+    def __init__(self):
+        self.msg_history = []
+        self.msg_repeated = 0
+        self.history_length = 2
+
+    def filter(self, record):
+        
+        print(self.msg_history)
+        print(self.msg_repeated)
+        print(record.msg)
+
+        if record.msg in self.msg_history:
+            self.msg_repeated += 1/self.history_length
+            return False
+        
+        if self.msg_repeated >= 2:
+            record.msg += f" (last 2 messages repeated {self.msg_repeated} times)"
+            self.msg_repeated = 0
+            self.msg_history = []
+
+        self.msg_history.append(record.msg)
+        
+        while len(self.msg_history) > self.history_length:
+            self.msg_history.pop(0)
+
+        return True
+    
+log.addFilter(RepeatingFilter())
 
 
 # logging format
