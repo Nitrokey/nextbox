@@ -24,6 +24,7 @@ class Services:
         "nextbox-compose": ("nextbox-compose.service", FULL_SERVICE_CTRL),
         "nextbox-updater": ("nextbox-updater.service", SAFE_SERVICE_CTRL),
         "nextbox-factory-reset": ("nextbox-factory-reset.service", SAFE_SERVICE_CTRL),
+        "dphys-swapfile": ("dphys-swapfile.service", SAFE_SERVICE_CTRL),
 
         "reverse-tunnel": ("reverse-tunnel.service", FULL_SERVICE_CTRL),
         "apt-daily": ("apt-daily.service", SAFE_SERVICE_CTRL),
