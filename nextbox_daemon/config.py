@@ -123,6 +123,7 @@ def check_filesystem():
                          /var/cache/ddclient/
     * existance and permissions (uid: 33 gid: 0): /srv/nextcloud/custom_apps
     * existance (and contents) of: /srv/nextbox/docker.env
+    * correct /etc/default/ddclient
     """
 
     # check/create dirs
@@ -173,6 +174,10 @@ def check_filesystem():
             with ddclient_env.open("w") as fd:
                 fd.write(content)
             print("re-written /etc/default/ddclient")
+
+
+
+
             
 # helper for enviornment-file writing (/etc/default/nextbox-updater.service)
 def write_nextbox_updater_env_file(path, pkg):
@@ -186,6 +191,7 @@ def check_filesystem_after_init(cfg):
     Check integrity of filesystem after the config was initialized
 
     * /etc/default/nextbox-updater (environment file for nextbox-updater.service)
+    * correct /etc/dphys-swapfile
     """
 
     pkg = cfg["config"]["debian_package"]
@@ -218,6 +224,29 @@ def check_filesystem_after_init(cfg):
         if write_file:
             log.info(f"(re-)creating env-file: {nb_upd_env_path}")
             write_nextbox_updater_env_file(nb_upd_env_path, pkg)
+
+    # make sure swap is configured correctly
+    swap_conf_path = Path("/etc/dphys-swapfile")
+    content = "\n".join([
+        "CONF_SWAPFILE=/srv/swap",
+        "CONF_SWAPSIZE=2048", ''
+    ])
+    if not swap_conf_path.exists():
+        with swap_conf_path.open("w") as fd:
+            fd.write(content)
+        print("created /etc/dphys-swapfile")
+        from nextbox_daemon.services import services
+        services.restart("dphys-swapfile")
+    else:
+        with swap_conf_path.open("r") as fd:
+            file_content = fd.read()
+        if content != file_content:
+            with swap_conf_path.open("w") as fd:
+                fd.write(content)
+            print("re-written /etc/dphys-swapfile")
+            from nextbox_daemon.services import services
+            services.restart("dphys-swapfile")
+
 
 
 # 1st filesystem integrity check
@@ -260,11 +289,6 @@ class RepeatingFilter(logging.Filter):
         self.history_length = 2
 
     def filter(self, record):
-        
-        print(self.msg_history)
-        print(self.msg_repeated)
-        print(record.msg)
-
         if record.msg in self.msg_history:
             self.msg_repeated += 1/self.history_length
             return False
