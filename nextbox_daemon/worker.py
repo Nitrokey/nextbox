@@ -22,7 +22,7 @@ class BaseJob:
         """True, if this job has not been run since `> self.interval` seconds"""
         if self.interval is None:
             return False
-        return (dt.now() - self.last_run).seconds > self.interval
+        return (dt.now() - self.last_run).total_seconds() > self.interval
 
     def run(self, cfg, board, kwargs):
         """Overridden Thread.run() is run inside the new thread after start()"""
