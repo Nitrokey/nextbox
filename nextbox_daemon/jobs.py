@@ -159,9 +159,6 @@ class SelfUpdateJob(BaseJob):
         services.unmask("nextbox-updater")
         services.unmask("nextbox-factory-reset")
 
-        # ensure nextbox-compose is running
-        services.start("nextbox-compose")
-
         shield.set_led_state("updating")
 
         log.info("running 'apt-get update'")
@@ -193,11 +190,9 @@ class SelfUpdateJob(BaseJob):
         # will trigger for e.g., 'nextbox' to 'nextbox-testing' switching
         if not pkg_obj.is_installed:
             log.info(f"installing debian package: {pkg} (start service: nextbox-updater)")
-            #services.stop("nextbox-compose")
             services.start("nextbox-updater")
         elif pkg_obj.is_upgradable:
             log.info(f"upgrading debian package: {pkg} (start service: nextbox-updater)")
-            #services.stop("nextbox-compose")
             services.start("nextbox-updater")
         else:
             log.debug(f"no need to upgrade or install debian package: {pkg}")
