@@ -36,7 +36,7 @@ clean:
 	make PKG=nextbox GIT_TAG=main deb-clean
 
 
-main-target: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/scripts $(PKG)/nextbox-compose $(PKG)/debian $(PKG)/rtun-linux-arm64 deb-src
+main-target: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/scripts $(PKG)/templates $(PKG)/nextbox-compose $(PKG)/debian $(PKG)/rtun-linux-arm64 deb-src
 
 
 $(PKG)/debian: debian
@@ -101,6 +101,10 @@ $(PKG)/scripts: repos/daemon/scripts $(PKG)/debian
 	mkdir -p $(PKG)/scripts
 	cp repos/daemon/scripts/* $(PKG)/scripts
 
+$(PKG)/templates: repos/daemon/templates $(PKG)/debian
+	mkdir -p $(PKG)/templates
+	cp repos/daemon/templates/* $(PKG)/templates
+
 $(PKG)/rtun-linux-arm64: $(PKG)/debian
 	cd $(PKG) && \
 		wget https://github.com/snsinfu/reverse-tunnel/releases/download/v1.3.0/rtun-linux-arm64
@@ -113,7 +117,7 @@ $(PKG)/rtun-linux-arm64: $(PKG)/debian
 start-dev-docker: dev-image
 	-docker stop $(IMAGE_NAME)
 	-docker rm $(IMAGE_NAME)
-	sleep 1
+	sleep 5
 	docker run --rm --name $(IMAGE_NAME) -d -it \
 		-v $(HOME)/.gnupg:/root/.gnupg \
 		-v $(HOME)/.dput.cf:/root/.dput.cf \

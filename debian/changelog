@@ -1,3 +1,23 @@
+%%PKG%% (1.0.9-1) groovy; urgency=low
+
+  * daemon: system files handling #29
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 31 Aug 2021 15:32:13 +0200
+
+%%PKG%% (1.0.8-1) groovy; urgency=low
+
+  * daemon: be less aggressive with restarting services on startup
+  * daemon: fine-tune the auto-updater: do not stop compose
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 17 Aug 2021 13:27:40 +0200
+
+%%PKG%% (1.0.7-3) focal; urgency=low
+
+  * services: be less aggressive on restarts during startup
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 16 Aug 2021 17:07:50 +0200
+
+
 %%PKG%% (1.0.7-2) focal; urgency=low
 
   * services: add no-stop-on-upgrade for nextbox-updater

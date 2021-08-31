@@ -21,6 +21,9 @@ update-daemon:
 		rsync $${x} $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/systemd/system/$$(echo $${x} | cut -d "." -f 2-); \
 	done 
 	
+	### template system files
+	rsync daemon/templates/* $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-templates/
+
 	### restart nextbox-daemon
 	ssh $(DEV_ROOT_USER)@$(DEV_DEVICE) -- systemctl daemon-reload
 	ssh $(DEV_ROOT_USER)@$(DEV_DEVICE) -- systemctl start nextbox-daemon
