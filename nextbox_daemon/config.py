@@ -12,6 +12,8 @@ from filelock import FileLock
 from nextbox_daemon.consts import LOGGER_NAME, LOG_FILENAME, MAX_LOG_SIZE, CONFIG_PATH, \
     NEXTBOX_DEBIAN_PACKAGES
 
+from nextbox_daemon.system_files import SystemFiles
+
 class Config(dict):
     def __init__(self, config_path, *va, **kw):
         super().__init__(*va, **kw)
@@ -123,7 +125,8 @@ def check_filesystem():
                          /var/cache/ddclient/
     * existance and permissions (uid: 33 gid: 0): /srv/nextcloud/custom_apps
     * existance (and contents) of: /srv/nextbox/docker.env
-    * correct /etc/default/ddclient
+
+    do not use SystemFiles object here, as it needs the logger
     """
 
     # check/create dirs
@@ -155,44 +158,15 @@ def check_filesystem():
             fd.write(f"MYSQL_ROOT_PASSWORD={random_pass_root}\n")
         print("created /srv/nextbox/docker.env and contents")
 
-    # make sure is correct: /etc/default/ddclient
-    ddclient_env = Path("/etc/default/ddclient")
-    content = "\n".join([
-        'run_dhclient="false"',
-        'run_ipup="true"',
-        'run_daemon="true"',
-        'daemon_interval="300"', ''
-    ])
-    if not ddclient_env.exists():
-        with ddclient_env.open("w") as fd:
-            fd.write(content)
-        print("created /etc/default/ddclient")
-    else:
-        with ddclient_env.open("r") as fd:
-            file_content = fd.read()
-        if content != file_content:
-            with ddclient_env.open("w") as fd:
-                fd.write(content)
-            print("re-written /etc/default/ddclient")
-
-
-
-
-            
-# helper for enviornment-file writing (/etc/default/nextbox-updater.service)
-def write_nextbox_updater_env_file(path, pkg):
-    with open(path, "w") as fd:
-        fd.write(f"PACKAGE={pkg}\n")
-        fd.write("DEBIAN_FRONTEND=noninteractive\n")
-    return True
 
 def check_filesystem_after_init(cfg):
     """
     Check integrity of filesystem after the config was initialized
 
-    * /etc/default/nextbox-updater (environment file for nextbox-updater.service)
-    * correct /etc/dphys-swapfile
+    Use SystemFiles class for proper (error) handling and logging
     """
+
+    sys_files = SystemFiles("/usr/lib/nextbox-templates", log)
 
     pkg = cfg["config"]["debian_package"]
     # illegal configuration, fallback to default 'stable' package
@@ -202,50 +176,18 @@ def check_filesystem_after_init(cfg):
         cfg["config"]["debian_package"] = pkg
         cfg.save()
 
-    # nextbox-updater.service environment file
-    nb_upd_env_path = "/etc/default/nextbox-updater"
-    if not Path(nb_upd_env_path).exists():
-        log.info(f"creating nextbox-updater.service env-file: {nb_upd_env_path}")
-        write_nextbox_updater_env_file(nb_upd_env_path, pkg)
-    else:
-        write_file = False
-        with open(nb_upd_env_path, "r") as fd:
-            for line in fd:
-                if "PACKAGE" in line:
-                    try:
-                        _, my_pkg = line.split("=")
-                        if my_pkg.strip() != pkg:
-                            write_file = True
-                    except Exception as e:
-                        log.error("failed extracting 'PACKAGE' from env file", exc_info=e)
-                        log.info(f"re-creating faulty: {nb_upd_env_path}")
-                        write_file = True
-                    break
-        if write_file:
-            log.info(f"(re-)creating env-file: {nb_upd_env_path}")
-            write_nextbox_updater_env_file(nb_upd_env_path, pkg)
+    sys_files.safe_ensure_file("nextbox-updater", package=pkg)
 
-    # make sure swap is configured correctly
-    swap_conf_path = Path("/etc/dphys-swapfile")
-    content = "\n".join([
-        "CONF_SWAPFILE=/srv/swap",
-        "CONF_SWAPSIZE=2048", ''
-    ])
-    if not swap_conf_path.exists():
-        with swap_conf_path.open("w") as fd:
-            fd.write(content)
-        print("created /etc/dphys-swapfile")
+    if sys_files.safe_ensure_file("dphys-swapfile"):
         from nextbox_daemon.services import services
         services.restart("dphys-swapfile")
-    else:
-        with swap_conf_path.open("r") as fd:
-            file_content = fd.read()
-        if content != file_content:
-            with swap_conf_path.open("w") as fd:
-                fd.write(content)
-            print("re-written /etc/dphys-swapfile")
-            from nextbox_daemon.services import services
-            services.restart("dphys-swapfile")
+
+    sys_files.safe_ensure_not_empty_file("ddclient")
+
+    sys_files.safe_ensure_file("journald.conf")
+
+    sys_files.safe_ensure_file("nitrokey-nextbox.list")
+    sys_files.safe_ensure_file("50unattended-upgrades")
 
 
 
@@ -264,13 +206,12 @@ module_mapping = {
     "command_runner"    : "cmd_run",   "status_board"      : "board",
     "raw_backup_restore": "rbackup",   "proxy_tunnel"      : "ptun",
     "certificates"      : "certs",     "partitions"        : "parts",
+    "system_files"      : "sysfiles",
 }
 
 level_mapping = {"CRITICAL": "[!]", "ERROR": "[E]", "WARNING": "[W]", 
     "INFO": "[i]", "DEBUG": "[D]" 
 }
-
-
 
 record_factory = logging.getLogRecordFactory()
 def my_record_factory(*va, **kw):
@@ -321,6 +262,7 @@ cfg = Config(CONFIG_PATH)
 
 # set log-level from config
 log.setLevel(cfg["config"]["log_lvl"])
+
 
 # 2nd filesystem integrity check, using loaded configuration
 check_filesystem_after_init(cfg)
