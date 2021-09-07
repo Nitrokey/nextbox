@@ -1,2 +1,3 @@
 PACKAGE=%%package%%
 DEBIAN_FRONTEND=noninteractive
+NEEDRESTART_MODE=a
