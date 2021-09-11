@@ -1,5 +1,12 @@
 #!/bin/bash
 
+for cmd in bash sudo parted mkfs.ext4 mkdir mount chown umount chmod; do
+	if !(which $cmd > /dev/null); then
+		echo "FAIL: missing command: '$cmd'"
+		exit;
+	fi
+done
+
 if [[ "$1" = "" || "$2" != "" ]]; then
 	echo "usage: $0 <disk-device>"
 	exit 1
