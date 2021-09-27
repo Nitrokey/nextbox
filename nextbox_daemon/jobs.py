@@ -210,6 +210,7 @@ class RenewCertificatesJob(BaseJob):
     def _run(self, cfg, board, kwargs):
         c = Certificates()
         c.renew_certs()
+        c.reload_apache()
 
 class GenericStatusUpdateJob(BaseJob):
     name = "GenericStatusUpdate"
