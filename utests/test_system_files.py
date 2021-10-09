@@ -11,16 +11,16 @@ from nextbox_daemon.system_files import SystemFiles
 def obj():
     p_file_plain = "/tmp/nextbox-test/test.conf"
     SystemFiles.system_files_map["test.conf"] = p_file_plain
-    out = SystemFiles("templates")
-    
+    out = SystemFiles("templates", None)
+
     p_file = Path(p_file_plain)
     p_dir = Path("/tmp/nextbox-test")
-    
+
     if p_file.exists():
         p_file.unlink()
     if p_dir.exists():
         p_dir.rmdir()
-        
+
     p_dir.mkdir()
     return out
 
@@ -74,7 +74,7 @@ def test_ensure2(obj, final, data):
 
     res = obj.ensure_file("test.conf", **data)
     assert not res
-    
+
 def test_ensure3(obj, final, data):
     res = obj.ensure_file("test.conf", **data)
     assert res
@@ -84,7 +84,7 @@ def test_ensure3(obj, final, data):
 
     res = obj.ensure_file("test.conf", **data)
     assert res
-    
+
     res = obj.ensure_file("test.conf", **data)
     assert not res
 
