@@ -198,6 +198,8 @@ def handle_config():
                     services.enable("ddclient")
                     services.restart("ddclient")
 
+                run_jobs.append("DynDNSUpdate")
+
 
             elif key in AVAIL_CONFIGS and val is not None:
                 if key == "dns_mode" and val not in DYNDNS_MODES:
