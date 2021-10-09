@@ -33,6 +33,11 @@ class RawBackupRestore:
     db_import_cmd = "/usr/bin/docker exec -i nextbox-compose_db_1 /usr/bin/mysql {db} -u root --password={pwd} < {path}"
     db_cmd = "/usr/bin/docker exec nextbox-compose_db_1 /usr/bin/mysql -u root --password={pwd} -B --disable-column-names -e '{sql}'"
 
+    ### for mysql export use: "--result-file=file.sql"
+
+    ### for mysql import use "SOURCE /path/to/filename.sql"
+
+
     rsync_base_cmd = "/usr/bin/rsync --delete -av {src} {tar}"
     rsync_stats_cmd = "/usr/bin/rsync -a --dry-run --stats {src} {tar}"
 

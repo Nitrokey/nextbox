@@ -64,7 +64,6 @@ def test_placeholders(obj, tmpl):
 
 def test_replace(obj, tmpl, data, final):
     ret = obj.replace_placeholders(tmpl, **data)
-    print (len(ret), len(final))
     assert ret == final
 
 def test_ensure(obj, final, data):
