@@ -68,6 +68,14 @@ class Nextcloud:
         
         return cr.output[:-2]
 
+    def get_nextcloud_version(self):
+        """Return current nextcloud version-tuple"""
+        output = self.run_cmd("status")
+        for line in output:
+            if "- version:" in line:
+                return line.split(":")[-1].strip().split(".")
+        return False
+
     def get_config(self, key):
         """Return config value identified by `key`"""
         return self.run_cmd("config:system:get", key)
