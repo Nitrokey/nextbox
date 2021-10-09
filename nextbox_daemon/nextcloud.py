@@ -68,7 +68,7 @@ class Nextcloud:
         
         return cr.output[:-2]
 
-    def get_nextcloud_version(self):
+    def get_version(self):
         """Return current nextcloud version-tuple"""
         output = self.run_cmd("status")
         for line in output:
