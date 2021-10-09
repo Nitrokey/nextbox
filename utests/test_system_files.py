@@ -1,8 +1,11 @@
 import sys
+import os
 import pytest
 from pathlib import Path
 
 sys.path.append("..")
+
+os.environ["PYTEST_RUNNING"] = "1"
 
 from nextbox_daemon.system_files import SystemFiles
 

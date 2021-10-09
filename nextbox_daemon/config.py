@@ -190,39 +190,6 @@ def check_filesystem_after_init(cfg):
     sys_files.safe_ensure_file("50unattended-upgrades")
 
 
-
-# 1st filesystem integrity check
-check_filesystem()
-
-# logger setup + rotating file handler
-log = logging.getLogger(LOGGER_NAME)
-log.setLevel(logging.DEBUG)
-log_handler = logging.handlers.RotatingFileHandler(
-        LOG_FILENAME, maxBytes=MAX_LOG_SIZE, backupCount=5)
-log.addHandler(log_handler)
-
-# adapt logging-record-factory for a more condensed log
-module_mapping = {
-    "command_runner"    : "cmd_run",   "status_board"      : "board",
-    "raw_backup_restore": "rbackup",   "proxy_tunnel"      : "ptun",
-    "certificates"      : "certs",     "partitions"        : "parts",
-    "system_files"      : "sysfiles",
-}
-
-level_mapping = {"CRITICAL": "[!]", "ERROR": "[E]", "WARNING": "[W]", 
-    "INFO": "[i]", "DEBUG": "[D]" 
-}
-
-record_factory = logging.getLogRecordFactory()
-def my_record_factory(*va, **kw):
-    rec = record_factory(*va, **kw)
-    rec.origin = module_mapping.get(rec.module, rec.module)
-    rec.symlvl = level_mapping.get(rec.levelname, rec.levelname)
-        
-    return rec
-# apply wrapped record factory
-logging.setLogRecordFactory(my_record_factory)
-
 class RepeatingFilter(logging.Filter):
     def __init__(self):
         self.msg_history = []
@@ -245,24 +212,75 @@ class RepeatingFilter(logging.Filter):
             self.msg_history.pop(0)
 
         return True
-    
-log.addFilter(RepeatingFilter())
 
 
-# logging format
-log_format = logging.Formatter("{asctime} {symlvl} {origin:<9} {message}", style='{')
-log_handler.setFormatter(log_format)
+def init_logging(logger_name, log_filename):
+    # logger setup + rotating file handler
+    log = logging.getLogger(logger_name)
+    log.setLevel(logging.DEBUG)
+    log_handler = logging.handlers.RotatingFileHandler(
+            log_filename, maxBytes=MAX_LOG_SIZE, backupCount=5)
+    log.addHandler(log_handler)
 
-# welcome banner (into log)
-log.info("=" * 60)
-log.info("====> starting nextbox-daemon")
+    # adapt logging-record-factory for a more condensed log
+    module_mapping = {
+        "command_runner"    : "cmd_run",   "status_board"      : "board",
+        "raw_backup_restore": "rbackup",   "proxy_tunnel"      : "ptun",
+        "certificates"      : "certs",     "partitions"        : "parts",
+        "system_files"      : "sysfiles",
+    }
 
-# config load
-cfg = Config(CONFIG_PATH)
+    level_mapping = {"CRITICAL": "[!]", "ERROR": "[E]", "WARNING": "[W]", 
+        "INFO": "[i]", "DEBUG": "[D]" 
+    }
 
-# set log-level from config
-log.setLevel(cfg["config"]["log_lvl"])
+    record_factory = logging.getLogRecordFactory()
+    def my_record_factory(*va, **kw):
+        rec = record_factory(*va, **kw)
+        rec.origin = module_mapping.get(rec.module, rec.module)
+        rec.symlvl = level_mapping.get(rec.levelname, rec.levelname)
+            
+        return rec
+    # apply wrapped record factory
+    logging.setLogRecordFactory(my_record_factory)
+
+    # apply repeating messages filter
+    log.addFilter(RepeatingFilter())
+
+    # logging format
+    log_format = logging.Formatter("{asctime} {symlvl} {origin:<9} {message}", style='{')
+    log_handler.setFormatter(log_format)
+
+    # welcome banner (into log)
+    log.info("=" * 60)
+    log.info("====> starting nextbox-daemon")
+
+    return log
 
 
-# 2nd filesystem integrity check, using loaded configuration
-check_filesystem_after_init(cfg)
+# non testing startup
+if "PYTEST_RUNNING" not in os.environ:
+
+    # 1st filesystem integrity check
+    check_filesystem()
+
+    # init global logging
+    log = init_logging(LOGGER_NAME, LOG_FILENAME)
+
+    # config load
+    cfg = Config(CONFIG_PATH)
+
+    # set log-level from config
+    log.setLevel(cfg["config"]["log_lvl"])
+
+    # 2nd filesystem integrity check, using loaded configuration
+    check_filesystem_after_init(cfg)
+
+
+# testing startup
+else:
+    # init global logging
+    log = init_logging(LOGGER_NAME, "utest.nextbox.log")
+
+    # config load
+    cfg = {}
