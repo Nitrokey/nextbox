@@ -152,7 +152,4 @@ class Partitions:
 
 
 if __name__ == "__main__":
-    p = Partitions()
-    print(p.block_devices)
-    print()
-    print(p.backup_devices)
+    pass

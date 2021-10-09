@@ -43,13 +43,4 @@ class DNSManager:
 
 
 if __name__ == "__main__":
-    dns = DNSManager()
-
-    print("own")
-    print(dns.get_ipv4())
-    print(dns.get_ipv6())
-
-    dom = "staticnextbox2.dedyn.io"
-    print("resolved", dom)
-    print(dns.resolve_ipv4(dom))
-    print(dns.resolve_ipv6(dom))
+    pass

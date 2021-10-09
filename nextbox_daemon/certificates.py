@@ -192,17 +192,5 @@ class Certificates:
 
 
 if __name__ == "__main__":
-    c = Certificates()
-
-    #print(c.acquire_cert("staticnextbox.dedyn.io", "staticnextbox@dadadada.33mail.com"))
-
-    #c.set_apache_config(ssl=False)
-
-    #print(c.get_local_certs())
-
-    # cert = c.get_cert("staticnextbox.dedyn.io")
-
-    # c.write_apache_ssl_conf(cert["domains"][0], cert["fullchain_path"], cert["privkey_path"])
-
-    # print(c.set_apache_config(ssl=True))
+    pass
 

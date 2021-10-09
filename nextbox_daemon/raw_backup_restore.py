@@ -598,28 +598,4 @@ class RawBackupRestore:
 
 
 if __name__ == "__main__":
-    from time import sleep 
-
-    back = RawBackupRestore()
-    print(back.get_env_data())
-    print(back.get_env_data("/srv/nextbox/docker.env"))
-    print(back.get_env_data("/media/extra-1/izguzgzu/nextbox/docker.env"))
-
-    # tar_path = Path("/srv/test")
-    # it = back.full_export(tar_path)
-    # while True:
-    #     try:
-    #         state, (who, what), percent = next(it)
-    #         print(state, who, what, percent)
-    #     except StopIteration:
-    #         print ("done")
-    #         break
-
-    # it = back.full_import(tar_path)
-    # while True:
-    #     try:
-    #         state, (who, what), percent = next(it)
-    #         print(state, who, what, percent)
-    #     except StopIteration:
-    #         print ("done")
-    #         break
+    pass
