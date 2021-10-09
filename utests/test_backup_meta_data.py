@@ -109,12 +109,12 @@ def test_meta_path():
 
 def test_get_stats():
     obj = BackupMetaData(src_dir)
-    my_stats = obj.get_stats(src_dir)
+    my_stats = obj.get_stats()
     assert my_stats == stats_data
 
 def test_get_stats_strict():
     obj = BackupMetaData(src_dir)
-    my_stats = obj.get_stats(src_dir, strict=True)
+    my_stats = obj.get_stats(strict=True)
     assert my_stats == stats_data
     
 
@@ -187,7 +187,7 @@ def test_get_transfer_stats():
     obj = BackupMetaData(src_dir)
     obj.nextcloud = type("_", (), {"get_version":lambda: (1,2,3)})
 
-    stats = obj.get_stats(src_dir=src_dir, tar_dir="backup_test/tar")
+    stats = obj.get_stats("backup_test/tar")
 
     expected = {
         'aa': {'count': 2, 'transfer_count': 1, 'size': 42, 'transfer_size': 42}, 
@@ -198,3 +198,23 @@ def test_get_transfer_stats():
     }
 
     assert expected == stats
+
+
+def test_round_and_round():
+
+    obj = BackupMetaData(src_dir)
+    obj.nextcloud = type("_", (), {"get_version":lambda: (1,2,3)})
+
+    assert not obj.file_path.exists()
+    obj.update()
+    obj.save()
+
+    org_data = obj.data
+
+    obj2 = BackupMetaData(src_dir)
+    assert obj2.file_path.exists()
+    obj2.load()
+    assert obj2.data == org_data
+
+    obj2.file_path.unlink()
+    assert not obj.file_path.exists()

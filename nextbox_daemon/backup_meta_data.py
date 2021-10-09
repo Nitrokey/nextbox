@@ -71,16 +71,13 @@ class BackupMetaData:
         root_dir = root_dir if isinstance(root_dir, Path) else Path(root_dir)
         return {part: (root_dir / path) for part, path in self.components.items()}
         
-    def update(self, from_backup_path=None):
-        backup_path = self.backup_dir if from_backup_path is None else from_backup_path
-                
-        if not isinstance(backup_path, Path):
-            backup_path = Path(backup_path)
-        
+    def update(self):
+        backup_path = self.backup_dir
+                        
         if not backup_path.exists():
             raise BackupDirectoryNotFound(backup_path.as_posix())
 
-        self.data["components"] = self.get_stats(backup_path)
+        self.data["components"] = self.get_stats()
         self.data["nc_version"] = self.nextcloud.get_version()
         self.data["started"] = str(datetime.now())
         self.data["ended"] = None
@@ -96,12 +93,9 @@ class BackupMetaData:
         with file_path.open("w") as fd:
             yaml.dump(self.data, fd)
 
-    def load(self, from_path=None, get_missing=False):      
-        file_path = self.file_path if from_path is None else from_path
-                
-        if not isinstance(file_path, Path):
-            file_path = Path(file_path)
-        
+    def load(self, get_missing=False):      
+        file_path = self.file_path
+                        
         if not file_path.exists():
             raise BackupMetaDataFileNotFound(file_path.as_posix())
 
@@ -125,7 +119,7 @@ class BackupMetaData:
     
         # on request update new fields directly
         if get_missing:
-            self.data["components"] = self.get_stats(self.backup_dir)
+            self.data["components"] = self.get_stats()
   
             # don't set nextcloud version => cannot find out afterwards
             self.data["nc_version"] = None # Nextcloud().get_version()
@@ -149,10 +143,9 @@ class BackupMetaData:
                     stats["transfer_count"] = int(raw)
         return stats
 
-    def get_stats(self, src_dir, tar_dir=None, strict=True):
+    def get_stats(self, tar_dir=None, strict=True):
         
-        if not isinstance(src_dir, Path): 
-            src_dir = Path(src_dir)
+        src_dir = self.backup_dir
 
         # if 'tar_dir' is provided, 'base_dir' is used as 'root_dir'
         if tar_dir is not None and not isinstance(tar_dir, Path):
@@ -165,7 +158,6 @@ class BackupMetaData:
         src_paths = self.get_component_paths(src_dir)
         tar_paths = self.get_component_paths(tar_dir) if tar_dir else {}
         for part in self.components:
-
             
             src = src_paths[part]
             fmt_dct = {"src": src.as_posix()}
