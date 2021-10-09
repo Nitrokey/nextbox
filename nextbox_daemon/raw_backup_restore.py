@@ -14,6 +14,7 @@ from nextbox_daemon.config import log, cfg
 from nextbox_daemon.services import services
 from nextbox_daemon.certificates import Certificates
 
+
 class RawBackupRestore:
     dirs = {
         "data":         "/srv/nextcloud/data",
