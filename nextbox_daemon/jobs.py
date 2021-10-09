@@ -5,12 +5,14 @@ import os
 import psutil
 import apt
 import docker
+import requests
 
 from nextbox_daemon.consts import *
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.config import log
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.certificates import Certificates
+from nextbox_daemon.dns_manager import DNSManager
 from nextbox_daemon.raw_backup_restore import RawBackupRestore
 from nextbox_daemon.services import services
 from nextbox_daemon.shield import shield
@@ -63,6 +65,55 @@ class FactoryResetJob(BaseJob):
         log.warning("Starting factory-reset operation")
         shield.set_led_state("factory-reset")
         services.start("nextbox-factory-reset")
+
+
+class DynDNSUpdateJob(BaseJob):
+    name = "DynDNSUpdate"
+
+    def __init__(self):
+        super().__init__(initial_interval=5*60)
+
+    def _run(self, cfg, board, kwargs):
+
+        token = cfg["config"]["desec_token"]
+        dns_mode = cfg["config"]["dns_mode"]
+        domain = cfg["config"]["domain"]
+
+        if dns_mode not in ["desec_done", "off"]:
+            if not services.is_active("ddclient"):
+                services.restart("ddclient")
+                services.enable("ddclient")
+            return
+
+        if dns_mode == "off":
+            services.stop("ddclient")
+            services.disable("ddclient")
+            return
+
+        if dns_mode == "desec_done":
+            services.stop("ddclient")
+            services.disable("ddclient")
+
+            dns = DNSManager()
+            ipv4 = dns.get_ipv4()
+            ipv6 = dns.get_ipv6()
+
+            headers = {"Authorization": f"Token {token}"}
+            
+            params = {"hostname": domain}
+            if ipv4:
+                params["myipv4"] = ipv4
+            if ipv6:
+                params["myipv6"] = ipv6
+
+            res = requests.get("https://update.dedyn.io", params=params, headers=headers)
+
+            if res.ok:
+                log.info(f"updated deSEC IPv4 ({ipv4}) and IPv6 ({ipv6}) address for '{domain}'")
+            else:
+                log.warning(f"failed updating IPs ({ipv4} & {ipv6}) for domain: '{domain}'")
+                log.debug(f"result: {res.text} status_code: {res.status_code} url: {res.url}")
+
 
 
 class BackupRestoreJob(BaseJob):
@@ -291,6 +342,6 @@ class TrustedDomainsJob(BaseJob):
 ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob, 
     SelfUpdateJob, GenericStatusUpdateJob, HardwareStatusUpdateJob,
-    TrustedDomainsJob, RenewCertificatesJob
+    TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob
 ]
 
