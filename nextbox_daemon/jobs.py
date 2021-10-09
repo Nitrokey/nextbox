@@ -86,13 +86,15 @@ class DynDNSUpdateJob(BaseJob):
             return
 
         if dns_mode == "off":
-            services.stop("ddclient")
-            services.disable("ddclient")
+            if services.is_active("ddclient"):
+                services.stop("ddclient")
+                services.disable("ddclient")
             return
 
         if dns_mode == "desec_done":
-            services.stop("ddclient")
-            services.disable("ddclient")
+            if services.is_active("ddclient"):
+                services.stop("ddclient")
+                services.disable("ddclient")
 
             dns = DNSManager()
             ipv4 = dns.get_ipv4()

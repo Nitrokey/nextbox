@@ -284,7 +284,7 @@ class RawBackupRestore:
         # copy rtun.yaml
         p = src_path / "nextbox" / self.nextbox_rtun
         if p.exists():
-            shutil.copy(src_path / "nextbox" / self.nextbox_rtun, self.dirs["nextbox"])
+            shutil.copy(p, self.dirs["nextbox"])
 
         # copy nextbox.conf
         shutil.copy(src_path / "nextbox" / self.nextbox_conf, self.dirs["nextbox"])
