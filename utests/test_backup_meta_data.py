@@ -217,4 +217,14 @@ def test_round_and_round():
     assert obj2.data == org_data
 
     obj2.file_path.unlink()
-    assert not obj.file_path.exists()
+    assert not obj2.file_path.exists()
+
+    obj2.save()
+
+    obj3 = BackupMetaData(src_dir)
+    assert obj3.file_path.exists()
+    obj3.load()
+    assert obj3.data == org_data
+
+    obj3.file_path.unlink()
+    assert not obj3.file_path.exists()
