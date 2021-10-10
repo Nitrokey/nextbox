@@ -3,8 +3,8 @@
 		<div class="section">
 			<h2>System Logs</h2>
 			Downloading the system logs will allow you an extensive view into the state of your system.<br>
-			<button type="button" @click="get_logs()">
-				<span class="icon icon-confirm" />
+			<button type="button" :disabled="logsDisabled" @click="getLogs()">
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
 				Download System Logs
 			</button>
 		</div>
@@ -25,7 +25,7 @@
 				(on default port 22) and the user: <b>nextuser</b><br>
 				No password is required, the provided public-key together with
 				your private-key is used for 
-				{{ toLink('en.wikipedia.org/wiki/Key_authentication', 'key-based authentication') }}.<br>
+				<span v-html="toLink('en.wikipedia.org/wiki/Key_authentication', 'key-based authentication')" />.<br>
 				The user has passwordless sudo pre-configured for unrestricted root access.<br>
 				Please be aware that Nitrokey cannot give you support for changes done using the SSH
 				access, use it at your own risk!
@@ -41,12 +41,12 @@
 			<button v-if="!pubkey" 
 				type="button" 
 				:disabled="sshDisabled" 
-				@click="toggle_ssh('on')">
+				@click="toggleSSH('on')">
 
 				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 				Activate SSH Access
 			</button>
-			<button v-else type="button" @click="toggle_ssh('off')">
+			<button v-else type="button" @click="toggleSSH('off')">
 				<span class="icon icon-close" />
 				Deactivate SSH Access
 			</button>
@@ -82,7 +82,8 @@ import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 
-import toLink from './utils.js'
+import UtilsMixin from './UtilsMixin.js'
+
 
 // import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
@@ -90,8 +91,11 @@ import toLink from './utils.js'
 
 const FileDownload = require('js-file-download')
 
+
+
 export default {
 	name: 'System',
+	mixins: [UtilsMixin],
 
 	components: {
 	},
@@ -99,7 +103,7 @@ export default {
 	data() {
 		return {
 			loading: true,
-			loadingButton: false,
+			loadingButton: true,
 			
 			// update-ables
 			update: {
@@ -125,16 +129,19 @@ export default {
 		sshDisabled() {
 			return this.loadingButton || !this.checkPubkey()
 		},
+
+		logsDisabled() {
+			return this.loadingButton
+		},
 	},
 	
-	async mounted() {
+	mounted() {
 		this.refresh()
 		this.loading = false
+		this.loadingButton = false
 	},
 
 	methods: {
-		toLink,
-
 		async refresh() {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/ssh'))
@@ -155,19 +162,19 @@ export default {
 			this.update.nk_token = res.data.data.nk_token
 		},
 		
-		async powerop(op) {
+		powerop(op) {
+			this.loadingButton = true
 			let url = ''
 			if (op === 'poweroff') {
 				url = '/apps/nextbox/forward/poweroff' 
 			} else if (op === 'reboot') {
 				url = '/apps/nextbox/forward/reboot'
 			}
-			const res = await axios.post(generateUrl(url)).catch((e) => {
+			const res = axios.post(generateUrl(url)).catch((e) => {
 				showError('Connection failed')
 				console.error(e)
 			})
-
-				
+			this.loadingButton = false
 		},
 
 		checkToken() {
@@ -181,30 +188,40 @@ export default {
 		},
 
 		checkPubkey() {
-			if (this.update.pubkey === null) {
-				this.userMessage.pubkey = ['Please insert a valid token']
+			if (!this.update.pubkey) {
+				this.userMessage.pubkey = []
 				return false
 			} 
-			const pubToks = this.update.pubkey.split(' ')
-			if (pubToks.length !== 3) {
-				this.userMessage.pubkey = ['The public key should consist of 3 compontents: algorithm, key-data, user with host']
-				return false
+
+			const key = (this.update.pubkey || '').trim()
+			const pubToks = key.split(' ')
+			
+			// if we re-assign too early, we'll never get 3 whitespaces :D
+			if (pubToks.length === 3) {
+				this.update.pubkey = key
 			}
-			const msgs = pubToks.filter((tok) => (tok.length < 3) ? 'Each component has a minimal length of 3' : false)
-			if (msgs.length > 0) {
-				this.userMessage.pubkey = msgs
+
+			if (pubToks.length !== 3) {
+				this.userMessage.pubkey = ['The public key must consist of 3 compontents: '
+								         + 'algorithm, key-data and user with host']
 				return false
 			}
 
-			if (!pubToks.slice('-1').includes('@')) {
+			if (pubToks.some((tok) => tok.length < 3)) {
+				this.userMessage.pubkey = ['Each component has a minimal length of 3']
+				return false
+			}
+
+			if (!pubToks.slice(-1)[0].includes('@')) {
 				this.userMessage.pubkey = ['The last component needs to be in <user>@<hostname> format']
 				return false
 			}
-
+			this.userMessage.pubkey = []
 			return true
 		},
 
-		async get_logs() {
+		getLogs() {
+			this.loadingButton = true
 			axios({
 				url: generateUrl('/apps/nextbox/forward/logs'),
 				//responseType: 'blob',
@@ -216,12 +233,15 @@ export default {
 					uInt8Array[i] = decodedData.charCodeAt(i)
 				}
 
+				this.loadingButton = false
 				return FileDownload(new Blob([uInt8Array], { type: 'application/zip' }), 'nextbox-logs.zip')
+				
 			})
+			
 		},
 
 
-		async toggle_ssh(what) {
+		async toggleSSH(what) {
 			const url = '/apps/nextbox/forward/ssh'
 			const options = {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
