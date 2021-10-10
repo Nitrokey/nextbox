@@ -66,8 +66,12 @@ import { generateUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
+import UtilsMixin from './UtilsMixin.js'
+
 export default {
 	name: 'App',
+	mixins: [UtilsMixin],
+
 	components: {
 		AppContent,
 		AppNavigation,
@@ -90,8 +94,10 @@ export default {
 			updating: false,
 			loading: true,
 			isRemoteOpen: false,
+			//docsLink,
 		}
 	},
+	
 	computed: {
 	},
 
@@ -161,6 +167,8 @@ div.section a:hover {
 	font-weight: 500;
 	color: #224;
 }
+
+
 
 /*textarea {
 	flex-grow: 1;
