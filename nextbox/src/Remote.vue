@@ -58,12 +58,14 @@ import axios from '@nextcloud/axios'
 
 
 
+import UtilsMixin from './UtilsMixin.js'
 import StatusBar from './StatusBar'
 
 
 
 export default {
 	name: 'Remote',
+	mixins: [UtilsMixin],
 
 	components: {
 		StatusBar,

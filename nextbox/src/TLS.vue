@@ -15,10 +15,8 @@
 					<StatusBar 
 						state='success' 
 						icon='checkmark'
-						:text="`HTTPS / TLS is activated, your Nextcloud is available via ${toLink(domain)}`" />
-			
+						:text="'HTTPS / TLS is activated, your Nextcloud is available via ' + toLink(domain)" />
 					<br>
-
 					<button v-tooltip="ttDisable" 
 						type="button" 
 						:disabled="loadingButton" 
@@ -69,13 +67,14 @@ import qs from 'qs'
 //import Modal from '@nextcloud/vue/dist/Components/Modal'
 
 
-import toLink from './utils.js'
+import UtilsMixin from './UtilsMixin.js'
 import StatusBar from './StatusBar'
 
 
 export default {
 	name: 'TLS',
-	
+	mixins: [UtilsMixin],
+
 	components: {
 		StatusBar,
 	},
@@ -124,8 +123,6 @@ export default {
 	},
 
 	methods: {
-		toLink, 
-
 		async refresh() {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/https'))

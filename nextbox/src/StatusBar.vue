@@ -21,10 +21,11 @@ import { generateUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
-import { docsLink, toLink } from './utils.js'
+import UtilsMixin from './UtilsMixin.js'
 
 export default {
 	name: 'StatusBar',
+	mixins: [UtilsMixin],
 
 	components: { },
 
@@ -112,20 +113,17 @@ export default {
 	},
 	
 	methods: { 
-		toLink, 
-
-		docsLink, 
-
 		async resolve_ipv4() {
 			this.internal.text = 'DNS (IPv4) resolve testing pending'
-			this.internal.help = `Please see the following topics at ${docsLink} to troubleshoot: `
+			this.internal.help = `Please see the following topics at ${this.docslink} to troubleshoot: `
 					  + '<b>(Dynamic) DNS</b>'
+			this.internal.extra = '[IPv4]'
 			// get ipv4 resolve
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv4')).then((res) => {
 				if (res.data.result === 'success') {
 					this.internal.state = 'success'
 					this.internal.icon = 'checkmark'
-					this.internal.text = `Successfully resolved: ${toLink(res.data.data.domain)} to: ${res.data.data.ip}`
+					this.internal.text = 'Successfully resolved: ' + this.toLink(res.data.data.domain) + ' to: ' + res.data.data.ip
 					
 				} else {
 					let suffix = ''
@@ -134,7 +132,7 @@ export default {
 					}
 					this.internal.state = 'error'
 					this.internal.icon = 'close'
-					this.internal.text = `Failed resolving: ${toLink(res.data.data.domain)} [IPv4] ${suffix}`
+					this.internal.text = `Failed resolving: ${this.toLink(res.data.data.domain)} ${suffix}`
 				}
 			}).catch((e) => {
 				console.error(e)
@@ -144,15 +142,17 @@ export default {
 
 		async resolve_ipv6() {
 			this.internal.text = 'DNS (IPv6) resolve testing pending'
-			this.internal.help = `Please see the following topics at ${docsLink} to troubleshoot: `
+			this.internal.help = `Please see the following topics at ${this.docslink} to troubleshoot: `
 					  + '<b>DNS-Rebind Protection</b>, <b>(Dynamic) DNS</b>'
+			this.internal.extra = '[IPv6]'
+
 			// get ipv6 resolve
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv6')).then((res) => {
 				// success resolving ipv6 address
 				if (res.data.result === 'success') {
 					this.internal.state = 'success'
 					this.internal.icon = 'checkmark'
-					this.internal.text = `Successfully resolved: ${toLink(res.data.data.domain)} to: ${res.data.data.ip}`
+					this.internal.text = 'Successfully resolved: ' + this.toLink(res.data.data.domain) + ' to: ' + res.data.data.ip
 					
 				} else {
 					// no ipv6 address found
@@ -170,7 +170,7 @@ export default {
 						}
 						this.internal.state = 'error'
 						this.internal.icon = 'close'
-						this.internal.text = `Failed resolving: ${toLink(res.data.data.domain)} [IPv6] ${suffix}`
+						this.internal.text = 'Failed resolving: ' + this.toLink(res.data.data.domain) + suffix
 					}
 				}
 			}).catch((e) => {
@@ -180,9 +180,11 @@ export default {
 		},
 
 		async reach_http_ipv4() {
-			this.internal.text = 'Reachability (IPv4) test pending...'
-			this.internal.help = `Please see the following topics at ${docsLink} to troubleshoot: `
+			this.internal.text = 'Reachability test pending...'
+			this.internal.help = `Please see the following topics at ${this.docslink} to troubleshoot: `
 					  + '<b>Port-Forwarding/Firewall router settings</b>, <b>(Dynamic) DNS</b>'
+			this.internal.extra = '[IPv4]'
+
 			// get general (http) reachability
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/reachable')).then((res) => {
 				const keys = res.data.data.ipv4
@@ -213,9 +215,11 @@ export default {
 		},
 
 		async reach_http_ipv6() {
-			this.internal.text = 'Reachability (IPv6) test pending...'
-			this.internal.help = `Please see the following topics at ${docsLink} to troubleshoot: `
+			this.internal.text = 'Reachability test pending...'
+			this.internal.help = `Please see the following topics at ${this.docslink} to troubleshoot: `
 					  + '<b>DNS-Rebind Protection</b>, <b>(Dynamic) DNS</b>'
+			this.internal.extra = '[IPv6]'
+
 			// get general (https) reachability
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/reachable')).then((res) => {
 				const keys = res.data.data.ipv6
@@ -224,7 +228,7 @@ export default {
 					this.internal.icon = 'info'
 					this.internal.text = 'No IPv6 address, thus no reachability'
 				} else if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.reachable))) {
-					this.internal.text = `Successfully tested reachability for: ${keys.map(toLink).join(', ')}`
+					this.internal.text = `Successfully tested reachability for: ${keys.map(this.toLink).join(', ')}`
 					if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.nextcloud))) {
 						this.internal.state = 'success'
 						this.internal.icon = 'checkmark'
@@ -237,7 +241,7 @@ export default {
 				} else {
 					this.internal.state = 'error'
 					this.internal.icon = 'close'
-					this.internal.text = `Failed reachability for: ${keys.map(toLink).join(', ')}`
+					this.internal.text = `Failed reachability for: ${keys.map(this.toLink).join(', ')}`
 				}
 			}).catch((e) => {
 				console.error(e)
@@ -254,11 +258,11 @@ export default {
 				if (res.data.result === 'success') {
 					this.internal.state = 'success'
 					this.internal.icon = 'checkmark'
-					this.internal.text = `Successfully tested reachability for: ${toLink(res.data.data.domain)}`
+					this.internal.text = 'Successfully tested reachability for: ' + this.toLink(res.data.data.domain)
 				} else {
 					this.internal.state = 'error'
 					this.internal.icon = 'close'
-					this.internal.text = `Failed reachability for: ${toLink(res.data.data.domain)}`
+					this.internal.text = 'Failed reachability for: ' + this.toLink(res.data.data.domain)
 				}
 			}).catch((e) => {
 				console.error(e)
@@ -296,6 +300,9 @@ export default {
 	float: right; 
 	text-align: right;
 	padding-right: 10px;
+	color: #4a4a4a;
+	font-weight: 800;
+	font-size: 0.86em;
 }
 
 .tag-action {
@@ -324,6 +331,11 @@ export default {
 	border-right: solid 2px #bbb;
 	border-bottom: solid 2px #bbb;
 	border-radius: var(--border-radius);
+}
+
+
+.tag-text > a {
+	color: #41414f;
 }
 
 </style>

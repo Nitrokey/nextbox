@@ -104,12 +104,14 @@ import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 // import ProgressBar from '@nextcloud/vue/dist/Components/ProgressBar'
 
 
+import UtilsMixin from './UtilsMixin.js'
 import StatusBar from './StatusBar'
 
 
 export default {
 	name: 'Backup',
-	
+	mixins: [UtilsMixin],
+
 	components: {
 		Multiselect, 
 		ActionButton, 

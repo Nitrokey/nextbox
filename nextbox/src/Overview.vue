@@ -6,9 +6,9 @@
 		<div class="section">
 			<h2>NextBox Administration and Overview</h2>
 			Welcome to the NextBox Administration Nextcloud App.<br>
-			Please find further information and documentation at {{ docsLink }}.
+			Please find further information and documentation at <span v-html="docslink" />.
 		</div>
-		
+
 		<!-- External availability  -->
 		<div class="section">
 			<h2>Remote Access</h2>
@@ -49,15 +49,16 @@ import axios from '@nextcloud/axios'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 // import { showError, showSuccess } from '@nextcloud/dialogs'
 
-import docsLink from './utils.js'
 import StatusBar from './StatusBar'
-
+import UtilsMixin from './UtilsMixin.js'
 
 export default {
 	name: 'Overview',
 	components: {
 		StatusBar
 	},
+	
+	mixins: [UtilsMixin],
 
 	data() {
 		return {
@@ -66,10 +67,10 @@ export default {
 			config: {},
 
 			apiMatch: false,
-			expectedApi: 1,
 			running: false,
 			board: {},
 			version: '',
+			docsLink: '',
 		}
 	},
 
@@ -79,7 +80,6 @@ export default {
 	},
 
 	computed: {
-		docsLink,
 
 		statusConnection() {
 			const preText = 'NextBox Backend Connection: '

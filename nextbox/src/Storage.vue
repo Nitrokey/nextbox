@@ -65,8 +65,12 @@ import Actions from '@nextcloud/vue/dist/Components/Actions'
 import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 
+
+import UtilsMixin from './UtilsMixin.js'
+
 export default {
 	name: 'Storage',
+	mixins: [UtilsMixin],
 
 	components: {
 		AppContentList, 

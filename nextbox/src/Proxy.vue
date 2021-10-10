@@ -18,7 +18,7 @@
 
 		<div v-else class="section">
 			Your <b>NextBox Quickstart Remote Access</b> is
-			active, you can access your Nextcloud instance using {{ toLink(config.proxy_domain) }}.<br>
+			active, you can access your Nextcloud instance using <span v-html="toLink(config.proxy_domain)" />.<br>
 
 			<StatusBar v-if="config.proxy_active" preset="reach_proxy" /><br>
 
@@ -47,12 +47,14 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
-import toLink from './utils.js'
+import UtilsMixin from './UtilsMixin.js'
 import StatusBar from './StatusBar'
 
 
 export default {
 	name: 'Proxy',
+	
+	mixins: [UtilsMixin],
 
 	components: {
 		StatusBar,
@@ -99,7 +101,6 @@ export default {
 	},
 
 	methods: {
-		toLink,
 
 		async refresh() {
 			const url = '/apps/nextbox/forward/config'
@@ -119,16 +120,19 @@ export default {
 				this.userMessage.proxy_domain = ['Please insert a valid domain']
 				return false
 			}
+			
 			if (!this.update.proxy_domain.endsWith(tld)) {
 				this.userMessage.proxy_domain = [`Your proxy domain must end with <b>${tld}</b>`]
 				return false
 			}
+
 			const subdomain = this.update.proxy_domain.slice(0, -tld.length)
 			const patSub = /^(?:[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]|[A-Za-z0-9])$/
 			if (!patSub.test(subdomain)) {
 				this.userMessage.proxy_domain = ['Not allowed characters in subdomain!']
 				return false
 			}
+
 			if (subdomain.length < 5) {
 				this.userMessage.proxy_domain = ['The subdomain has to be at least 5 characters long']
 				return false
