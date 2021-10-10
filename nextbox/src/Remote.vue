@@ -6,7 +6,8 @@
 			
 			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
 			<StatusBar v-if="config.domain" preset="resolve_ipv6" />
-			<StatusBar v-if="config.domain" preset="reach_http" />
+			<StatusBar v-if="config.domain" preset="reach_http_ipv4" />
+			<StatusBar v-if="config.domain" preset="reach_http_ipv6" />
 			<StatusBar v-if="config.proxy_active" preset="reach_proxy" />
 				
 		</div>

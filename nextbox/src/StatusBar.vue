@@ -92,10 +92,10 @@ export default {
 			this.resolve_ipv4()
 		} else if (this.preset === 'resolve_ipv6') {
 			this.resolve_ipv6()
-		} else if (this.preset === 'reach_http') {
-			this.reach_http()
-		} else if (this.preset === 'reach_https') {
-			this.reach_https()
+		} else if (this.preset === 'reach_http_ipv4') {
+			this.reach_http_ipv4()
+		} else if (this.preset === 'reach_http_ipv6') {
+			this.reach_http_ipv6()
 		} else if (this.preset === 'reach_proxy') {
 			this.reach_proxy()
 		} else {
@@ -141,59 +141,93 @@ export default {
 					  + '<span class="bold">DNS-Rebind Protection</span>, <span class="bold">(Dynamic) DNS</span>'
 			// get ipv6 resolve
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv6')).then((res) => {
+				// success resolving ipv6 address
 				if (res.data.result === 'success') {
 					this.internal.state = 'success'
 					this.internal.icon = 'checkmark'
 					this.internal.text = `Successfully resolved: ${res.data.data.domain} to: ${res.data.data.ip}`
 					
 				} else {
-					let suffix = ''
-					if (res.data.data) {
-						suffix = `need: ${res.data.data.ip} found: ${res.data.data.resolve_ip}`
+					// no ipv6 address found
+					if (res.data.data && !res.data.data.ip) {
+						this.internal.state = 'neutral'
+						this.internal.icon = 'info'
+						this.internal.text = 'Could not determine own IPv6 address, looks like your ISP / network is not supporting IPv6'
+
+					// failed resolving ipv6 to determined own IPv6 address
+					} else {
+						let suffix = ''
+						if (res.data.data) {
+							suffix = `need: ${res.data.data.ip} found: ${res.data.data.resolve_ip}`
+						}
+						this.internal.state = 'error'
+						this.internal.icon = 'close'
+						this.internal.text = `Failed resolving: ${res.data.data.domain} [IPv6] ${suffix}`
 					}
-					this.internal.state = 'error'
-					this.internal.icon = 'close'
-					this.internal.text = `Failed resolving: ${res.data.data.domain} [IPv6] ${suffix}`
 				}
 			}).catch((e) => {
 				console.error(e)
 				showError(t('nextbox', 'Connection Failed'))
 			})
 		},
-		async reach_http() {
-			this.internal.text = 'Reachability waiting to be tested'
+		async reach_http_ipv4() {
+			this.internal.text = 'Reachability (IPv4) test pending...'
 			this.internal.help = 'Please see the following topics at <a class="bold" target="_blank" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a> to troubleshoot: '
 					  + '<span class="bold">Port-Forwarding/Firewall router settings</span>, <span class="bold">(Dynamic) DNS</span>'
 			// get general (http) reachability
-			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/http')).then((res) => {
-				if (res.data.result === 'success') {
-					this.internal.state = 'success'
-					this.internal.icon = 'checkmark'
-					this.internal.text = `Successfully tested reachability for: ${res.data.data.domain}`
-				
+			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/reachable')).then((res) => {
+				const keys = res.data.data.ipv4
+				if (keys[0] === '') {
+					this.internal.state = 'neutral'
+					this.internal.icon = 'info'
+					this.internal.text = 'No IPv4 address, thus no reachability'
+				} else if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.reachable))) {
+					this.internal.text = `Successfully tested reachability for: ${keys.join(', ')}`
+					if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.nextcloud))) {
+						this.internal.state = 'success'
+						this.internal.icon = 'checkmark'
+						this.internal.text += ' and found a Nextcloud instance!'
+					} else {
+						this.internal.state = 'warning'
+						this.internal.icon = 'close'
+						this.internal.text += ' but no Nextcloud instance answered!'
+					}
 				} else {
 					this.internal.state = 'error'
 					this.internal.icon = 'close'
-					this.internal.text = `Failed reachability for: ${res.data.data.domain}`
+					this.internal.text = `Failed reachability for: ${keys.join(', ')}`
 				}
 			}).catch((e) => {
 				console.error(e)
 				showError(t('nextbox', 'Connection Failed'))
 			})
 		},
-		async reach_https() {
-			// get general (http6) reachability
-			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/https')).then((res) => {
-				if (res.data.result === 'success') {
-					this.internal.state = 'success'
-					this.internal.icon = 'checkmark'
-					this.internal.text = `Successfully tested reachability for: ${res.data.data.domain}`
-					
+		async reach_http_ipv6() {
+			this.internal.text = 'Reachability (IPv6) test pending...'
+			this.internal.help = 'Please see the following topics at <a class="bold" target="_blank" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a> to troubleshoot: '
+					  + '<span class="bold">DNS-Rebind Protection</span>, <span class="bold">(Dynamic) DNS</span>'
+			// get general (https) reachability
+			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/reachable')).then((res) => {
+				const keys = res.data.data.ipv6
+				if (keys[0] === '') {
+					this.internal.state = 'neutral'
+					this.internal.icon = 'info'
+					this.internal.text = 'No IPv6 address, thus no reachability'
+				} else if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.reachable))) {
+					this.internal.text = `Successfully tested reachability for: ${keys.join(', ')}`
+					if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.nextcloud))) {
+						this.internal.state = 'success'
+						this.internal.icon = 'checkmark'
+						this.internal.text += ' and found a Nextcloud instance!'
+					} else {
+						this.internal.state = 'warning'
+						this.internal.icon = 'close'
+						this.internal.text += ' but no Nextcloud instance answered!'
+					}
 				} else {
 					this.internal.state = 'error'
 					this.internal.icon = 'close'
-					this.internal.text = `Failed reachability for: ${res.data.data.domain}`
-					
+					this.internal.text = `Failed reachability for: ${keys.join(', ')}`
 				}
 			}).catch((e) => {
 				console.error(e)

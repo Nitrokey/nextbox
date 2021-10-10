@@ -220,6 +220,10 @@ export default {
 				this.userMessage.domain = ['The Domain shall not contain multi-level subdomains. Bad: foo.bar.dedyn.io - Good: single.dedyn.io']
 				return false
 			}
+			if (this.update.domain.includes('_')) {
+				this.userMessage.domain = ['The domain may not contain underscores "_".']
+				return false
+			}
 
 			this.userMessage.domain = []
 			return true
@@ -243,7 +247,7 @@ export default {
 				return false
 			}
 
-			this.setup_ddclient_config(this.config.domain, this.update.desec_token)
+			//this.setup_ddclient_config(this.config.domain, this.update.desec_token)
 
 			this.update_config({ 
 				desec_token: this.update.desec_token, 
@@ -273,47 +277,6 @@ export default {
 				dns_mode: 'off',
 			})
 			showMessage('Disabled config')
-		},
-
-		/*daemon=300
-		protocol=dyndns2
-		use=web, web=https://check${ipType}.dedyn.io/\n
-		ssl=yes
-		server=update.dedyn.io
-		login=staticnextbox2.dedyn.io
-		password='xsaxsaxaxasxxsas'
-		staticnextbox2.dedyn.io*/
-
-		async setup_ddclient_config(domain, pwd) {
-			//const updateip = (ipType === 'ipv6') ? 'update6.dedyn.io' : 'update.dedyn.io'
-			const ddclientConfig = 'protocol=dyndns2\n'
-				+ 'daemon=300\n'
-				+ 'use=cmd, cmd=\'curl https://checkipv4.dedyn.io/\'\n'
-				+ 'ssl=yes\n'
-				+ 'server=update.dedyn.io\n'
-				+ `login='${domain}'\n`
-				+ `password='${pwd}'\n`
-				+ `${domain}\n`
-			
-			this.update_config({ 
-				conf: ddclientConfig,
-			})
-			await this.restart_ddclient()
-		},
-
-		async restart_ddclient() {
-			const url = '/apps/nextbox/forward/service/ddclient/restart'
-			axios.get(generateUrl(url))
-				.then((res) => {
-					if (res.data.result === 'success') {
-						showSuccess('DDClient Service restarted')
-					} else {
-						showError('DDClient Service restart failed!')
-					}
-				}).catch((e) => {
-					showError('Connection failed')
-					console.error(e)
-				})
 		},
 
 		async register_desec() {

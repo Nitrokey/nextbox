@@ -8,7 +8,8 @@
 			<div v-else>
 				<StatusBar v-if="domain" preset="resolve_ipv4" />
 				<StatusBar v-if="domain" preset="resolve_ipv6" />
-				<StatusBar v-if="domain" preset="reach_http" />
+				<StatusBar v-if="domain" preset="reach_http_ipv4" />
+				<StatusBar v-if="domain" preset="reach_http_ipv6" />
 				
 				<div v-if="https">
 					<StatusBar 
@@ -91,10 +92,6 @@ export default {
 			https: false,
 			dns_mode: '',
 			
-			testResolve: null,
-			testResolveData: {},
-			testReachable: null,
-
 			// update-ables
 			update: {
 				email: '',
@@ -117,24 +114,6 @@ export default {
 	computed: {
 		enableDisabled() {
 			return this.loadingButton || !this.validateEMail()
-		},
-		statusResolve() {
-			if (this.testResolve === false) {
-				const text = `Failed reachability test for ${this.domain}`
-				return { state: 'error', icon: 'stop', text }
-			} else {
-				const text = `Successfully tested reachability for ${this.domain}`
-				return { state: 'success', icon: 'checkmark', text }
-			}
-		},
-		statusReachable() {
-			if (this.testReachable === false) {
-				const text = `Failed resolving for ${this.domain} need: ${this.testResolveData.ip}, found: ${this.testResolveData.resolve_ip}`
-				return { state: 'error', icon: 'stop', text }
-			} else {
-				const text = `Successfully resolving for ${this.domain} to: ${this.testResolveData.ip || '(loading)'}`
-				return { state: 'success', icon: 'checkmark', text }
-			}
 		},
 	},
 
@@ -163,21 +142,6 @@ export default {
 			// if domain is available check resolv/reachable
 			if (this.domain && this.dns_mode.endsWith('_done')) {
 
-				axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv4')).then((res) => {
-					this.testResolve = (res.data.result === 'success')
-					this.testResolveData = res.data.data
-				}).catch((e) => {
-					console.error(e)
-					showError(t('nextbox', 'Connection Failed'))
-				})
-					
-				axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/http')).then((res) => {
-					this.testReachable = (res.data.result === 'success')
-				}).catch((e) => {
-					console.error(e)
-					showError(t('nextbox', 'Connection Failed'))
-				})
-				
 				axios.get(generateUrl('/apps/nextbox/forward/certs')).then((res) => {
 					this.cert = res.data.data.cert
 				}).catch((e) => {

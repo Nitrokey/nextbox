@@ -4,7 +4,14 @@
 			<h2>{{ progressWhat }} in Progress</h2>
 			<br>
 
+			
+
 			<StatusBar :status="progressStatus" />
+			<StatusBar :status="progressStatus" />
+			<StatusBar :status="progressStatus" />
+			<StatusBar :status="progressStatus" />
+			<StatusBar :status="progressStatus" />
+			
 
 			<br>
 			<br>
@@ -12,6 +19,11 @@
 			<button type="button" :disabled="!['completed','failed'].includes(progress.state)" @click="clear_status()">
 				<span class="icon icon-confirm" />
 				Continue...
+			</button>
+
+			<button type="button" :disabled="false" @click="clear_status()">
+				<span class="icon icon-confirm" />
+				Cancel
 			</button>
 		</div>
 
@@ -281,7 +293,8 @@ export default {
 			})
 		
 			this.interval = window.setInterval(this.update_progress, 1000)
-			await this.update_progress()
+			///////////////this.$emit('newPage', 'backup_exclusive')
+			//await this.update_progress()
 		},
 		
 		async update_progress() {
@@ -317,7 +330,8 @@ export default {
 			})
 		
 			this.interval = window.setInterval(this.update_progress, 1000)
-			await this.update_progress()
+			///////////////this.$emit('newPage', 'backup_exclusive')
+			//await this.update_progress()
 		},
 	},
 }

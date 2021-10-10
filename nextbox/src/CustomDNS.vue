@@ -146,6 +146,10 @@ export default {
 				this.userMessage.domain = ['Please insert a valid domain']
 				return false
 			}
+			if (this.update.domain.includes('_')) {
+				this.userMessage.domain = ['The domain may not contain underscores "_".']
+				return false
+			}
 			this.userMessage.domain = []
 			return true
 		},

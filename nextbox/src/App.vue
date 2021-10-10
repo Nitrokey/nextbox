@@ -1,6 +1,6 @@
 <template>
 	<div id="content" class="app-nextbox">
-		<AppNavigation>
+		<AppNavigation v-if="page !== 'backup_exclusive'">
 			<ul>
 				<AppNavigationItem :title="t('nextbox', 'Overview')" icon="icon-home" @click="set_page('overview')" />
 				<AppNavigationItem :title="t('nextbox', 'Storage Management')" icon="icon-category-files" @click="set_page('storage')" />
@@ -27,7 +27,7 @@
 		<AppContent>
 			<Overview v-if="page === 'overview'" />
 			<Storage v-if="page === 'storage'" />
-			<Backup v-if="page === 'backup'" />
+			<Backup v-if="page === 'backup' || page === 'backup_exclusive'" @newPage="set_page" />
 			<System v-if="page === 'system'" />
 			<Logs v-if="page === 'logs'" />
 			<Proxy v-if="page === 'remote_proxy'" @newPage="set_page" />
