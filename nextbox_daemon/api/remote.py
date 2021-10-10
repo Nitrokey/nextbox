@@ -2,6 +2,7 @@
 import urllib.request, urllib.error
 import json
 import yaml
+import requests
 from pathlib import Path
 from flask import Blueprint, request
 import socket 
@@ -157,30 +158,50 @@ def test_resolve4():
     # all good!
     return success("Resolve test: OK", data=data)
 
-@remote_api.route("/dyndns/test/http")
-@remote_api.route("/dyndns/test/https")
-@remote_api.route("/dyndns/test/proxy")
+@remote_api.route("/dyndns/test/reachable")
 @requires_auth
 def test_http():
-    what = request.path.split("/")[-1]
-    if what == "proxy":
-        domain = cfg["config"]["proxy_domain"]
-        what = "https"
-    else:
-        domain = cfg["config"]["domain"]
-    url = f"{what}://{domain}"
+    # what = request.path.split("/")[-1]
+    # if what == "proxy":
+    #     domain = cfg["config"]["proxy_domain"]
+    #     what = "https"
+    # else:
+    #     domain = cfg["config"]["domain"]
+    # url = f"{what}://{domain}"
 
-    if not domain:
-        return error("no domain is set")
+    # if not domain:
+    #     return error("no domain is set")
 
     nc = Nextcloud()
-    res, err_reason = nc.check_reachability(url)
-
-    if res:
-        return success(f"Domain ({what}) test: OK", data={"domain": domain})
+    res, req = nc.check_reachability()
+    data = yaml.load(res.text)
+    data["data"]["ipv4"] = [req["ipv4"], req["domain"]]
+    data["data"]["ipv6"] = ["[" + req["ipv6"] + "]" if req["ipv6"] else "", req["domain"]]
+    return success(data["msg"][0], data=data["data"])
     
-    return error(f"Domain ({what}) test: Not OK",
-        data={"exc": "none", "reason": err_reason, "domain": domain})
+    # return error(f"Domain ({what}) test: Not OK",
+    #     data={"exc": "none", "domain": domain})
+
+
+@remote_api.route("/dyndns/test/proxy")
+@requires_auth
+def test_proxy():
+    domain = cfg["config"]["proxy_domain"]
+    what = "https"
+    url = f"{what}://{domain}"
+    if not domain:
+        return error("no proxy-domain set")
+    
+    out = {"result": None, "domain": domain}
+    try:
+        res = requests.get(url, timeout=2)
+        out["result"] = True
+        out["nextcloud"] = "Nextcloud" in res.text
+    except (requests.exceptions.ConnectionError, requests.exceptions.SSLError):
+        out["result"] = False
+        out["nextcloud"] = False
+    
+    return success("tested proxy for reachability", data=out)
 
 # @remote_api.route("/dyndns/upnp")
 # @requires_auth

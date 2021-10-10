@@ -1,9 +1,11 @@
 from pathlib import Path
 import urllib
 import ssl 
+import requests
 
-from nextbox_daemon.config import log
+from nextbox_daemon.config import log, cfg
 from nextbox_daemon.command_runner import CommandRunner
+from nextbox_daemon.dns_manager import DNSManager
 
 class NextcloudError(Exception):
     pass
@@ -38,21 +40,33 @@ class Nextcloud:
                 if "maintenance" in line:
                     return "true" in line
 
-    def check_reachability(self, url):
-        try:
-            content = urllib.request.urlopen(url).read().decode("utf-8")   
-        except urllib.error.URLError:
-            return False, "url-error"         
-        except ssl.CertificateError:
-            # this very likely is due to a bad certificate
-            return False, "cert"
-        except Exception:
-            return False, "unknown"
+    def check_reachability(self):
+        # try:
+        #     content = urllib.request.urlopen(url).read().decode("utf-8")   
+        # except urllib.error.URLError:
+        #     return False, "url-error"         
+        # except ssl.CertificateError:
+        #     # this very likely is due to a bad certificate
+        #     return False, "cert"
+        # except Exception:
+        #     return False, "unknown"
 
-        if "Nextcloud" in content:
-            return True, None
+        # if "Nextcloud" in content:
+        #     return True, None
 
-        return False, "not-nextcloud"
+        # return False, "not-nextcloud"
+
+        dns = DNSManager()
+
+        data_dct = {
+            "ipv4": dns.get_ipv4() or "",
+            "ipv6": dns.get_ipv6() or "",
+            "domain": cfg["config"]["domain"] or "",
+            "token": cfg["config"]["nk_token"]
+        }
+
+        res = requests.post("https://nextbox.link/reachable", json=data_dct)
+        return res, data_dct
 
     def run_cmd(self, *args):
         """
