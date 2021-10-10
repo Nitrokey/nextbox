@@ -20,15 +20,20 @@
 			<h2>SSH Access Control</h2>
 			
 			<div v-if="pubkey">
-				NextBox is configured to grant access using SSH. As user use:
-				"nextuser" the user has passwordless sudo configured.<br>
-				Nitrokey cannot give you support for changes
-				done using the ssh access, use it at your own risk!
+				NextBox is configured to grant access through SSH. <br>
+				To connect to your NextBox, use your local IP: <i>{{ this.local_ip }}</i> 
+				(with default port 22) and the user: <i>nextuser</i> together
+				with your favorite ssh-client. Authetication is done using the
+				public-key together with your private key. The user has
+				passwordless sudo configured.<br>
+				Nitrokey cannot give you support for changes done using the SSH
+				access, use it at your own risk!
 			</div><div v-else>
-				To get access to your NextBox via SSH, please provide a public key.<br>
+				Currently SSH access is deactivated! To get access to your NextBox via SSH, 
+				please provide a public key suitable for SSH's <i>authorized_keys</i> file.<br>
 				<input v-model="update.pubkey" 
 					type="text" 
-					placeholder="Public Key - SSH Access Deactivated">
+					placeholder="Public Key: <algorithm> <public-key-data> <user>@<host>">
 			</div>
 
 			<button v-if="!pubkey" type="button" @click="toggle_ssh('on')">
@@ -45,7 +50,7 @@
 			<h2>System Power State</h2>
 			<div>
 				There usually is no need to reboot the NextBox. But especially,
-				if you plan to transport the NextBox, powering it off before is 
+				if you plan to transport the NextBox, powering it off before, is 
 				recommended.
 			</div>
 
@@ -100,6 +105,7 @@ export default {
 
 			// constants (after refresh)
 			pubkey: '',
+			local_ip: '',
 			config: {},
 		}
 	},
@@ -115,7 +121,8 @@ export default {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/ssh'))
 				this.update.pubkey = res.data.data.pubkey.trim()
 				this.pubkey = res.data.data.pubkey.trim()
-				
+				this.local_ip = res.data.data.local_ip
+
 			} catch (e) {
 				console.error(e)
 			}
@@ -220,6 +227,10 @@ export default {
 
 .txt {
 	width: 25vw;
+}
+
+i {
+	font-style: italic;	
 }
 
 </style>

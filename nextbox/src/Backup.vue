@@ -6,10 +6,10 @@
 
 			
 
+			<!--StatusBar :status="progressStatus" />
 			<StatusBar :status="progressStatus" />
 			<StatusBar :status="progressStatus" />
-			<StatusBar :status="progressStatus" />
-			<StatusBar :status="progressStatus" />
+			<StatusBar :status="progressStatus" /-->
 			<StatusBar :status="progressStatus" />
 			
 
@@ -21,10 +21,10 @@
 				Continue...
 			</button>
 
-			<button type="button" :disabled="false" @click="clear_status()">
+			<!--button type="button" :disabled="false" @click="clear_status()">
 				<span class="icon icon-confirm" />
 				Cancel
-			</button>
+			</button-->
 		</div>
 
 		<div v-if="!progress" class="section">

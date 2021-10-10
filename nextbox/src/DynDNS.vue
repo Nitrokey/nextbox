@@ -253,6 +253,7 @@ export default {
 				desec_token: this.update.desec_token, 
 				dns_mode: 'desec_done',
 			})
+			this.loadingButton = false
 		},
 
 		async last_step() {
