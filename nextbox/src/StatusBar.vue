@@ -21,6 +21,8 @@ import { generateUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
+import { docsLink, toLink } from './utils.js'
+
 export default {
 	name: 'StatusBar',
 
@@ -57,7 +59,7 @@ export default {
 		},
 		showIcon() {
 			const obj = this.status || this.internal
-			// shall be one of 'success', 'error', 'warning' and 'neutral'
+			// shall be one of: 'success', 'error', 'warning' and 'neutral'
 			let dynamic = 'loading-small'
 			// set icon based on 'this.internal' member 'icon'
 			if (obj && 'icon' in obj && obj.icon) {
@@ -112,14 +114,14 @@ export default {
 	methods: { 
 		async resolve_ipv4() {
 			this.internal.text = 'DNS (IPv4) resolve testing pending'
-			this.internal.help = 'Please see the following topics at <a class="bold" target="_blank" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a> to troubleshoot: '
-					  + '<span class="bold">(Dynamic) DNS</span>'
+			this.internal.help = 'Please see the following topics at {{ docsLink() }} to troubleshoot: '
+					  + '<b>(Dynamic) DNS</b>'
 			// get ipv4 resolve
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv4')).then((res) => {
 				if (res.data.result === 'success') {
 					this.internal.state = 'success'
 					this.internal.icon = 'checkmark'
-					this.internal.text = `Successfully resolved: ${res.data.data.domain} to: ${res.data.data.ip}`
+					this.internal.text = `Successfully resolved: ${toLink(res.data.data.domain)} to: ${res.data.data.ip}`
 					
 				} else {
 					let suffix = ''
@@ -128,7 +130,7 @@ export default {
 					}
 					this.internal.state = 'error'
 					this.internal.icon = 'close'
-					this.internal.text = `Failed resolving: ${res.data.data.domain} [IPv4] ${suffix}`
+					this.internal.text = `Failed resolving: ${toLink(res.data.data.domain)} [IPv4] ${suffix}`
 				}
 			}).catch((e) => {
 				console.error(e)
@@ -137,24 +139,25 @@ export default {
 		},
 		async resolve_ipv6() {
 			this.internal.text = 'DNS (IPv6) resolve testing pending'
-			this.internal.help = 'Please see the following topics at <a class="bold" target="_blank" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a> to troubleshoot: '
-					  + '<span class="bold">DNS-Rebind Protection</span>, <span class="bold">(Dynamic) DNS</span>'
+			this.internal.help = 'Please see the following topics at {{ docsLink() }} to troubleshoot: '
+					  + '<b>DNS-Rebind Protection</b>, <b>(Dynamic) DNS</b>'
 			// get ipv6 resolve
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv6')).then((res) => {
 				// success resolving ipv6 address
 				if (res.data.result === 'success') {
 					this.internal.state = 'success'
 					this.internal.icon = 'checkmark'
-					this.internal.text = `Successfully resolved: ${res.data.data.domain} to: ${res.data.data.ip}`
+					this.internal.text = `Successfully resolved: ${toLink(res.data.data.domain)} to: ${res.data.data.ip}`
 					
 				} else {
 					// no ipv6 address found
 					if (res.data.data && !res.data.data.ip) {
 						this.internal.state = 'neutral'
 						this.internal.icon = 'info'
-						this.internal.text = 'Could not determine own IPv6 address, looks like your ISP / network is not supporting IPv6'
+						this.internal.text = 'Could not determine own IPv6 address, '
+						                   + 'looks like your ISP / network is not supporting IPv6'
 
-					// failed resolving ipv6 to determined own IPv6 address
+					// failed resolving ipv6 to determine own IPv6 address
 					} else {
 						let suffix = ''
 						if (res.data.data) {
@@ -162,7 +165,7 @@ export default {
 						}
 						this.internal.state = 'error'
 						this.internal.icon = 'close'
-						this.internal.text = `Failed resolving: ${res.data.data.domain} [IPv6] ${suffix}`
+						this.internal.text = `Failed resolving: ${toLink(res.data.data.domain)} [IPv6] ${suffix}`
 					}
 				}
 			}).catch((e) => {
@@ -172,8 +175,8 @@ export default {
 		},
 		async reach_http_ipv4() {
 			this.internal.text = 'Reachability (IPv4) test pending...'
-			this.internal.help = 'Please see the following topics at <a class="bold" target="_blank" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a> to troubleshoot: '
-					  + '<span class="bold">Port-Forwarding/Firewall router settings</span>, <span class="bold">(Dynamic) DNS</span>'
+			this.internal.help = 'Please see the following topics at {{ docsLink }} to troubleshoot: '
+					  + '<b>Port-Forwarding/Firewall router settings</b>, <b>(Dynamic) DNS</b>'
 			// get general (http) reachability
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/reachable')).then((res) => {
 				const keys = res.data.data.ipv4
@@ -186,11 +189,11 @@ export default {
 					if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.nextcloud))) {
 						this.internal.state = 'success'
 						this.internal.icon = 'checkmark'
-						this.internal.text += ' and found a Nextcloud instance!'
+						this.internal.text += ' and <b>found a Nextcloud instance</b>!'
 					} else {
 						this.internal.state = 'warning'
 						this.internal.icon = 'close'
-						this.internal.text += ' but no Nextcloud instance answered!'
+						this.internal.text += ' but <b>no Nextcloud instance answered</b>!'
 					}
 				} else {
 					this.internal.state = 'error'
@@ -204,8 +207,8 @@ export default {
 		},
 		async reach_http_ipv6() {
 			this.internal.text = 'Reachability (IPv6) test pending...'
-			this.internal.help = 'Please see the following topics at <a class="bold" target="_blank" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a> to troubleshoot: '
-					  + '<span class="bold">DNS-Rebind Protection</span>, <span class="bold">(Dynamic) DNS</span>'
+			this.internal.help = 'Please see the following topics at {{ docsLink }} to troubleshoot: '
+					  + '<b>DNS-Rebind Protection</b>, <b>(Dynamic) DNS</b>'
 			// get general (https) reachability
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/reachable')).then((res) => {
 				const keys = res.data.data.ipv6
@@ -214,20 +217,20 @@ export default {
 					this.internal.icon = 'info'
 					this.internal.text = 'No IPv6 address, thus no reachability'
 				} else if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.reachable))) {
-					this.internal.text = `Successfully tested reachability for: ${keys.join(', ')}`
+					this.internal.text = `Successfully tested reachability for: ${keys.map(toLink).join(', ')}`
 					if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.nextcloud))) {
 						this.internal.state = 'success'
 						this.internal.icon = 'checkmark'
-						this.internal.text += ' and found a Nextcloud instance!'
+						this.internal.text += ' and <b>found a Nextcloud instance</b>!'
 					} else {
 						this.internal.state = 'warning'
 						this.internal.icon = 'close'
-						this.internal.text += ' but no Nextcloud instance answered!'
+						this.internal.text += ' but <b>no Nextcloud instance answered</b>!'
 					}
 				} else {
 					this.internal.state = 'error'
 					this.internal.icon = 'close'
-					this.internal.text = `Failed reachability for: ${keys.join(', ')}`
+					this.internal.text = `Failed reachability for: ${keys.map(toLink).join(', ')}`
 				}
 			}).catch((e) => {
 				console.error(e)
@@ -235,18 +238,19 @@ export default {
 			})
 		},
 		async reach_proxy() {
-			this.internal.text = 'Quickstart remote access test pending'
-			this.internal.help = 'Failed connecting through backwards-proxy, please restart the proxy configuration by disabling and enabling it.'
+			this.internal.text = 'Backwards-Proxy remote access test pending...'
+			this.internal.help = 'Failed connecting through backwards-proxy, please restart '
+							   + 'the proxy configuration by disabling and enabling it'
 			// get proxy reachability
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/proxy')).then((res) => {
 				if (res.data.result === 'success') {
 					this.internal.state = 'success'
 					this.internal.icon = 'checkmark'
-					this.internal.text = `Successfully tested reachability for: ${res.data.data.domain}`
+					this.internal.text = `Successfully tested reachability for: ${toLink(res.data.data.domain)}`
 				} else {
 					this.internal.state = 'error'
 					this.internal.icon = 'close'
-					this.internal.text = `Failed reachability for: ${res.data.data.domain}`
+					this.internal.text = `Failed reachability for: ${toLink(res.data.data.domain)}`
 				}
 			}).catch((e) => {
 				console.error(e)

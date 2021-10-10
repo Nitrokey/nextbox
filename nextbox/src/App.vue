@@ -63,7 +63,7 @@ import TLS from './TLS'
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-import { showError, showSuccess } from '@nextcloud/dialogs'
+import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
 export default {
@@ -141,6 +141,25 @@ input[type='text'] {
 
 .error-txt {
 	color: var(--color-error)
+}
+
+
+i {
+	font-style: italic;
+}
+
+b {
+	font-weight: 600;
+}
+
+div.section a {
+	font-weight: 500 !important;
+}
+
+div.section a:hover {
+	text-decoration: underline;
+	font-weight: 500;
+	color: #224;
 }
 
 /*textarea {

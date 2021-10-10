@@ -17,9 +17,9 @@
 		
 			<!-- Raw ddclient configuration -->
 			<h2>DDClient configuration</h2>
-			By directly configuring DDClient you may use any supported Dynamic DNS service.
-			The documentation for DDClient can be found 
-			<a class="bold" href="https://ddclient.net/usage.html">here</a><br>
+			By directly configuring DDClient you are free to use any supported dynamic DNS service.
+			The {{ toLink('ddclient.net/#configuration', 'documentation') }} for DDClient contains lots 
+			of examples and {{ toLink('ddclient.net/usage.net', 'usage scenarios') }}.<br>
 			<textarea v-model="update.conf" 
 				class="txtmult" 
 				@change="checkConf()" />
@@ -36,7 +36,7 @@
 		<div v-else class="section">
 			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
 			<StatusBar v-if="config.domain" preset="resolve_ipv6" /><br>
-			This DNS configuration is active for the domain: <span class="bold">{{ update.domain }}</span><br><br>
+			This DNS configuration is active for the domain: <b>{{ update.domain }}</b><br><br>
 			<button type="button" @click="$emit('newPage', 'tls')">
 				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 				Continue to TLS activation
@@ -76,7 +76,7 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
-
+import toLink from './utils.js'
 import StatusBar from './StatusBar'
 
 
@@ -127,6 +127,8 @@ export default {
 	},
 
 	methods: {
+		toLink,
+		
 		async refresh() {
 			const url = '/apps/nextbox/forward/config'
 			const res = await axios.get(generateUrl(url)).catch((e) => {

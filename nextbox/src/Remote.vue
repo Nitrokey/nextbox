@@ -109,14 +109,6 @@ export default {
 				console.error(e)
 				showError(t('nextbox', 'Connection Failed'))
 			}
-
-			
-
-			
-			
-			
-
-			
 		},
 	},
 }

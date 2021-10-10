@@ -168,7 +168,7 @@ export default {
 			if (this.lastBackup) {
 				return {
 					state: 'success',
-					text: `Your last backup was done at: <span class="bold">${new Date(this.lastBackup * 1e3).toLocaleString()}</span>`,
+					text: `Your last backup was done at: <b>${new Date(this.lastBackup * 1e3).toLocaleString()}</b>`,
 				}
 			} else {
 				return {

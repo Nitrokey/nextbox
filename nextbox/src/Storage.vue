@@ -163,7 +163,7 @@ export default {
 			const res = await axios
 				.get(generateUrl('/apps/nextbox/forward/storage'))
 				.catch((e) => {
-					showError('Could not load Storage data')
+					showError('Could not load storage data')
 					console.error(e)
 				})
 			this.storages = res.data.data

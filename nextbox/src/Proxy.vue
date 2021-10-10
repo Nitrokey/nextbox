@@ -7,7 +7,7 @@
 		
 		<div v-if="!config.proxy_active" class="section">
 			<h2>Domain for NextBox</h2>
-			Insert the designated full domain for your NextBox. The domain must end with <span class="bold">.nextbox.link</span><br>
+			Insert the designated full domain for your NextBox. The domain must end with <b>.nextbox.link</b><br>
 			<input v-model="update.proxy_domain" type="text" @change="checkDomain">
 			<br><span v-if="userMessage.proxy_domain" class="error-txt">{{ userMessage.proxy_domain.join(" ") }}</span><br>
 			<button type="button" :disabled="activateDisabled" @click="activate()">
@@ -17,9 +17,8 @@
 		</div>
 
 		<div v-else class="section">
-			Your <span class="bold">NextBox Quickstart Remote Access</span> is
-			active, you can access your Nextcloud instance using 
-			<a :href="'https://' + config.proxy_domain" class="bold">{{ config.proxy_domain }}</a>.<br>
+			Your <b>NextBox Quickstart Remote Access</b> is
+			active, you can access your Nextcloud instance using {{ toLink(config.proxy_domain) }}.<br>
 
 			<StatusBar v-if="config.proxy_active" preset="reach_proxy" /><br>
 
@@ -35,7 +34,6 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-// import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
@@ -49,6 +47,7 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
+import toLink from './utils.js'
 import StatusBar from './StatusBar'
 
 
@@ -100,6 +99,8 @@ export default {
 	},
 
 	methods: {
+		toLink,
+
 		async refresh() {
 			const url = '/apps/nextbox/forward/config'
 			const res = await axios.get(generateUrl(url)).catch((e) => {
@@ -119,7 +120,7 @@ export default {
 				return false
 			}
 			if (!this.update.proxy_domain.endsWith(tld)) {
-				this.userMessage.proxy_domain = [`Your proxy domain must end with ${tld}`]
+				this.userMessage.proxy_domain = [`Your proxy domain must end with <b>${tld}</b>`]
 				return false
 			}
 			const subdomain = this.update.proxy_domain.slice(0, -tld.length)

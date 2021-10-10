@@ -15,7 +15,7 @@
 					<StatusBar 
 						state='success' 
 						icon='checkmark'
-						:text="`HTTPS / TLS is activated, your Nextcloud is available via <a href='https://${domain}'>${domain}</a>`" />
+						:text="`HTTPS / TLS is activated, your Nextcloud is available via ${toLink(domain)}`" />
 			
 					<br>
 
@@ -30,7 +30,7 @@
 				<div v-else>
 					<StatusBar state='warning' icon='error' text='HTTPS / TLS is not activated' />
 					<br>
-					Activate HTTPS / TLS for your configured domain: <span class="bold">"{{ domain }}"</span>
+					Activate HTTPS / TLS for your configured domain: <b>"{{ domain }}"</b>
 					<div v-if="dns_mode !== 'desec_done'">
 						Please provide a valid E-Mail,
 						which will be used to acquire a Let's Encrypt Certificate.
@@ -69,6 +69,7 @@ import qs from 'qs'
 //import Modal from '@nextcloud/vue/dist/Components/Modal'
 
 
+import toLink from './utils.js'
 import StatusBar from './StatusBar'
 
 
@@ -123,6 +124,8 @@ export default {
 	},
 
 	methods: {
+		toLink, 
+
 		async refresh() {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/https'))

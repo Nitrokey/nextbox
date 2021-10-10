@@ -3,10 +3,10 @@
 		<div class="section">
 			<h2>Guided Dynamic DNS Configuration</h2>
 			This wizard will guide you through the process of setting up remote access to your
-			NextBox using the <a target="_blank" class="bold" href="http://desec.org">DeSEC</a> dynamic DNS service.<br>
+			NextBox using the {{ toLink('desec.org', 'deSEC') }} dynamic DNS service.<br>
 			For a proper configuration you should know what kind of internet connection you are using 
 			(IPv4, IPv6, Dual-Stack, DS-Lite) and how to access your internet router. Please find further 
-			documentation at <a target="_blank" class="bold" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a>.
+			documentation at {{ docsLink() }}.
 		</div>
 		
 		
@@ -22,7 +22,7 @@
 			<br><span v-if="userMessage.email" class="error-txt">{{ userMessage.email.join(" ") }}</span><br>
 		
 			<!-- Domain -->
-			Insert the designated full domain for your NextBox. The domain always has to end with <span class="bold">.dedyn.io</span>.<br>
+			Insert the designated full domain for your NextBox. The domain always has to end with <b>.dedyn.io</b>.<br>
 			<input v-model="update.domain" type="text">
 			<br><span v-if="userMessage.domain" class="error-txt" v-html="userMessage.domain.join(' ')" /><br>
 		
@@ -44,7 +44,7 @@
 		<div v-else-if="config.dns_mode === 'desec_2'" class="section">
 			<!-- deSEC token -->
 			<h2>Step Two: deSEC Activation Token</h2>
-			<span class="bold">After completing registration with deSEC and verifing your E-Mail.</span><br>
+			<b>After completing registration with deSEC and verifing your E-Mail.</b><br>
 			Please put in the token you have received from deSEC<br>
 
 			<input v-model="update.desec_token" type="text">
@@ -59,18 +59,19 @@
 				Back
 			</button><br>
 			<br>
-			If you have not received an E-Mail this means you have already 
-			been registered with this E-Mail at deSEC. If you know your password
-			you can <a class="bold" href="https://desec.io/login">login here</a> and copy the 
-			token from your account settings. During NextBox' automated process no 
-			password is set, in order to acquire one you have to 
-			<a class="bold" href="https://desec.io/reset-password">reset your password</a>.
+			If you have not received an E-Mail this means you have already been
+			registered with this E-Mail at deSEC. If you know your password you
+			can {{ toLink('desec.io/login', 'login') }} and create a new token
+			in your account settings. During NextBox' automated process no
+			password is set, in order to acquire one you have to
+			{{ toLink('desec.io/reset-password', 'reset your password') }} 
+			before logging in.
 		</div>
 		
 		<div v-else-if="config.dns_mode === 'desec_done'" class="section">
 			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
 			<StatusBar v-if="config.domain" preset="resolve_ipv6" /><br>
-			This DNS configuration is active for the domain: <span class="bold">{{ update.domain }}</span><br><br>
+			This DNS configuration is active for the domain: <b>{{ update.domain }}</b><br><br>
 			<button type="button" @click="$emit('newPage', 'tls')">
 				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 				Continue to TLS activation
@@ -116,7 +117,7 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
-
+import { docsLink, toLink } from './utils.js'
 import StatusBar from './StatusBar'
 
 
@@ -174,6 +175,9 @@ export default {
 	},
 
 	methods: {
+		docsLink,
+		toLink,
+
 		async refresh() {
 			const url = '/apps/nextbox/forward/config'
 			const res = await axios.get(generateUrl(url)).catch((e) => {
@@ -212,12 +216,12 @@ export default {
 				return false
 			}
 			if (!this.update.domain.endsWith('.dedyn.io')) {
-				this.userMessage.domain = ['The Domain has to end with: <span class="bold">.dedyn.io</span>']
+				this.userMessage.domain = ['The domain has to end with: <b>.dedyn.io</b>']
 				return false
 			}
 			const dotpat = new RegExp('\\.', 'g')
 			if ((this.update.domain.match(dotpat) || []).length > 2) {
-				this.userMessage.domain = ['The Domain shall not contain multi-level subdomains. Bad: foo.bar.dedyn.io - Good: single.dedyn.io']
+				this.userMessage.domain = ['The domain shall not contain multi-level subdomains. Bad: foo.bar.dedyn.io - Good: single.dedyn.io']
 				return false
 			}
 			if (this.update.domain.includes('_')) {

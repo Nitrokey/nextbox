@@ -1,10 +1,12 @@
+
+
 <template>
 	<div id="overview" v-if="!loading">
 		<!-- Welcome  -->
 		<div class="section">
 			<h2>NextBox Administration and Overview</h2>
 			Welcome to the NextBox Administration Nextcloud App.<br>
-			Please find further information and documentation at <a target="_blank" href="https://docs.nitrokey.com/nextbox/">docs.nitrokey.com/nextbox</a>.
+			Please find further information and documentation at {{ docsLink() }}.
 		</div>
 		
 		<!-- External availability  -->
@@ -47,7 +49,7 @@ import axios from '@nextcloud/axios'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 // import { showError, showSuccess } from '@nextcloud/dialogs'
 
-
+import docsLink from './utils.js'
 import StatusBar from './StatusBar'
 
 
@@ -123,6 +125,7 @@ export default {
 	},
 
 	methods: {
+		docsLink,
 		async refresh() {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/config'))
@@ -131,7 +134,6 @@ export default {
 				this.running = true
 			} catch (e) {
 				console.error(e)
-				//showError(t('nextbox', 'Could not fetch logs'))
 				this.config = {}
 				this.apiMatch = false
 				this.running = false

@@ -25,7 +25,7 @@
 		<div v-else class="section">
 			<StatusBar v-if="config.domain" preset="resolve_ipv4" />
 			<StatusBar v-if="config.domain" preset="resolve_ipv6" /><br>
-			This DNS configuration is active for the domain: <span class="bold">{{ update.domain }}</span><br><br>
+			This DNS configuration is active for the domain: <b>{{ update.domain }}</b><br><br>
 			<button type="button" @click="$emit('newPage', 'tls')">
 				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 				Continue to TLS activation
@@ -110,8 +110,6 @@ export default {
 		await this.refresh()
 		this.loading = false
 	},
-
-
 
 	methods: {
 		async refresh() {

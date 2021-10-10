@@ -1,4 +1,4 @@
-<template>
+7<template>
 	<div id="system" v-if="!loading">
 		<div class="section">
 			<h2>System Logs</h2>
@@ -20,17 +20,18 @@
 			<h2>SSH Access Control</h2>
 			
 			<div v-if="pubkey">
-				NextBox is configured to grant access through SSH. <br>
-				To connect to your NextBox, use your local IP: <i>{{ this.local_ip }}</i> 
-				(with default port 22) and the user: <i>nextuser</i> together
-				with your favorite ssh-client. Authetication is done using the
-				public-key together with your private key. The user has
-				passwordless sudo configured.<br>
-				Nitrokey cannot give you support for changes done using the SSH
+				Your NextBox is configured to grant access through SSH. <br>
+				To connect to your NextBox, use your local IP: <b>{{ this.local_ip }}</b> 
+				(on default port 22) and the user: <b>nextuser</b><br>
+				No password is required, the provided public-key together with
+				your private-key is used for 
+				{{ toLink('en.wikipedia.org/wiki/Key_authentication', 'key-based authentication') }}.<br>
+				The user has passwordless sudo pre-configured for unrestricted root access.<br>
+				Please be aware that Nitrokey cannot give you support for changes done using the SSH
 				access, use it at your own risk!
 			</div><div v-else>
 				Currently SSH access is deactivated! To get access to your NextBox via SSH, 
-				please provide a public key suitable for SSH's <i>authorized_keys</i> file.<br>
+				please provide a public key suitable for SSH's <b>authorized_keys</b> file.<br>
 				<input v-model="update.pubkey" 
 					type="text" 
 					placeholder="Public Key: <algorithm> <public-key-data> <user>@<host>">
@@ -76,6 +77,8 @@ import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 
+import toLink from './utils.js'
+
 // import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 // import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
@@ -116,6 +119,8 @@ export default {
 	},
 
 	methods: {
+		toLink,
+
 		async refresh() {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/ssh'))
@@ -229,8 +234,5 @@ export default {
 	width: 25vw;
 }
 
-i {
-	font-style: italic;	
-}
 
 </style>
