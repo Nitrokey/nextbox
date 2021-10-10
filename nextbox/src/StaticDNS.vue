@@ -65,11 +65,13 @@ import qs from 'qs'
 // import ActionRadio from '@nextcloud/vue/dist/Components/ActionRadio'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
+import UtilsMixin from './UtilsMixin.js'
 import StatusBar from './StatusBar'
 
 
 export default {
 	name: 'StaticDNS',
+	mixins: [UtilsMixin],
 
 	components: {
 		StatusBar,

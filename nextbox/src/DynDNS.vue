@@ -3,10 +3,10 @@
 		<div class="section">
 			<h2>Guided Dynamic DNS Configuration</h2>
 			This wizard will guide you through the process of setting up remote access to your
-			NextBox using the {{ toLink('desec.org', 'deSEC') }} dynamic DNS service.<br>
+			NextBox using the <span v-html="toLink('desec.org', 'deSEC')" /> dynamic DNS service.<br>
 			For a proper configuration you should know what kind of internet connection you are using 
 			(IPv4, IPv6, Dual-Stack, DS-Lite) and how to access your internet router. Please find further 
-			documentation at {{ docsLink }}.
+			documentation at <span v-html="docslink" />.
 		</div>
 		
 		
@@ -61,10 +61,10 @@
 			<br>
 			If you have not received an E-Mail this means you have already been
 			registered with this E-Mail at deSEC. If you know your password you
-			can {{ toLink('desec.io/login', 'login') }} and create a new token
+			can <span v-html="toLink('desec.io/login', 'login')" /> and create a new token
 			in your account settings. During NextBox' automated process no
 			password is set, in order to acquire one you have to
-			{{ toLink('desec.io/reset-password', 'reset your password') }} 
+			<span v-html="toLink('desec.io/reset-password', 'reset your password')" /> 
 			before logging in.
 		</div>
 		
@@ -117,12 +117,13 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
-import { docsLink, toLink } from './utils.js'
+import UtilsMixin from './UtilsMixin.js'
 import StatusBar from './StatusBar'
 
 
 export default {
 	name: 'DynDNS',
+	mixins: [UtilsMixin],
 
 
 	components: {
@@ -161,8 +162,7 @@ export default {
 	},
 
 	computed: {
-		docsLink,
-
+		
 		activateRegister() {
 			return this.loadingButton || !this.checkDomain() || !this.checkEMail()
 		},
@@ -177,7 +177,6 @@ export default {
 	},
 
 	methods: {
-		toLink,
 
 		async refresh() {
 			const url = '/apps/nextbox/forward/config'

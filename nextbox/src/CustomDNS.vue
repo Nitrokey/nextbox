@@ -18,8 +18,8 @@
 			<!-- Raw ddclient configuration -->
 			<h2>DDClient configuration</h2>
 			By directly configuring DDClient you are free to use any supported dynamic DNS service.
-			The {{ toLink('ddclient.net/#configuration', 'documentation') }} for DDClient contains lots 
-			of examples and {{ toLink('ddclient.net/usage.net', 'usage scenarios') }}.<br>
+			The <span v-html="toLink('ddclient.net/#configuration', 'documentation')" /> for DDClient contains lots 
+			of examples and <span v-html="toLink('ddclient.net/usage.net', 'usage scenarios')" />.<br>
 			<textarea v-model="update.conf" 
 				class="txtmult" 
 				@change="checkConf()" />
@@ -76,12 +76,13 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 
-import toLink from './utils.js'
+import UtilsMixin from './UtilsMixin.js'
 import StatusBar from './StatusBar'
 
 
 export default {
 	name: 'CustomDNS',
+	mixins: [UtilsMixin],
 
 	components: {
 		StatusBar,
@@ -127,8 +128,6 @@ export default {
 	},
 
 	methods: {
-		toLink,
-		
 		async refresh() {
 			const url = '/apps/nextbox/forward/config'
 			const res = await axios.get(generateUrl(url)).catch((e) => {
