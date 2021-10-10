@@ -26,9 +26,7 @@
 				No password is required, the provided public-key together with
 				your private-key is used for 
 				<span v-html="toLink('en.wikipedia.org/wiki/Key_authentication', 'key-based authentication')" />.<br>
-				The user has passwordless sudo pre-configured for unrestricted root access.<br>
-				Please be aware that Nitrokey cannot give you support for changes done using the SSH
-				access, use it at your own risk!
+				The user has passwordless sudo pre-configured for unrestricted root access.
 			</div><div v-else>
 				Currently SSH access is deactivated! To get access to your NextBox via SSH, 
 				please provide a public key suitable for SSH's <b>authorized_keys</b> file.<br>
@@ -50,6 +48,10 @@
 				<span class="icon icon-close" />
 				Deactivate SSH Access
 			</button>
+			<div v-if="pubkey">
+				Please be aware that Nitrokey cannot give you support for changes done using the SSH
+				access, use it at your own risk!
+			</div>
 		</div>
 
 		<div class="section">
