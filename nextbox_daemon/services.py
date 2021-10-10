@@ -33,7 +33,7 @@ class Services:
 
     # shortcut methods
     def status(self, name): return self.exec(name, "status")
-    def is_active(self, name): return self.exec(name, "is-active")
+    def is_active(self, name): return self.exec(name, "is-active")["output"] == "active"
     def start(self, name): return self.exec(name, "start")
     def stop(self, name): return self.exec(name, "stop")
     def restart(self, name): return self.exec(name, "restart")
