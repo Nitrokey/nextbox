@@ -6,7 +6,7 @@
 		<div class="section">
 			<h2>NextBox Administration and Overview</h2>
 			Welcome to the NextBox Administration Nextcloud App.<br>
-			Please find further information and documentation at {{ docsLink() }}.
+			Please find further information and documentation at {{ docsLink }}.
 		</div>
 		
 		<!-- External availability  -->
@@ -79,6 +79,8 @@ export default {
 	},
 
 	computed: {
+		docsLink,
+
 		statusConnection() {
 			const preText = 'NextBox Backend Connection: '
 			return {
@@ -125,7 +127,6 @@ export default {
 	},
 
 	methods: {
-		docsLink,
 		async refresh() {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/config'))

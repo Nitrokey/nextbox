@@ -11,7 +11,7 @@
 
 		<div class="section">
 			<h2>NextBox Token</h2>
-			Your personal <span class="bold">NextBox Quickstart Token</span>:<br>
+			Your personal <b>NextBox Quickstart Token</b>:<br>
 			<input v-model="update.nk_token" type="text" disabled="true">
 			<br><span v-if="userMessage.nk_token" class="error-txt">{{ userMessage.nk_token.join(" ") }}</span><br>
 		</div>
@@ -34,11 +34,16 @@
 				please provide a public key suitable for SSH's <b>authorized_keys</b> file.<br>
 				<input v-model="update.pubkey" 
 					type="text" 
-					placeholder="Public Key: <algorithm> <public-key-data> <user>@<host>">
+					placeholder="<algorithm> <public-key-data> <user>@<host> (ssh format public key)">
+				<br><span v-if="userMessage.pubkey" class="error-txt">{{ userMessage.pubkey.join(" ") }}</span><br>
+			
 			</div>
+			<button v-if="!pubkey" 
+				type="button" 
+				:disabled="sshDisabled" 
+				@click="toggle_ssh('on')">
 
-			<button v-if="!pubkey" type="button" @click="toggle_ssh('on')">
-				<span class="icon icon-confirm" />
+				<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
 				Activate SSH Access
 			</button>
 			<button v-else type="button" @click="toggle_ssh('off')">
@@ -72,7 +77,7 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-// import { showError, showSuccess } from '@nextcloud/dialogs'
+
 import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
@@ -94,6 +99,7 @@ export default {
 	data() {
 		return {
 			loading: true,
+			loadingButton: false,
 			
 			// update-ables
 			update: {
@@ -104,6 +110,7 @@ export default {
 			// user messaging
 			userMessage: {
 				nk_token: [],
+				pubkey: [],
 			},
 
 			// constants (after refresh)
@@ -113,6 +120,13 @@ export default {
 		}
 	},
 
+	
+	computed: {
+		sshDisabled() {
+			return this.loadingButton || !this.checkPubkey()
+		},
+	},
+	
 	async mounted() {
 		this.refresh()
 		this.loading = false
@@ -156,13 +170,37 @@ export default {
 				
 		},
 
-		check_token() {
+		checkToken() {
 			if (this.update.nk_token === null || this.update.nk_token.length !== 36) {
 				this.userMessage.nk_token = ['Please insert a valid token']
 				return false
 			}
 
 			this.userMessage.nk_token = []
+			return true
+		},
+
+		checkPubkey() {
+			if (this.update.pubkey === null) {
+				this.userMessage.pubkey = ['Please insert a valid token']
+				return false
+			} 
+			const pubToks = this.update.pubkey.split(' ')
+			if (pubToks.length !== 3) {
+				this.userMessage.pubkey = ['The public key should consist of 3 compontents: algorithm, key-data, user with host']
+				return false
+			}
+			const msgs = pubToks.filter((tok) => (tok.length < 3) ? 'Each component has a minimal length of 3' : false)
+			if (msgs.length > 0) {
+				this.userMessage.pubkey = msgs
+				return false
+			}
+
+			if (!pubToks.slice('-1').includes('@')) {
+				this.userMessage.pubkey = ['The last component needs to be in <user>@<hostname> format']
+				return false
+			}
+
 			return true
 		},
 

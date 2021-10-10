@@ -6,7 +6,7 @@
 			NextBox using the {{ toLink('desec.org', 'deSEC') }} dynamic DNS service.<br>
 			For a proper configuration you should know what kind of internet connection you are using 
 			(IPv4, IPv6, Dual-Stack, DS-Lite) and how to access your internet router. Please find further 
-			documentation at {{ docsLink() }}.
+			documentation at {{ docsLink }}.
 		</div>
 		
 		
@@ -161,6 +161,8 @@ export default {
 	},
 
 	computed: {
+		docsLink,
+
 		activateRegister() {
 			return this.loadingButton || !this.checkDomain() || !this.checkEMail()
 		},
@@ -175,7 +177,6 @@ export default {
 	},
 
 	methods: {
-		docsLink,
 		toLink,
 
 		async refresh() {

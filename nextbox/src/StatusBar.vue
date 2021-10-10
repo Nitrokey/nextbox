@@ -112,9 +112,13 @@ export default {
 	},
 	
 	methods: { 
+		toLink, 
+
+		docsLink, 
+
 		async resolve_ipv4() {
 			this.internal.text = 'DNS (IPv4) resolve testing pending'
-			this.internal.help = 'Please see the following topics at {{ docsLink() }} to troubleshoot: '
+			this.internal.help = `Please see the following topics at ${docsLink} to troubleshoot: `
 					  + '<b>(Dynamic) DNS</b>'
 			// get ipv4 resolve
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv4')).then((res) => {
@@ -137,9 +141,10 @@ export default {
 				showError(t('nextbox', 'Connection Failed'))
 			})
 		},
+
 		async resolve_ipv6() {
 			this.internal.text = 'DNS (IPv6) resolve testing pending'
-			this.internal.help = 'Please see the following topics at {{ docsLink() }} to troubleshoot: '
+			this.internal.help = `Please see the following topics at ${docsLink} to troubleshoot: `
 					  + '<b>DNS-Rebind Protection</b>, <b>(Dynamic) DNS</b>'
 			// get ipv6 resolve
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/resolve/ipv6')).then((res) => {
@@ -173,9 +178,10 @@ export default {
 				showError(t('nextbox', 'Connection Failed'))
 			})
 		},
+
 		async reach_http_ipv4() {
 			this.internal.text = 'Reachability (IPv4) test pending...'
-			this.internal.help = 'Please see the following topics at {{ docsLink }} to troubleshoot: '
+			this.internal.help = `Please see the following topics at ${docsLink} to troubleshoot: `
 					  + '<b>Port-Forwarding/Firewall router settings</b>, <b>(Dynamic) DNS</b>'
 			// get general (http) reachability
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/reachable')).then((res) => {
@@ -205,9 +211,10 @@ export default {
 				showError(t('nextbox', 'Connection Failed'))
 			})
 		},
+
 		async reach_http_ipv6() {
 			this.internal.text = 'Reachability (IPv6) test pending...'
-			this.internal.help = 'Please see the following topics at {{ docsLink }} to troubleshoot: '
+			this.internal.help = `Please see the following topics at ${docsLink} to troubleshoot: `
 					  + '<b>DNS-Rebind Protection</b>, <b>(Dynamic) DNS</b>'
 			// get general (https) reachability
 			axios.get(generateUrl('/apps/nextbox/forward/dyndns/test/reachable')).then((res) => {
@@ -237,6 +244,7 @@ export default {
 				showError(t('nextbox', 'Connection Failed'))
 			})
 		},
+
 		async reach_proxy() {
 			this.internal.text = 'Backwards-Proxy remote access test pending...'
 			this.internal.help = 'Failed connecting through backwards-proxy, please restart '
