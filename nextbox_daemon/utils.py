@@ -40,9 +40,9 @@ def local_ip(network_device="eth0"):
     binary_data = fcntl.ioctl(
         sock.fileno(),
         0x8915,  # SIOCGIFADDR
-        struct.pack(b'256s', network_device[:15])
+        struct.pack('256s', dev[:15])
     )
-    return socket.inet_ntoa(binary_data)[20:24]
+    return socket.inet_ntoa(binary_data[20:24])
 
 
 def tail(filepath, num_lines=20):
@@ -55,6 +55,19 @@ def tail(filepath, num_lines=20):
     except OSError as e:
         log.error(f"read from file {filepath} failed, exception: {e}")
         return None
+
+
+def nextbox_version():
+    import apt    
+    for pkg in ["nextbox", "nextbox-testing", "nextbox-unstable"]:
+        try:
+            cache = apt.cache.Cache()
+            return cache[pkg].installed.version
+        except:
+            ...
+    return 
+
+
 
 # decorator for authenticated access
 def requires_auth(f):

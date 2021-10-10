@@ -33,13 +33,17 @@ class Services:
 
     # shortcut methods
     def status(self, name): return self.exec(name, "status")
-    def is_active(self, name): return self.exec(name, "is-active")["output"] == "active"
     def start(self, name): return self.exec(name, "start")
     def stop(self, name): return self.exec(name, "stop")
     def restart(self, name): return self.exec(name, "restart")
     def enable(self, name): return self.exec(name, "enable")
     def disable(self, name): return self.exec(name, "disable")
     def unmask(self, name): return self.exec(name, "unmask")
+
+    # special treatment, just want a boolean here...
+    def is_active(self, name): return self.exec(name, "is-active") \
+        .get("output", " ")[0].strip() == "active"
+    
 
     def check(self, name, op):
         """Check, if given service (name) is allowed to run op(eration)"""
@@ -53,7 +57,7 @@ class Services:
         # check if operation (op) is allowed for this service (name)
         if not self.check(name, op):
             log.error(f"failed check at exec, service: {name} operation: {op}")
-            return False
+            return {}
 
         # get full service name (including arg if applicable)
         service, _ = self.SERVICES_CTRL[name]

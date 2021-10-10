@@ -10,6 +10,7 @@ import requests
 from nextbox_daemon.consts import *
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.config import log
+from nextbox_daemon.utils import nextbox_version
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.certificates import Certificates
 from nextbox_daemon.dns_manager import DNSManager
@@ -205,22 +206,26 @@ class SelfUpdateJob(BaseJob):
         self.interval = None
 
 
-        # ensure ddclient is running
-        services.restart("ddclient")
+        # if the custom-dns-config is active, ensure ddclient is up
+        if cfg["config"]["dns_mode"] == "config_done" and not services.is_active("ddclient"):
+            services.restart("ddclient")
 
-        # ensure that neither updater nor factory-reset is masked
+        # ensure that neither updater nor factory-reset are masked (paranoia!)
         services.unmask("nextbox-updater")
         services.unmask("nextbox-factory-reset")
 
+        # log a welcome + version
+        log.info(f"Hello World - I am NextBox - call me: v{nextbox_version()} - let'sa gooo")
+
+        # update/upgrade now
         shield.set_led_state("updating")
 
         log.info("running 'apt-get update'")
-        # apt-get update
         cache = apt.cache.Cache()
         cache.update()
         cache.open()
 
-        # which debian package shall be used?
+        # which debian package
         pkg = cfg["config"]["debian_package"]
 
         try:
