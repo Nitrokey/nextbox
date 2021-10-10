@@ -3,6 +3,8 @@ from pathlib import Path
 import socket
 import shutil
 from functools import wraps
+import fcntl
+import struct
 
 from flask import jsonify, request
 
@@ -30,8 +32,17 @@ def success(msg=None, data=None):
     })
 
 
-def local_ip():
-    return socket.gethostbyname(socket.gethostname())
+def local_ip(network_device="eth0"):
+    dev = network_device if isinstance(network_device, bytes) \
+        else network_device.encode("utf-8")
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    binary_data = fcntl.ioctl(
+        sock.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack(b'256s', network_device[:15])
+    )
+    return socket.inet_ntoa(binary_data)[20:24]
 
 
 def tail(filepath, num_lines=20):
