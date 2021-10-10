@@ -8,7 +8,7 @@ from flask import Blueprint, request
 
 
 from nextbox_daemon.command_runner import CommandRunner
-from nextbox_daemon.utils import requires_auth, success, error, tail
+from nextbox_daemon.utils import requires_auth, success, error, tail, local_ip
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
 from nextbox_daemon.services import services
@@ -116,13 +116,16 @@ def ssh_set():
     auth_p = auth_p_dir / "authorized_keys"
     
     if request.method == "GET":
+        ip = local_ip()
         if not auth_p.exists():
             return success(data={
                 "pubkey": "",
+                "local_ip": ip
             })
         with auth_p.open() as fd:
             return success(data={
-                "pubkey": fd.read()
+                "pubkey": fd.read(),
+                "local_ip": ip
             })      
 
     elif request.method == "POST":
