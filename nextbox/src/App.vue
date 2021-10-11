@@ -215,5 +215,9 @@ div.section a:hover {
 }
 
 
+#app-navigation-vue > ul.app-navigation__list {
+	height: 30% !important
+}
+
 
 </style>

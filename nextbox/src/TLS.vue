@@ -7,8 +7,8 @@
 			</div>
 			<div v-else>
 				<StatusBar v-if="domain" preset="resolve_ipv4" />
-				<StatusBar v-if="domain" preset="resolve_ipv6" />
 				<StatusBar v-if="domain" preset="reach_http_ipv4" />
+				<StatusBar v-if="domain" preset="resolve_ipv6" />
 				<StatusBar v-if="domain" preset="reach_http_ipv6" />
 				
 				<div v-if="https">
