@@ -57,6 +57,9 @@ class Certificates:
     list_cmd = "certbot --config-dir {config_dir} certificates"
     renew_cmd = "certbot --config-dir {config_dir} renew"
 
+    
+
+
     #### example output for 'list_cmd'
     # Found the following certs:
     #   Certificate Name: staticnextbox.dedyn.io
@@ -84,6 +87,9 @@ class Certificates:
                 cur_cert["privkey_path"] = line.split(":")[1].strip() \
                     .replace(self.config_dir, self.inside_docker_dir)
                 certs.append(cur_cert)
+            elif "Expiry Date:" in line:
+                cur_cert["expiry"] = line.split(":", 1)[1].strip()
+
         
         return certs
 
