@@ -1,3 +1,54 @@
+%%PKG%% (1.0.13-1) groovy; urgency=low
+
+  * app: changed StatusBar ordering; fixes #14 by reducing the bottom-nav height
+  * app: ssh-key: move some text
+  * app: many minor fixes and 1st code reduction due to mixins...
+  * app: fixes Nitrokey/nextbox-daemon#27 on frontend side
+  * app: introduced and rolled out mixin, finally...
+  * app: fixes #15 and Nitrokey/nextbox-daemon#16
+  * app: mid-stage commit
+  * app: added utils.js; round-house cleanups
+  * app: fixes Nitrokey/nextbox-daemon#16; some typos; improved some texts
+  * app: many remote-access QoL improvements; external reachability ipv4+ipv6; fixes Nitrokey/nextbox-daemon#27
+  * daemon: services: is-active() -> bool; utils::nextbox_version() and log it
+  * daemon: utils::local_ip() more robust method implemented
+  * daemon: services: is-active now returns a bool
+  * daemon: provide the local-ip to system-settings, fixes #16
+  * daemon: fixes #27 and #30; external reachability; QoL remote-access
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 11 Oct 2021 13:44:01 +0200
+
+%%PKG%% (1.0.12-1) groovy; urgency=low
+
+  * daemon: some unused code cleanups
+  * daemon: trigger DynDNSUpdateJob on related config update #30
+  * daemon: backup::import_nextbox_dir - fix typo
+  * daemon: dyndnsupdatejob: less aggressive ddclient stop/disable #30
+  * daemon: added DynDNSUpdateJob, replaces ddclient for guided-dyn-dns, #30
+  * daemon: backupmetadata: bootstrap test
+  * daemon: BackupMetaData: more tests
+  * daemon: added BackupMetaData + unit-tests
+  * daemon: add nextcloud::get_version() - fix naming
+  * daemon: add nextcloud::get_version()
+  * daemon: added DockerControl cls + unit-tests
+  * daemon: make config.py utestable
+  * daemon: utests: fix system-files
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 10 Oct 2021 01:36:20 +0200
+
+%%PKG%% (1.0.11-1) groovy; urgency=low
+
+  * daemon: certs: renew reload
+  * daemon: check rtun.yaml before import
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 27 Sep 2021 22:34:30 +0200
+
+%%PKG%% (1.0.10-1) groovy; urgency=low
+
+  * daemon: templates: batchify needrestart
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 07 Sep 2021 14:44:12 +0200
+
 %%PKG%% (1.0.9-1) groovy; urgency=low
 
   * daemon: system files handling #29
