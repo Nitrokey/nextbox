@@ -48,6 +48,11 @@
 				It might also be needed to clear your browser cache/cookies, once you enable or disable TLS.
 			</div>
 		</div>
+		<div v-if="status" class="section">
+			<h2>Network Information</h2>
+			Using IPv4 address: <b>{{ status.data.data.ips.ipv4 }}</b><br />
+			Using IPv6 address: <b>{{ status.data.data.ips.ipv6 || '(No IPv6 support)'}}</b>
+		</div>
 	</div>
 </template>
 
@@ -91,6 +96,9 @@ export default {
 			cert: {},
 			https: false,
 			dns_mode: '',
+
+			// status data
+			status: {},
 			
 			// update-ables
 			update: {
@@ -119,6 +127,7 @@ export default {
 
 	async mounted() {
 		await this.refresh()
+		this.status = await this.getStatus()
 		this.loading = false
 	},
 
@@ -164,7 +173,7 @@ export default {
 			})
 
 			const res = await axios.post(generateUrl(url), data, options).then((res) => {
-				if (res.data.result === 'success') {
+				/*if (res.data.result === 'success') {
 					setTimeout(() => {
 						window.location.replace(`https://${this.domain}`)
 					}, 5000)
@@ -172,7 +181,9 @@ export default {
 				} else {
 					showError(res.data.msg)
 					this.loadingButton = false
-				}
+				}*/
+				this.interval = window.setInterval(this.getStatus, 1000)
+			
 			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)

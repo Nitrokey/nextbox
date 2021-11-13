@@ -1,4 +1,6 @@
 
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
 
 
 const UtilsMixin = {
@@ -20,10 +22,19 @@ const UtilsMixin = {
 			return `<a target='_blank' href='${url}'>${label}</a>`
 		},
 
-		refreshConfig() {
+		getConfig() {
 			// here the single most useful abstraction !!!!
 			// backend-wise this will also be a signal to push 
 			//    some serious config handling 
+		},
+
+		getStatus() {
+			const url = '/apps/nextbox/forward/status'
+			const res = axios.get(generateUrl(url)).catch((e) => {
+				//showError('Connection failed')
+				console.error(e)
+			})
+			return res
 		},
 
 		makePost(url, data, options) {

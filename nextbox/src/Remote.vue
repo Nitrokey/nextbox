@@ -18,12 +18,12 @@
 			<ul>
 				<li class="remote-action" @click="$emit('newPage', 'remote_proxy')">
 					<span class="remote-icon icon-star" />
-					Backwards Proxy Configuration (recommended)
+					Backwards Proxy Configuration 
 				</li>
-				<!--li v-tooltip="ttDesec" class="remote-action" @click="$emit('newPage', 'remote_dyndns')">
+				<li v-tooltip="ttDesec" class="remote-action" @click="$emit('newPage', 'remote_dyndns')">
 					<span class="remote-icon icon-comment" />
-					Guided Dynamic DNS Configuration (DeSEC)
-				</li-->
+					Guided Dynamic DNS Configuration (DeSEC - recommended) 
+				</li>
 				<li v-tooltip="ttConfig" class="remote-action" @click="$emit('newPage', 'remote_custom_dns')">
 					<span class="remote-icon icon-settings" />
 					Custom Dynamic DNS Configuration
@@ -34,9 +34,14 @@
 				</li>
 			</ul>
 		</div>
+		<div v-if="status" class="section">
+			<h2>Network Information</h2>
+			Using IPv4 address: <b>{{ status.data.data.ips.ipv4 }}</b><br />
+			Using IPv6 address: <b>{{ status.data.data.ips.ipv6 || '(No IPv6 support)'}}</b>
+		</div>
+
 	</div>
 </template>
-
 
 
 <script>
@@ -76,6 +81,7 @@ export default {
 			// generics
 			loading: true,
 
+			status: {},
 			config: {
 				https_port: false,
 				proxy_active: false,
@@ -99,6 +105,7 @@ export default {
 
 	async mounted() {
 		await this.refresh()
+		this.status = await this.getStatus()
 		this.loading = false
 	},
 
