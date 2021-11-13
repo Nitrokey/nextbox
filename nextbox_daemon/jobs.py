@@ -68,7 +68,6 @@ class FactoryResetJob(BaseJob):
         shield.set_led_state("factory-reset")
         services.start("nextbox-factory-reset")
 
-
 class DynDNSUpdateJob(BaseJob):
     name = "DynDNSUpdate"
 
@@ -117,8 +116,6 @@ class DynDNSUpdateJob(BaseJob):
             else:
                 log.warning(f"failed updating IPs ({ipv4} & {ipv6}) for domain: '{domain}'")
                 log.debug(f"result: {res.text} status_code: {res.status_code} url: {res.url}")
-
-
 
 class BackupRestoreJob(BaseJob):
     name = "BackupRestore"
@@ -174,7 +171,6 @@ class BackupRestoreJob(BaseJob):
             self.iterator = None
             self.interval = None
 
-
 class EnableNextBoxAppJob(BaseJob):
     name = "EnableNextBoxApp"
     
@@ -195,7 +191,6 @@ class EnableNextBoxAppJob(BaseJob):
                 log.info("enabled nextcloud nextbox-app")
         except NextcloudError:
             pass
-
 
 class SelfUpdateJob(BaseJob):
     name = "SelfUpdate"
