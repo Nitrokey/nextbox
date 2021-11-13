@@ -61,12 +61,9 @@
 			</div>
 			
 			<div v-if="interval && status.tls" class="status-timer">
-				<br>
 				<span class="icon icon-loading-small" /> 
 				<b>Please wait</b> - active job: {{ status.tls.what }} ({{ status.tls.state }}) for: {{ intervalSecsPassed }}secs
 				<span class="icon icon-loading-small" /> 
-				<br>
-				
 			</div>
 			
 		</div>
@@ -307,6 +304,16 @@ export default {
 	width: 50vw;
 	text-align: center;
 	padding: 5vh;
+}
+
+.status-timer {
+	margin-top: 8px;
+	padding: .15em;
+	text-align: center;
+	border-radius: var(--border-radius);
+	background-color: var(--color-placeholder-dark);
+	display: block;
+	align-self: center;
 }
 
 
