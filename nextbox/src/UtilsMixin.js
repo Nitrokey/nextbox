@@ -31,7 +31,7 @@ const UtilsMixin = {
 		async getStatus() {
 			const url = '/apps/nextbox/forward/status'
 			const res = await axios.get(generateUrl(url)).catch((e) => {
-				//showError('Connection failed')
+				console.error("failed getting status from backend: ")
 				console.error(e)
 			})
 			

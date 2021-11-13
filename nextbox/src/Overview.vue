@@ -66,7 +66,6 @@ export default {
 
 			config: {},
 
-			apiMatch: false,
 			running: false,
 			
 			status: {},
@@ -131,12 +130,10 @@ export default {
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/config'))
 				this.config = res.data.data
-				this.apiMatch = res.data.api === this.expectedApi
 				this.running = true
 			} catch (e) {
 				console.error(e)
 				this.config = {}
-				this.apiMatch = false
 				this.running = false
 			}
 		},
