@@ -68,15 +68,15 @@ export default {
 
 			apiMatch: false,
 			running: false,
-			board: {},
-			version: '',
-			docsLink: '',
+			
+			status: {},
 		}
 	},
 
 	async mounted() {
 		this.refresh()
 		this.loading = false
+		this.status = await this.getStatus()
 	},
 
 	computed: {
@@ -119,8 +119,8 @@ export default {
 		statusVersion() {
 			return {
 				icon: 'info',
-				text: (this.version) 
-					? `NextBox Daemon Version: ${this.version}` 
+				text: (this.status) 
+					? `NextBox Daemon Version: ${this.status.pkginfo.version}` 
 					: 'Checking NextBox Daemon Version'
 			}
 		}
@@ -138,18 +138,6 @@ export default {
 				this.config = {}
 				this.apiMatch = false
 				this.running = false
-			}
-			this.statusBoard()
-		},
-
-		async statusBoard() {
-			try {
-				const res = await axios.get(generateUrl('/apps/nextbox/forward/status'))
-				this.board = JSON.stringify(res.data, null, 2)
-				this.version = res.data.data.pkginfo.version
-
-			} catch (e) {
-				console.error('failed loading status board')
 			}
 		},
 	},
