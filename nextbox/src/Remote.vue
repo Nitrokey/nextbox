@@ -34,10 +34,10 @@
 				</li>
 			</ul>
 		</div>
-		<div v-if="status" class="section">
+		<div v-if="status && status.ips" class="section">
 			<h2>Network Information</h2>
-			Using IPv4 address: <b>{{ status.data.data.ips.ipv4 }}</b><br />
-			Using IPv6 address: <b>{{ status.data.data.ips.ipv6 || '(No IPv6 support)'}}</b>
+			Using IPv4 address: <b>{{ status.ips.ipv4 }}</b><br />
+			Using IPv6 address: <b>{{ status.ips.ipv6 || '(No IPv6 support)'}}</b>
 		</div>
 
 	</div>
@@ -105,8 +105,9 @@ export default {
 
 	async mounted() {
 		await this.refresh()
-		this.status = await this.getStatus()
 		this.loading = false
+		this.status = await this.getStatus()
+		
 	},
 
 	methods: {

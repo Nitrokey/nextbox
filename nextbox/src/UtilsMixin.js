@@ -28,13 +28,14 @@ const UtilsMixin = {
 			//    some serious config handling 
 		},
 
-		getStatus() {
+		async getStatus() {
 			const url = '/apps/nextbox/forward/status'
-			const res = axios.get(generateUrl(url)).catch((e) => {
+			const res = await axios.get(generateUrl(url)).catch((e) => {
 				//showError('Connection failed')
 				console.error(e)
 			})
-			return res
+			
+			return (res) ? res.data.data : res
 		},
 
 		makePost(url, data, options) {

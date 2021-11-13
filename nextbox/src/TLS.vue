@@ -1,7 +1,7 @@
 <template>
 	<div id="tls" v-if="!loading">
 		<div class="section">
-			<h2>HTTPS / TLS Configuration</h2>
+			<h2>HTTPS / TLS Status</h2>
 			<div v-if="!dns_mode.endsWith('_done')" icon="icon-close">
 				To activate TLS encryption for your NextBox, first finish a DNS Configuration.
 			</div>
@@ -16,42 +16,59 @@
 						state='success' 
 						icon='checkmark'
 						:text="'HTTPS / TLS is activated, your Nextcloud is available via ' + toLink(domain)" />
-					<br>
-					<button v-tooltip="ttDisable" 
-						type="button" 
-						:disabled="loadingButton" 
-						@click="disable()">
-						<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
-						Disable HTTPS
-					</button>
 				</div>
 				<div v-else>
 					<StatusBar state='warning' icon='error' text='HTTPS / TLS is not activated' />
-					<br>
-					Activate HTTPS / TLS for your configured domain: <b>"{{ domain }}"</b>
-					<div v-if="dns_mode !== 'desec_done'">
-						Please provide a valid E-Mail,
-						which will be used to acquire a Let's Encrypt Certificate.
-						<input v-model="update.email" type="text" @change="validateEMail">
-						<br><span v-if="userMessage.email" class="error-txt">{{ userMessage.email.join(" ") }}</span>
-					</div><br>
-					<button v-tooltip="ttEnable" 
-						type="button" 
-						:disabled="enableDisabled" 
-						@click="enable()">
-						<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
-						Enable HTTPS 
-					</button>
-				</div><br>
-				Enabling or Disabling HTTPS might need a restart of your Browser to properly
-				access your Nextcloud afterwards, as caching sometimes leads to issues. <br>
-				It might also be needed to clear your browser cache/cookies, once you enable or disable TLS.
+				</div>
 			</div>
 		</div>
-		<div v-if="status" class="section">
+
+		<div v-if="status && status.ips" class="section">
 			<h2>Network Information</h2>
-			Using IPv4 address: <b>{{ status.data.data.ips.ipv4 }}</b><br />
-			Using IPv6 address: <b>{{ status.data.data.ips.ipv6 || '(No IPv6 support)'}}</b>
+			Using IPv4 address: <b>{{ status.ips.ipv4 }}</b><br />
+			Using IPv6 address: <b>{{ status.ips.ipv6 || '(No IPv6 support)'}}</b>
+		</div>
+
+		<div class="section">
+			<h2>HTTPS / TLS Management</h2>
+			Enabling or Disabling HTTPS might need a restart of your browser to properly
+			access your Nextcloud afterwards, as caching sometimes leads to issues. <br>
+			It might also be needed to clear your browser cache/cookies, once you enable or disable TLS.<br><br>
+			<div v-if="https">
+				<button v-tooltip="ttDisable" 
+					type="button" 
+					:disabled="loadingButton" 
+					@click="disable()">
+					<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-close')" />
+					Disable HTTPS
+				</button>
+			</div>
+			<div v-else>
+				Activate HTTPS / TLS for your configured domain: <b>"{{ domain }}"</b>:
+				<div v-if="dns_mode !== 'desec_done'">
+					Please provide a valid E-Mail,
+					which will be used to acquire a Let's Encrypt Certificate.
+					<input v-model="update.email" type="text" @change="validateEMail">
+					<br><span v-if="userMessage.email" class="error-txt">{{ userMessage.email.join(" ") }}</span>
+				</div><br>
+				<button v-tooltip="ttEnable" 
+					type="button" 
+					:disabled="enableDisabled" 
+					@click="enable()">
+					<span :class="'icon ' + ((loadingButton) ? 'icon-loading-small' : 'icon-confirm')" />
+					Enable HTTPS 
+				</button>
+			</div>
+			
+			<div v-if="interval && status.tls" class="status-timer">
+				<br>
+				<span class="icon icon-loading-small" /> 
+				<b>Please wait</b> - active job: {{ status.tls.what }} ({{ status.tls.state }}) for: {{ intervalSecsPassed }}secs
+				<span class="icon icon-loading-small" /> 
+				<br>
+				
+			</div>
+			
 		</div>
 	</div>
 </template>
@@ -61,7 +78,7 @@
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { generateUrl } from '@nextcloud/router'
-import { showError, showSuccess } from '@nextcloud/dialogs'
+import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 
@@ -99,6 +116,11 @@ export default {
 
 			// status data
 			status: {},
+
+			// intervall stuff
+			interval: null,
+			intervalStartedAt: null,
+			intervalSecsPassed: 0,
 			
 			// update-ables
 			update: {
@@ -127,8 +149,8 @@ export default {
 
 	async mounted() {
 		await this.refresh()
-		this.status = await this.getStatus()
 		this.loading = false
+		this.status = await this.getStatus()
 	},
 
 	methods: {
@@ -160,6 +182,40 @@ export default {
 			}
 		},
 		
+		async getStatusUntilDone() {
+			this.status = await this.getStatus()
+
+			if (this.status) {
+				if (!this.intervalStartedAt) {
+					this.intervalStartedAt = new Date()
+				}
+				
+				this.intervalSecsPassed = ((new Date() - this.intervalStartedAt) / 1e3).toFixed()
+				const state = this.status.tls.state
+				if (state === 'fail') {
+					window.clearInterval(this.interval)
+					showMessage(`Failed setting up HTTPS/TLS, reason: ${this.status.tls.what}`)
+					this.loadingButton = false
+					this.intervalStartedAt = null
+
+				} else if (state === 'success') {
+					window.clearInterval(this.interval)
+					showMessage('Acquiring certificate done, waiting 15secs before reloading...')
+					setTimeout(() => {
+						window.location.replace(`https://${this.domain}`)
+					}, 15000)
+				}
+
+			// assume the process completed and Apache is restarting
+			} else {
+				window.clearInterval(this.interval)
+				showMessage('Acquiring certificate done, waiting 15secs before reloading...')
+				setTimeout(() => {
+					window.location.replace(`https://${this.domain}`)
+				}, 15000)
+			}
+		},
+
 		async enable() {
 			this.loadingButton = true
 
@@ -173,16 +229,7 @@ export default {
 			})
 
 			const res = await axios.post(generateUrl(url), data, options).then((res) => {
-				/*if (res.data.result === 'success') {
-					setTimeout(() => {
-						window.location.replace(`https://${this.domain}`)
-					}, 5000)
-					showSuccess(res.data.msg)
-				} else {
-					showError(res.data.msg)
-					this.loadingButton = false
-				}*/
-				this.interval = window.setInterval(this.getStatus, 1000)
+				this.interval = window.setInterval(this.getStatusUntilDone, 1000)
 			
 			}).catch((e) => {
 				showError('Connection failed')
@@ -202,22 +249,24 @@ export default {
 
 			const res = await axios.post(generateUrl(url), data, options).then((res) => {
 				if (res.data.result === 'success') {
+					// actually never reached code, just to be save 
 					setTimeout(() => {
 						window.location.replace(`http://${this.domain}`)
-					}, 5000)
+					}, 60000)
 					showSuccess(res.data.msg)
 				} else {
 					showError(res.data.msg)
 					this.loadingButton = false
 				}
+
 			}).catch((e) => {
 				// expected behavior for success :/
 				setTimeout(() => {
+					this.loadingButton = false
 					window.location.replace(`http://${this.domain}`)
-				}, 5000)
-				showSuccess('redirecting in 5secs')
-				console.error(e)
-				this.loadingButton = false
+				}, 60000)
+				showSuccess('finished, reloading in 60secs...')
+				//console.error(e)
 			})
 		},
 
