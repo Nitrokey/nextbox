@@ -8,12 +8,13 @@ from flask import Blueprint, request
 
 
 from nextbox_daemon.command_runner import CommandRunner
-from nextbox_daemon.utils import requires_auth, success, error, tail, local_ip
+from nextbox_daemon.utils import requires_auth, success, error, tail, local_ip, nextbox_version
 from nextbox_daemon.config import cfg, log
 from nextbox_daemon.worker import job_queue
 from nextbox_daemon.services import services
 from nextbox_daemon.proxy_tunnel import ProxyTunnel
 from nextbox_daemon.status_board import board
+from nextbox_daemon.dns_manager import DNSManager
 from nextbox_daemon.consts import *
 
 generic_api = Blueprint('generic', __name__)
@@ -21,17 +22,23 @@ generic_api = Blueprint('generic', __name__)
 
 
 @generic_api.route("/status")
-def show_overview():
+@requires_auth
+def get_status():
+    # add pkginfo if not yet inside status-board
+    if not board.contains_key("pkginfo"):
+        board.set("pkginfo", {"version": nextbox_version()})
+        keys = board.get_keys()
+
+    # update ips, not more often than 1min
+    if board.is_older_than("ips", 60):
+        dns = DNSManager()
+        board.set("ips", {"ipv4": dns.get_ipv4(), "ipv6": dns.get_ipv6()})
+
+    # return all board data
     keys = board.get_keys()
-
-    if "pkginfo" not in keys:
-        job_queue.put("GenericStatusUpdate")
-
-    out = {}
-    for key in keys:
-        out[key] = board.get(key)
-    return success(data=out)
-
+    status_data = {key: board.get(key) for key in keys}
+    
+    return success(data=status_data)
 
 @generic_api.route("/log")
 @generic_api.route("/log/<num_lines>")
@@ -136,6 +143,7 @@ def ssh_set():
         
         log.info(f"setting ssh pub key: {pubkey}")
         return success()
+
 
 
 @generic_api.route("/reboot", methods=["POST"])

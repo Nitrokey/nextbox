@@ -15,6 +15,7 @@ from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.certificates import Certificates
 from nextbox_daemon.dns_manager import DNSManager
 from nextbox_daemon.raw_backup_restore import RawBackupRestore
+from nextbox_daemon.proxy_tunnel import ProxyTunnel, ProxySetupError
 from nextbox_daemon.services import services
 from nextbox_daemon.shield import shield
 from nextbox_daemon.worker import BaseJob
@@ -270,25 +271,86 @@ class RenewCertificatesJob(BaseJob):
         c.renew_certs()
         c.reload_apache()
 
-class GenericStatusUpdateJob(BaseJob):
-    name = "GenericStatusUpdate"
+class EnableHTTPSJob(BaseJob):
+    name = "EnableHTTPS"
 
     def __init__(self):
-        super().__init__(initial_interval=15)
+        super().__init__(initial_interval=None)
 
     def _run(self, cfg, board, kwargs):
-        self.interval = None
+        board.set("tls", {
+            "what": "enable",
+            "state": "running",
+        }) 
 
-        pkg = cfg["config"]["debian_package"]
+        certs = Certificates()
+        domain = cfg.get("config", {}).get("domain")
+        email = cfg.get("config", {}).get("email")
+        
+        if not domain or not email:
+            log.error(f"cannot enable tls, domain: '{domain}' email: '{email}'")
+            board.set("tls", {
+                "what": "domain-or-email",
+                "state": "fail",
+            })
+            return False
 
-        try:
-            cache = apt.cache.Cache()
-            version = cache[pkg].installed.version
-        except Exception as e:
-            log.error(f"failed getting pkg-info for: {pkg}", exc_info=e)
-            return
-            
-        board.set("pkginfo", {"version": version, "pkg": pkg})
+        my_cert = certs.get_cert(domain)
+        if not my_cert:
+            log.warning(f"could not get local certificate for: {domain}, acquiring...")
+            if not certs.acquire_cert(domain, email):
+                msg = f"Failed to acquire {domain} with {email}"
+                log.error(msg)
+                board.set("tls", {
+                    "what": "acquire",
+                    "state": "fail",
+                })
+                return False
+            log.info(f"acquired certificate for: {domain} with {email}")
+            my_cert = certs.get_cert(domain)
+
+        certs.write_apache_ssl_conf(
+            my_cert["domains"][0], 
+            my_cert["fullchain_path"], 
+            my_cert["privkey_path"]
+        )
+
+        if not certs.set_apache_config(ssl=True):
+            board.set("tls", {
+                "what": "apache-config",
+                "state": "fail",
+            })
+            log.error("failed enabling ssl configuration for apache")
+            return False
+
+        log.info(f"activated https for apache using: {domain}")
+        
+        cfg["config"]["https_port"] = 443
+        cfg["config"]["email"] = email    
+        cfg.save()
+
+        board.set("tls", {
+            "what": "enable",
+            "state": "success",
+        })
+
+        # we need to "re-wire" the proxy to port 443 on activated TLS
+        add_msg = ""
+        if cfg["config"]["proxy_active"]:
+            subdomain = cfg["config"]["proxy_domain"].split(".")[0]
+            scheme = "https"
+            token = cfg["config"]["nk_token"]
+            proxy_tunnel = ProxyTunnel()
+            try:
+                proxy_port = proxy_tunnel.setup(token, subdomain, scheme)
+            except ProxySetupError as e:
+                log.error("register at proxy-server error", exc_info=e)
+            except Exception as e:
+                log.error("unexpected error during proxy setup", exc_info=e)
+                
+            cfg["config"]["proxy_port"] = proxy_port
+            cfg.save()
+
 
 
 class HardwareStatusUpdateJob(BaseJob):
@@ -348,7 +410,8 @@ class TrustedDomainsJob(BaseJob):
 
 ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob, 
-    SelfUpdateJob, GenericStatusUpdateJob, HardwareStatusUpdateJob,
-    TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob
+    SelfUpdateJob, HardwareStatusUpdateJob,
+    TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
+    EnableHTTPSJob
 ]
 

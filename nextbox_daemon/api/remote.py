@@ -8,6 +8,7 @@ from flask import Blueprint, request
 import socket 
 import ssl
 import re
+from datetime import datetime as dt
 
 from nextbox_daemon.command_runner import CommandRunner
 from nextbox_daemon.utils import requires_auth, success, error
@@ -17,6 +18,7 @@ from nextbox_daemon.certificates import Certificates
 from nextbox_daemon.nextcloud import Nextcloud, NextcloudError
 from nextbox_daemon.proxy_tunnel import ProxyTunnel, ProxySetupError
 from nextbox_daemon.dns_manager import DNSManager
+from nextbox_daemon.status_board import board
 from nextbox_daemon.consts import *
 
 
@@ -268,58 +270,66 @@ def https():
 @remote_api.route("/https/enable", methods=["POST"])
 @requires_auth
 def https_enable():
-    domain = request.form.get("domain")
-    email = request.form.get("email")
 
-    if not domain or not email:
-        return error(f"failed, domain: '{domain}' email: '{email}'")
+    board.set("tls", {
+        "what": "enable",
+        "state": "pending",
+    })
+    job_queue.put("EnableHTTPS")
 
-    certs = Certificates()
-    my_cert = certs.get_cert(domain)
-    if not my_cert:
-        log.warning(f"could not get local certificate for: {domain}, acquiring...")
-        if not certs.acquire_cert(domain, email):
-            msg = f"Failed to acquire {domain} with {email}"
-            log.error(msg)
-            return error(msg)
-        log.info(f"acquired certificate for: {domain} with {email}")
-        my_cert = certs.get_cert(domain)
 
-    certs.write_apache_ssl_conf(
-        my_cert["domains"][0], 
-        my_cert["fullchain_path"], 
-        my_cert["privkey_path"]
-    )
+    # domain = request.form.get("domain")
+    # email = request.form.get("email")
 
-    if not certs.set_apache_config(ssl=True):
-        return error("failed enabling ssl configuration for apache")
+    # if not domain or not email:
+    #     return error(f"failed, domain: '{domain}' email: '{email}'")
 
-    log.info(f"activated https for apache using: {domain}")
+    # certs = Certificates()
+    # my_cert = certs.get_cert(domain)
+    # if not my_cert:
+    #     log.warning(f"could not get local certificate for: {domain}, acquiring...")
+    #     if not certs.acquire_cert(domain, email):
+    #         msg = f"Failed to acquire {domain} with {email}"
+    #         log.error(msg)
+    #         return error(msg)
+    #     log.info(f"acquired certificate for: {domain} with {email}")
+    #     my_cert = certs.get_cert(domain)
 
-    cfg["config"]["https_port"] = 443
-    cfg["config"]["email"] = email    
-    cfg.save()
+    # certs.write_apache_ssl_conf(
+    #     my_cert["domains"][0], 
+    #     my_cert["fullchain_path"], 
+    #     my_cert["privkey_path"]
+    # )
 
-    # we need to "re-wire" the proxy to port 443 on activated TLS
-    add_msg = ""
-    if cfg["config"]["proxy_active"]:
-        subdomain = cfg["config"]["proxy_domain"].split(".")[0]
-        scheme = "https"
-        token = cfg["config"]["nk_token"]
-        proxy_tunnel = ProxyTunnel()
-        try:
-            proxy_port = proxy_tunnel.setup(token, subdomain, scheme)
-        except ProxySetupError as e:
-            log.error(exc_info=e)
-            add_msg = "(but register at proxy-server error: " + repr(e) + ")"
-        except Exception as e:
-            log.error(exc_info=e)
-            add_msg = "(unexpected error during proxy setup)"
+    # if not certs.set_apache_config(ssl=True):
+    #     return error("failed enabling ssl configuration for apache")
 
-        cfg["config"]["proxy_port"] = proxy_port
-        cfg.save()
+    # log.info(f"activated https for apache using: {domain}")
 
-    return success("HTTPS enabled " + add_msg)
+    # cfg["config"]["https_port"] = 443
+    # cfg["config"]["email"] = email    
+    # cfg.save()
+
+    # # we need to "re-wire" the proxy to port 443 on activated TLS
+    # add_msg = ""
+    # if cfg["config"]["proxy_active"]:
+    #     subdomain = cfg["config"]["proxy_domain"].split(".")[0]
+    #     scheme = "https"
+    #     token = cfg["config"]["nk_token"]
+    #     proxy_tunnel = ProxyTunnel()
+    #     try:
+    #         proxy_port = proxy_tunnel.setup(token, subdomain, scheme)
+    #     except ProxySetupError as e:
+    #         log.error(exc_info=e)
+    #         add_msg = "(but register at proxy-server error: " + repr(e) + ")"
+    #     except Exception as e:
+    #         log.error(exc_info=e)
+    #         add_msg = "(unexpected error during proxy setup)"
+
+    #     cfg["config"]["proxy_port"] = proxy_port
+    #     cfg.save()
+
+    return success("HTTPS enabling pending")
 
 @remote_api.route("/https/disable", methods=["POST"])
 @requires_auth
@@ -369,24 +379,30 @@ def getcerts():
     return success(data=dct)
 
 
-@remote_api.route("/certs/acquire", methods=["POST"])
-@requires_auth
-def acquire_cert():
+# @remote_api.route("/certs/acquire", methods=["POST"])
+# @requires_auth
+# def acquire_cert():
 
-    domain = cfg.get("config", {}).get("domain")
-    email = cfg.get("config", {}).get("email")
+#     domain = cfg.get("config", {}).get("domain")
+#     email = cfg.get("config", {}).get("email")
     
-    certs = Certificates()
-    if certs.get_cert(domain):
-        return error(f"certificate for {domain} already acquired")
+#     certs = Certificates()
+#     if certs.get_cert(domain):
+#         return error(f"certificate for {domain} already acquired")
 
-    if len(certs.get_local_certs()) > 0:
-        certs.clear_certs()
+#     if len(certs.get_local_certs()) > 0:
+#         certs.clear_certs()
     
-    if not certs.acquire_cert(domain, email):
-        return error(f"could not acquire certificate")
+#     #if not certs.acquire_cert(domain, email):
+#     #    return error(f"could not acquire certificate")
 
-    return success(f"acquired certificate for {domain}")
+#     board.set("tls", {
+#         "what": "acquire",
+#         "state": "pending",
+#     })
+#     job_queue.put("AcquireCertificate")
+
+#     return success(f"acquiring certificate for {domain} in progress")
 
 @remote_api.route("/certs/clear", methods=["POST"])
 @requires_auth

@@ -57,7 +57,29 @@ class Certificates:
     list_cmd = "certbot --config-dir {config_dir} certificates"
     renew_cmd = "certbot --config-dir {config_dir} renew"
 
-    
+    # certbot --work-dir `pwd` --logs-dir . \
+    #     --config-dir `pwd`/lets/ \
+    #     --manual --text --preferred-challenges dns \
+    #     --manual-auth-hook ./hook.sh --manual-cleanup-hook ./hook.sh \
+    #     -d "cool-dns-auth.dedyn.io" \
+    #     --agree-tos --non-interactive \
+    #     --email cool-dns-auth@dadadada.33mail.com \
+    #     certonly
+    # ```
+
+    desec_acquire_cmd = "certbot --config-dir {config_dir} --work-dir {config_dir} --manual --text --preferred-challenges dns --manual-auth-hook /usr/bin/nextbox-desec-hook.sh --manual-cleanup-hook /usr/bin/nextbox-desec-hook.sh --agree-tos --non-interactive --email {email} --domains {domain} --manual-public-ip-logging-ok certonly"
+    desec_renew_cmd = "certbot --config-dir {config_dir} --work-dir {config_dir} --manual --text --preferred-challenges dns --manual-auth-hook /usr/bin/nextbox-desec-hook.sh --manual-cleanup-hook /usr/bin/nextbox-desec-hook.sh --agree-tos --non-interactive --manual-public-ip-logging-ok renew"
+    desec_credentials_path = "/.dedynauth"
+
+    # credentials:
+    # ```
+    # certbot --work-dir `pwd`/work --logs-dir /tmp/logs \
+    #   --config-dir /tmp/test --manual --text \
+    #   --preferred-challenges dns --manual-auth-hook ./hook.sh \
+    #   --manual-cleanup-hook ./hook.sh -d "nextbox-dns-test.dedyn.io" \
+    #   --agree-tos --non-interactive --email nextbox-dns-test@dadadada.33mail.com \
+    #   --manual-public-ip-logging-ok certonly
+
 
 
     #### example output for 'list_cmd'
@@ -117,9 +139,32 @@ class Certificates:
             if domain in cert["domains"]:
                 return cert
         
+    def write_dedyn_credentials(self, domain, token):
+        with open(self.desec_credentials_path, "w") as fd:
+            fd.write(f"export DEDYN_TOKEN={token}\n")
+            fd.write(f"export DEDYN_NAME={domain}\n")
+        log.info(f"wrote {self.desec_credentials_path}")
+
+
     def acquire_cert(self, domain, email):
         # here we try to acquire a new certificate using certbot
-        cmd = self.acquire_cmd.format(email=email, domain=domain, config_dir=self.config_dir)
+        dns_mode = cfg.get("config", {}).get("dns_mode")
+        desec_token = cfg.get("config", {}).get("desec_token")
+
+        # desec based certbot command (dns-based verification)
+        if dns_mode == "desec_done":
+            self.write_dedyn_credentials(domain, desec_token)
+            cmd = self.desec_acquire_cmd.format(email=email, domain=domain, config_dir=self.config_dir)
+
+        # others use reachability based verification
+        elif dns_mode in ["config_done", "static_done"]:
+            cmd = self.acquire_cmd.format(email=email, domain=domain, config_dir=self.config_dir, token=desec_token)     
+
+        else:
+            log.error("trying to acquire certificate w/o finished dns-config")
+            return False
+
+        # run certbot acquire command
         cr = CommandRunner(cmd, block=True)
         if cr.returncode == 0:
             return True
@@ -130,9 +175,33 @@ class Certificates:
         return False
 
     def renew_certs(self):
-        cr = CommandRunner(self.renew_cmd.format(config_dir=self.config_dir), block=True)
+        # here we try to acquire a new certificate using certbot
+        dns_mode = cfg.get("config", {}).get("dns_mode")
+        desec_token = cfg.get("config", {}).get("desec_token")
+        https_port = cfg.get("config", {}).get("https_port")
+        domain = cfg.get("config", {}).get("domain")
+
+        # desec based certbot command (dns-based verification)
+        if dns_mode == "desec_done":
+            self.write_dedyn_credentials(domain, desec_token)
+            cmd = self.desec_renew_cmd.format(config_dir=self.config_dir)
+
+        # others use reachability based verification
+        elif dns_mode in ["config_done", "static_done"]:
+            cmd = self.renew_cmd.format(config_dir=self.config_dir, token=desec_token)         
+               
+        else:
+            log.error("trying to renew certificate w/o activated certificate")
+            return False
+
+        # run certbot renew command
+        cr = CommandRunner(cmd, block=True)
         if cr.returncode == 0:
             return True
+
+        # on fail log output
+        log.error("could not renew certificate(s)")
+        cr.log_output()
         return False
 
     def ensure_apache_mods(self):

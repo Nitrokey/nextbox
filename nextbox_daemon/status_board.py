@@ -1,6 +1,7 @@
 from copy import deepcopy
 from threading import RLock
 from queue import Queue
+from datetime import datetime as dt
 
 class StatusBoard:
     def __init__(self):
@@ -31,17 +32,26 @@ class StatusBoard:
         return out
     
     def set(self, key, val):
+        if not isinstance(val, dict):
+            log.error(f"StatusBoard only accepts dicts as values - provided {type(val)}")
+            return False
+
         with self.lock:
             self._board[key] = deepcopy(val)
+            self._board[key]["when"] = dt.now().isoformat()
+
         return True
 
-    def update(self, key, dct):
-        if not isinstance(dct, dict):
-            self.messages.put(f"can't update key: {key}, dct: '{dct}'' is not a dict-type")
-            return
-        
+    def is_older_than(self, key, secs):
+        if not self.contains_key(key):
+            return True
+
         with self.lock:
-            self._board.setdefault(key, {}).update(deepcopy(dct))
+            last = self.get(key).get("when")
+            if not last: 
+                return True
+            secs_old = (dt.now() - dt.fromisoformat(last)).total_seconds()
+        return secs_old > secs
 
     def save(self):
         ...
