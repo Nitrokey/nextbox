@@ -168,7 +168,9 @@ div.section a:hover {
 	color: #224;
 }
 
-
+h3 {
+	font-weight: bolder;
+}
 
 /*textarea {
 	flex-grow: 1;

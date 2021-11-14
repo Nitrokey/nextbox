@@ -35,6 +35,12 @@
 			access your Nextcloud afterwards, as caching sometimes leads to issues. <br>
 			It might also be needed to clear your browser cache/cookies, once you enable or disable TLS.<br><br>
 			<div v-if="https">
+				<div>
+					<h3>Certificate Information</h3>
+					Registered domain: <b>{{ (cert ? cert.name : 'checking...') }}</b><br>
+					Valid until: <b>{{ (cert ? cert.expiry : 'checking...') }}</b><br>
+				</div>
+				<br>
 				<button v-tooltip="ttDisable" 
 					type="button" 
 					:disabled="loadingButton" 
