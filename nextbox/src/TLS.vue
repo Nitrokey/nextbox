@@ -183,9 +183,11 @@ export default {
 
 				axios.get(generateUrl('/apps/nextbox/forward/certs')).then((res) => {
 					this.cert = res.data.data.cert
-					const toks = this.cert.expiry.split(' ')
-					this.cert.expiryDate = new Date(toks[0] + ' ' + toks[1])
-					this.cert.validForDays = toks[3]
+					if (this.cert) {
+						const toks = this.cert.expiry.split(' ')
+						this.cert.expiryDate = new Date(toks[0] + ' ' + toks[1])
+						this.cert.validForDays = toks[3]
+					}
 				}).catch((e) => {
 					console.error(e)
 					showError(t('nextbox', 'Connection Failed'))
