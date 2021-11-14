@@ -193,6 +193,8 @@ def handle_config():
         run_jobs = []
         for key in request.form:
             val = request.form.get(key)
+
+            # special config-value 'conf' represents ddclient-config-contents
             if key == "conf":
                 old_conf = Path(DDCLIENT_CONFIG_PATH).read_text("utf-8")
                 if old_conf != val:
@@ -213,29 +215,39 @@ def handle_config():
 
 
             elif key in AVAIL_CONFIGS and val is not None:
+                # only allow valid DYNDNS_MODES
                 if key == "dns_mode" and val not in DYNDNS_MODES:
                     log.warning(f"key: 'dns_mode' has invalid value: {val} - skipping")
                     continue
                 
+                # start DynDNS update on "desec_done"
+                elif key == "dns_mode" and val == "desec_done":
+                    run_jobs.append("DynDNSUpdate")
+
+                # start TrustedDomains update on new domain
                 elif "domain" in key:
                     run_jobs.append("TrustedDomains")
 
+                # deactivate proxy on request
                 elif key == "proxy_active" and val.lower() == "false":
                     proxy_tunnel = ProxyTunnel()
                     proxy_tunnel.stop()
 
-
+                # skip if 'val' is empty
                 elif val is None:
                     log.debug(f"skipping key: '{key}' -> no value provided")
                     continue
 
+                # convert to bool, ugly?
                 if val.lower() in ["true", "false"]:
                     val = val.lower() == "true"
 
+                # put key-value into cfg and save (yes, saving each value)
                 cfg["config"][key] = val
                 log.debug(f"saving key: '{key}' with value: '{val}'")
                 cfg.save()
 
+        # run jobs collected during configuration update
         if len(run_jobs) > 0:
             for job in run_jobs:
                 job_queue.put(job)
