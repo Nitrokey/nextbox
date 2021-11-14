@@ -193,7 +193,7 @@ export default {
 					this.internal.icon = 'info'
 					this.internal.text = 'No IPv4 address, thus no reachability'
 				} else if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.reachable))) {
-					this.internal.text = `Successfully tested reachability for: ${keys.join(', ')}`
+					this.internal.text = `Successfully tested reachability for: ${keys.map((k) => this.toLink(k)).join(', ')}`
 					if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.nextcloud))) {
 						this.internal.state = 'success'
 						this.internal.icon = 'checkmark'
@@ -228,7 +228,7 @@ export default {
 					this.internal.icon = 'info'
 					this.internal.text = 'No IPv6 address, thus no reachability'
 				} else if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.reachable))) {
-					this.internal.text = `Successfully tested reachability for: ${keys.map(this.toLink).join(', ')}`
+					this.internal.text = `Successfully tested reachability for: ${keys.map((k) => this.toLink(k)).join(', ')}`
 					if (keys.map((k) => res.data.data.http[k]).reduce((x, a) => a && Boolean(x.nextcloud))) {
 						this.internal.state = 'success'
 						this.internal.icon = 'checkmark'
