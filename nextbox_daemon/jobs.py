@@ -142,7 +142,7 @@ class BackupRestoreJob(BaseJob):
         # ok, start backup/restore (set job-interval and return)
         if not self.iterator:
             #if not board.contains_key("backup"):
-            board.update("backup_restore", {
+            board.set("backup_restore", {
                 "state": "starting",
                 "percent": "0",
                 "who": "all", 
