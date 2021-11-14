@@ -202,7 +202,12 @@ export default {
 				const state = this.status.tls.state
 				if (state === 'fail') {
 					window.clearInterval(this.interval)
-					showMessage(`Failed setting up HTTPS/TLS, reason: ${this.status.tls.what}`)
+					const reason = {
+						acquire: 'could not acquire certificate',
+						'apache-config': 'failed setting up apache config',
+						'domain-or-email': 'domain and/or e-mail missing'
+					}
+					showError(`Failed setting up HTTPS/TLS, ${reason[this.status.tls.what]}`)
 					this.loadingButton = false
 					this.intervalStartedAt = null
 					this.interval = null
