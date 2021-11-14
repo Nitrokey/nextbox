@@ -67,7 +67,7 @@
 				</button>
 			</div>
 			
-			<StatusBar v-if="interval && status.tls" :status="timerStatus" />
+			<StatusBar v-if="showTimer" :status="timerStatus" />
 			
 		</div>
 	</div>
@@ -153,12 +153,33 @@ export default {
 				state: 'neutral',
 			}
 		},
+		showTimer() {
+			if (this.interval) {
+				return true
+			} else if (this.status && this.status.tls && this.status.tls.state === 'running') {
+				return true
+			}
+			return false
+		},
 	},
 
 	async mounted() {
 		await this.refresh()
 		this.loading = false
 		this.status = await this.getStatus()
+		if (this.status && this.status.tls && this.status.tls.state === 'running') {
+			if (!this.interval) {
+				this.interval = window.setInterval(this.getStatusUntilDone, 1000)
+				this.intervalStartedAt = new Date()
+			}
+		}
+	},
+
+	async beforeDestroy() {
+		if (this.interval) {
+			window.clearInterval(this.interval)
+			this.interval = null
+		}
 	},
 
 	methods: {
