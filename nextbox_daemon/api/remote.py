@@ -252,6 +252,7 @@ def https_disable():
 def getcerts():
     dct = {
         "cert": None,
+        "domain": cfg["config"]["domain"],
     }
 
     if dct.get("domain"):
