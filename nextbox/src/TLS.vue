@@ -38,7 +38,8 @@
 				<div>
 					<h3>Certificate Information</h3>
 					Registered domain: <b>{{ (cert ? cert.name : 'checking...') }}</b><br>
-					Valid until: <b>{{ (cert ? cert.expiry : 'checking...') }}</b><br>
+					Expiry date: <b>{{ (cert ? cert.expiryDate.toLocaleString() : 'checking...') }}</b><br>
+					Valid for: <b>{{ (cert ? cert.validForDays + ' days' : 'checking...') }}</b><br>
 				</div>
 				<br>
 				<button v-tooltip="ttDisable" 
@@ -182,6 +183,9 @@ export default {
 
 				axios.get(generateUrl('/apps/nextbox/forward/certs')).then((res) => {
 					this.cert = res.data.data.cert
+					const toks = this.cert.expiry.split(' ')
+					this.cert.expiryDate = new Date(toks[0] + ' ' + toks[1])
+					this.cert.validForDays = toks[3]
 				}).catch((e) => {
 					console.error(e)
 					showError(t('nextbox', 'Connection Failed'))
