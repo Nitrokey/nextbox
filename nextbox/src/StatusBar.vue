@@ -4,7 +4,7 @@
 			<span :class="'tag-icon ' + showIcon" />
 			<span class="tag-text" v-html="showText"></span>
 			<span class="tag-middle" />
-			<span class="tag-extra">{{ showExtra }}</span>
+			<span class="tag-extra" v-html="showExtra"></span>
 		</span>
 		<span class="tag-help" 
 			v-if="showState === 'error'" 
@@ -115,7 +115,7 @@ export default {
 	methods: { 
 		async resolve_ipv4() {
 			this.internal.text = 'DNS (IPv4) resolve testing pending'
-			this.internal.help = `Please see the following topics at ${this.docslink} to troubleshoot: `
+			this.internal.help = `This can take up to 15mins after a domain registration. Please see the following topics at ${this.docslink} to troubleshoot: `
 					  + '<b>(Dynamic) DNS</b>'
 			this.internal.extra = '[IPv4]'
 			// get ipv4 resolve

@@ -29,7 +29,7 @@
 			Using IPv6 address: <b>{{ status.ips.ipv6 || '(No IPv6 support)'}}</b>
 		</div>
 
-		<div class="section">
+		<div v-if="dns_mode.endsWith('_done')" class="section">
 			<h2>HTTPS / TLS Management</h2>
 			Enabling or Disabling HTTPS might need a restart of your browser to properly
 			access your Nextcloud afterwards, as caching sometimes leads to issues. <br>
@@ -60,11 +60,7 @@
 				</button>
 			</div>
 			
-			<div v-if="interval && status.tls" class="status-timer">
-				<span class="icon icon-loading-small" /> 
-				<b>Please wait</b> - active job: {{ status.tls.what }} ({{ status.tls.state }}) for: {{ intervalSecsPassed }}secs
-				<span class="icon icon-loading-small" /> 
-			</div>
+			<StatusBar v-if="interval && status.tls" :status="timerStatus" />
 			
 		</div>
 	</div>
@@ -112,12 +108,11 @@ export default {
 			dns_mode: '',
 
 			// status data
-			status: {},
+			status: null,
 
 			// intervall stuff
 			interval: null,
 			intervalStartedAt: null,
-			intervalSecsPassed: 0,
 			
 			// update-ables
 			update: {
@@ -141,6 +136,15 @@ export default {
 	computed: {
 		enableDisabled() {
 			return this.loadingButton || !this.validateEMail()
+		},
+
+		timerStatus() {
+			return {
+				icon: 'loading-small',
+				text: `<b>Please wait</b> - active job: <b>${this.status.tls.what} (${this.status.tls.state})</b>`,
+				extra: ((new Date() - this.intervalStartedAt) / 1e3).toFixed() + 'secs',
+				state: 'neutral',
+			}
 		},
 	},
 
@@ -178,22 +182,18 @@ export default {
 				})
 			}
 		},
-		
+
 		async getStatusUntilDone() {
 			this.status = await this.getStatus()
 
 			if (this.status) {
-				if (!this.intervalStartedAt) {
-					this.intervalStartedAt = new Date()
-				}
-				
-				this.intervalSecsPassed = ((new Date() - this.intervalStartedAt) / 1e3).toFixed()
 				const state = this.status.tls.state
 				if (state === 'fail') {
 					window.clearInterval(this.interval)
 					showMessage(`Failed setting up HTTPS/TLS, reason: ${this.status.tls.what}`)
 					this.loadingButton = false
 					this.intervalStartedAt = null
+					this.interval = null
 
 				} else if (state === 'success') {
 					window.clearInterval(this.interval)
@@ -225,6 +225,8 @@ export default {
 				email: this.update.email,
 			})
 
+			this.intervalStartedAt = new Date()
+			
 			const res = await axios.post(generateUrl(url), data, options).then((res) => {
 				this.interval = window.setInterval(this.getStatusUntilDone, 1000)
 			
@@ -304,16 +306,6 @@ export default {
 	width: 50vw;
 	text-align: center;
 	padding: 5vh;
-}
-
-.status-timer {
-	margin-top: 8px;
-	padding: .15em;
-	text-align: center;
-	border-radius: var(--border-radius);
-	background-color: var(--color-placeholder-dark);
-	display: block;
-	align-self: center;
 }
 
 
