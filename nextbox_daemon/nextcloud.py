@@ -132,6 +132,16 @@ class Nextcloud:
         """Deactivating nextcloud maintainance mode"""
         return self.run_cmd("maintenance:mode", "--off")
     
+
+    def soft_reset(self):
+        """A soft reset is switching off maintainance and disabling all apps"""
+
+        ret = self.set_maintenance_off()
+        ret &= self.run_cmd("app:disable", "mail")
+
+        return ret
+
+
     def enable_nextbox_app(self):
         """Enable nextbox-app for this nextcloud"""
         out = self.run_cmd("app:enable", "nextbox")

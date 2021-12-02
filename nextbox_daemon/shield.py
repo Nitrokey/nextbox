@@ -87,7 +87,7 @@ class Shield:
         elif state == "maintenance":
             self.set_led(0.5, 0, 1)
             shield.button.when_pressed = lambda: self.set_fast_blink(0.5, 0, 1)
-            shield.button.when_released = lambda: (Nextcloud().set_maintenance_off(), job_queue.put("LED"))
+            shield.button.when_released = lambda: (Nextcloud().soft_reset(), job_queue.put("LED"))
             shield.button.when_held = lambda: (job_queue.put("FactoryReset"), self.set_led_state("factory-reset"))
 
         elif state == "docker-wait":
