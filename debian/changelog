@@ -1,3 +1,42 @@
+%%PKG%% (1.0.16-1) groovy; urgency=low
+
+  * daemon: update Nextcloud to 21.0.7
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 07 Dec 2021 17:24:32 +0100
+
+%%PKG%% (1.0.15-1) groovy; urgency=low
+
+  * app: tls: re-activate timer, if (enable) job is still running
+  * app: fix StatusBar reachability links
+  * app: friendly tls error messages
+  * app: handle empty /certs result
+  * daemon: minimal fix for malicous mail-app
+  * daemon: jobs: fix board usage in backup
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 02 Dec 2021 13:31:18 +0100
+
+%%PKG%% (1.0.14-1) groovy; urgency=low
+
+  * app: tls: improve certificate information view
+  * app: bump (internal) version to 1.0.14
+  * app: css: h3; show certificate information in TLS.vue
+  * app: use StatusBar for TLS-timer
+  * app: css for (tls) timer box
+  * app: utils-mixin error handling
+  * app: minor overview cleanup
+  * app: make use of new-style status in overview
+  * app: add status-based timer for enabling TLS cert
+  * app: use UtilsMixin:getStatus in Remote.vue and TLS.vue to show network info
+  * daemon: fix /certs api-call
+  * daemon: api/generic.py cleanups and comments
+  * daemon: api/remote.py cleanups
+  * daemon: minor cleanups
+  * daemon: 1st desec-dns-verify draft; rework /status api-call
+  * daemon: extract expiry from certbot output #20
+  * daemon: add nextbox-desec-hook.sh for dns-based cert actions
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Nov 2021 08:53:48 +0100
+
 %%PKG%% (1.0.13-1) groovy; urgency=low
 
   * app: changed StatusBar ordering; fixes #14 by reducing the bottom-nav height
