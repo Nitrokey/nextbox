@@ -2,6 +2,7 @@ import sys
 import os
 import pytest
 from pathlib import Path
+import shutil
 
 sys.path.append("..")
 
@@ -22,9 +23,13 @@ def obj():
     if p_file.exists():
         p_file.unlink()
     if p_dir.exists():
-        p_dir.rmdir()
+        shutil.rmtree(p_dir.as_posix())
 
     p_dir.mkdir()
+
+    p_random_file = Path("/tmp/nextbox-test/delete-me.txt")
+    p_random_file.write_text("some testdata")    
+
     return out
 
 @pytest.fixture
@@ -90,5 +95,34 @@ def test_ensure3(obj, final, data):
     res = obj.ensure_file("test.conf", **data)
     assert not res
 
+
+def test_deletion(obj):
+    tar = Path("/tmp/nextbox-test/delete-me.txt")
+    assert tar.exists()
+
+    res = obj.ensure_deleted_file(tar.as_posix())
+    assert res
+    assert not tar.exists()
+
+    res = obj.ensure_deleted_file(tar.as_posix())
+    assert not res
+
+    assert not tar.exists()
+
+def test_symlink(obj):
+    tar = Path("/tmp/nextbox-test/delete-me.txt")
+    src = Path("/tmp/nextbox-test/delete-me-symlink.txt")
+    assert tar.exists()
+    assert not src.exists()
+
+    res = obj.ensure_symlink(tar, src)
+    assert res
+    res = obj.ensure_symlink(tar, src)
+    assert not res
+
+    assert tar.read_text() == "some testdata"
+
+
+    
 
 
