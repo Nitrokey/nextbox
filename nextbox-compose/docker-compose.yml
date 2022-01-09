@@ -28,6 +28,7 @@ services:
       - nextbox-app:/var/www/html/custom_apps/nextbox
       - apache-conf:/etc/apache2
       - letsencrypt:/etc/letsencrypt
+      - /media:/media:rw,rshared
     environment:
       - MYSQL_HOST=db
       - REDIS_HOST=redis
@@ -42,6 +43,7 @@ services:
     restart: always
     volumes:
       - nextcloud:/var/www/html
+      - /media:/media:rw,rshared
     entrypoint: /cron.sh
     depends_on:
       - db
