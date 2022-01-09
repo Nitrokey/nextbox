@@ -24,6 +24,10 @@ update-daemon:
 	### template system files
 	rsync daemon/templates/* $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-templates/
 
+	### docker-compose.yml
+	rsync daemon/nextbox-compose/docker-compose.yml $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-compose/docker-compose.yml
+
+
 	### restart nextbox-daemon
 	ssh $(DEV_ROOT_USER)@$(DEV_DEVICE) -- systemctl daemon-reload
 	ssh $(DEV_ROOT_USER)@$(DEV_DEVICE) -- systemctl start nextbox-daemon

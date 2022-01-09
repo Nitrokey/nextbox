@@ -54,7 +54,7 @@ echo "[i] THIS RELEASE: ${version}-${release}"
 
 
 cat > ${tmp_path} <<EOL
-%%PKG%% (${version}-${release}) groovy; urgency=low
+%%PKG%% (${version}-${release}) focal; urgency=low
 
   * app: ${app_changes}
 	* daemon: ${daemon_changes}
