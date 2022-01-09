@@ -1,7 +1,7 @@
 {
 	"name": "nextbox",
 	"description": "NextBox Configuration App",
-	"version": "1.0.14",
+	"version": "1.0.19",
 	"author": "Markus Meissner <meissner@nitrokey.com>",
 	"contributors": [],
 	"bugs": {
