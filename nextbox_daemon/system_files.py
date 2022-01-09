@@ -18,7 +18,8 @@ class SystemFiles:
         "50unattended-upgrades": "/etc/apt/apt.conf.d/50unattended-upgrades",
         "journald.conf": "/etc/systemd/journald.conf",
         "ddclient": "/etc/default/ddclient",
-        "nextbox-updater": "/etc/default/nextbox-updater"
+        "nextbox-updater": "/etc/default/nextbox-updater",
+        "php.load": "/srv/apache2/mods-available"
     }
 
     def __init__(self, template_dir, log_obj):
@@ -84,6 +85,20 @@ class SystemFiles:
         if content.strip() == '':
             with Path(self.system_files_map[which]).open("w") as fd:
                 fd.write(final_content)
+            return True
+        return False
+
+    def ensure_deleted_file(self, path):
+        p = Path(path)
+        if p.exists():
+            p.unlink()
+            return True
+        return False
+
+    def ensure_symlink(self, target, source):
+        p = Path(source)
+        if not p.exists():
+            p.symlink_to(target)
             return True
         return False
 
