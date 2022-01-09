@@ -19,7 +19,7 @@ class SystemFiles:
         "journald.conf": "/etc/systemd/journald.conf",
         "ddclient": "/etc/default/ddclient",
         "nextbox-updater": "/etc/default/nextbox-updater",
-        "php.load": "/srv/apache2/mods-available"
+        "php.load": "/srv/apache2/mods-available/php.load"
     }
 
     def __init__(self, template_dir, log_obj):

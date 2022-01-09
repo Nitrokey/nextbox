@@ -189,6 +189,12 @@ def check_filesystem_after_init(cfg):
     sys_files.safe_ensure_file("nitrokey-nextbox.list")
     sys_files.safe_ensure_file("50unattended-upgrades")
 
+    sys_files.ensure_deleted_file("/srv/apache2/mods-enabled/php7.load")
+    sys_files.ensure_deleted_file("/srv/apache2/mods-available/php7.load")
+
+    sys_files.safe_ensure_file("php.load")
+    sys_files.ensure_symlink("../mods-available/php.load", "/srv/apache2/mods-enabled/php.load")
+
 
 class RepeatingFilter(logging.Filter):
     def __init__(self):
