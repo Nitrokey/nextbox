@@ -1,3 +1,9 @@
+%%PKG%% (1.0.19-1) focal; urgency=low
+
+  * app: add NC 22 as max-version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 09 Jan 2022 15:29:15 +0100
+
 %%PKG%% (1.0.18-1) focal; urgency=low
 
   * daemon: update to NC 22.2.3
