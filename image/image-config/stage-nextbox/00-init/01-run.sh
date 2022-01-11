@@ -39,7 +39,7 @@ install -m 440 ../files/01_nextuser-nopasswd "${ROOTFS_DIR}/etc/sudoers.d/"
 
 # docker images for 1st boot
 mkdir -p "${ROOTFS_DIR}/usr/lib/nextbox-compose/"
-install -m 644 ../files/docker-images.tar "${ROOTFS_DIR}/usr/lib/nextbox-compose/"
+#install -m 644 ../files/docker-images.tar "${ROOTFS_DIR}/usr/lib/nextbox-compose/"
 
 on_chroot << EOF
 
@@ -57,7 +57,7 @@ echo "/srv/varcache		/var/cache		none	defaults,bind		0	0" >> /etc/fstab
 apt-get install -y ddclient
 
 # add ppa:nitrokey/nextbox repository
-echo "deb http://ppa.launchpad.net/nitrokey/nextbox/ubuntu groovy main" > /etc/apt/sources.list.d/nitrokey-nextbox.list
+echo "deb http://ppa.launchpad.net/nitrokey/nextbox/ubuntu focal main" > /etc/apt/sources.list.d/nitrokey-nextbox.list
 
 # add repository key
 apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv-keys 19F7C7BFE72D7141
