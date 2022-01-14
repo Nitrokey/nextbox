@@ -6,12 +6,12 @@ mostly are maintained in seperate repositories. All
 of those are fully Open-Source and are to be found 
 here:
 
-* [`nextbox-daemon`](https://github.com/Nitrokey/nextbox-daemon) - System Backend daemon
-* [`nextbox-app`](https://github.com/Nitrokey/nextbox-app) - Nextcloud Frontend Application
+* [`/nextbox`](https://github.com/Nitrokey/nextbox) NextBox Monorepository
+* `/daemon` - System Backend daemon
+* `/app` - Nextcloud Frontend Application
+* `/debian` - Debian Packaging 
 * [`nextbox-proxy`](https://github.com/Nitrokey/nextbox-proxy) - Backwards-Proxy Registry Server
-* [`nextbox-debian`](https://github.com/Nitrokey/nextbox-debian) - Debian Packaging Repository
 * [`nextbox-board`](https://github.com/Nitrokey/nextbox-board) - NextBox' Hardware Shield
-* [`nextbox`](https://github.com/Nitrokey/nextbox) - Support, EoL, Utilities (you are here)
 
 
 This repository is the home of the following tools:

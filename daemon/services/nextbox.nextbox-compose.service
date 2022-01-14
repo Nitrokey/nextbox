@@ -1,0 +1,17 @@
+[Unit]
+Description=nextbox-compose
+Requires=docker.socket
+After=docker.socket nextbox-daemon.service nextbox-image-load.service
+
+[Service]
+Restart=always
+RestartSec=5
+
+WorkingDirectory=/usr/lib/nextbox-compose/
+
+ExecStartPre=/usr/bin/nextbox-stop-compose.sh
+ExecStart=/usr/bin/nextbox-start-compose.sh
+ExecStop=/usr/bin/nextbox-stop-compose.sh
+
+[Install]
+WantedBy=multi-user.target

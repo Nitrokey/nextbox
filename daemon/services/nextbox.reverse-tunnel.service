@@ -1,0 +1,12 @@
+[Unit]
+Description=reverse-tunnel
+After=nextbox-daemon.service
+
+[Service]
+Restart=always
+RestartSec=5
+
+ExecStart=/usr/bin/rtun-linux-arm64 -f /srv/nextbox/rtun.yaml
+
+[Install]
+WantedBy=multi-user.target

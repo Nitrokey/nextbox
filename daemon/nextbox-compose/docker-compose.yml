@@ -1,0 +1,96 @@
+version: '2'
+
+services:
+  db:
+    image: mariadb:10.5.9
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    env_file:
+      - /srv/nextbox/docker.env
+
+  redis:
+    image: redis:5.0.11-alpine
+    restart: always
+
+  app:
+    image: nextcloud:22.2.3-apache
+    entrypoint: "/bin/sh -c 'echo \"start delayed by 60secs...\" && sleep 60 && /entrypoint.sh apache2-foreground'"
+    restart: always
+    extra_hosts:
+      - dockerhost:172.18.238.1
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - nextcloud:/var/www/html
+      - nextbox-app:/var/www/html/custom_apps/nextbox
+      - apache-conf:/etc/apache2
+      - letsencrypt:/etc/letsencrypt
+      - /media:/media:rw,rshared
+    environment:
+      - MYSQL_HOST=db
+      - REDIS_HOST=redis
+    env_file:
+      - /srv/nextbox/docker.env
+    depends_on:
+      - db
+      - redis
+
+  cron:
+    image: nextcloud:22.2.3-apache
+    restart: always
+    volumes:
+      - nextcloud:/var/www/html
+      - /media:/media:rw,rshared
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+
+networks:
+  default:
+    ipam:
+      config:
+      - subnet: 172.18.238.0/24
+        gateway: 172.18.238.1
+
+volumes:
+  db:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/mariadb
+
+  nextcloud:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/nextcloud
+  
+  nextbox-app:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /usr/lib/nextbox-app
+
+  apache-conf:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/apache2
+  
+  letsencrypt:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/letsencrypt
+
+
+

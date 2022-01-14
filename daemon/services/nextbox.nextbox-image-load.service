@@ -1,0 +1,15 @@
+[Unit]
+Description=Load NextBox Docker-Compose images into Docker on 1st boot
+Requires=docker.socket
+After=docker.socket
+Before=nextbox-compose.service
+
+[Service]
+Type=oneshot
+
+WorkingDirectory=/usr/lib/nextbox-compose/
+
+ExecStart=/usr/lib/nextbox-compose/load-docker-images.sh
+
+[Install]
+WantedBy=multi-user.target
