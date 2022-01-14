@@ -1,0 +1,588 @@
+%%PKG%% (1.0.20-1) focal; urgency=low
+
+  * packaging empty release
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 14 Jan 2022 00:59:21 +0100
+
+%%PKG%% (1.0.19-1) focal; urgency=low
+
+  * app: add NC 22 as max-version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 09 Jan 2022 15:29:15 +0100
+
+%%PKG%% (1.0.18-1) focal; urgency=low
+
+  * daemon: update to NC 22.2.3
+  * daemon: system_files: add utests for deletion + symlinking
+  * daemon: system_files: add deletion + symlinking
+  * daemon: add php.load to templates/
+  * daemon: add 'rshared' /media mapping into nextcloud container - fixes #26
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 09 Jan 2022 14:02:01 +0100
+
+%%PKG%% (1.0.16-1) groovy; urgency=low
+
+  * daemon: update Nextcloud to 21.0.7
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 07 Dec 2021 17:24:32 +0100
+
+%%PKG%% (1.0.15-1) groovy; urgency=low
+
+  * app: tls: re-activate timer, if (enable) job is still running
+  * app: fix StatusBar reachability links
+  * app: friendly tls error messages
+  * app: handle empty /certs result
+  * daemon: minimal fix for malicous mail-app
+  * daemon: jobs: fix board usage in backup
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 02 Dec 2021 13:31:18 +0100
+
+%%PKG%% (1.0.14-1) groovy; urgency=low
+
+  * app: tls: improve certificate information view
+  * app: bump (internal) version to 1.0.14
+  * app: css: h3; show certificate information in TLS.vue
+  * app: use StatusBar for TLS-timer
+  * app: css for (tls) timer box
+  * app: utils-mixin error handling
+  * app: minor overview cleanup
+  * app: make use of new-style status in overview
+  * app: add status-based timer for enabling TLS cert
+  * app: use UtilsMixin:getStatus in Remote.vue and TLS.vue to show network info
+  * daemon: fix /certs api-call
+  * daemon: api/generic.py cleanups and comments
+  * daemon: api/remote.py cleanups
+  * daemon: minor cleanups
+  * daemon: 1st desec-dns-verify draft; rework /status api-call
+  * daemon: extract expiry from certbot output #20
+  * daemon: add nextbox-desec-hook.sh for dns-based cert actions
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Nov 2021 08:53:48 +0100
+
+%%PKG%% (1.0.13-1) groovy; urgency=low
+
+  * app: changed StatusBar ordering; fixes #14 by reducing the bottom-nav height
+  * app: ssh-key: move some text
+  * app: many minor fixes and 1st code reduction due to mixins...
+  * app: fixes Nitrokey/nextbox-daemon#27 on frontend side
+  * app: introduced and rolled out mixin, finally...
+  * app: fixes #15 and Nitrokey/nextbox-daemon#16
+  * app: mid-stage commit
+  * app: added utils.js; round-house cleanups
+  * app: fixes Nitrokey/nextbox-daemon#16; some typos; improved some texts
+  * app: many remote-access QoL improvements; external reachability ipv4+ipv6; fixes Nitrokey/nextbox-daemon#27
+  * daemon: services: is-active() -> bool; utils::nextbox_version() and log it
+  * daemon: utils::local_ip() more robust method implemented
+  * daemon: services: is-active now returns a bool
+  * daemon: provide the local-ip to system-settings, fixes #16
+  * daemon: fixes #27 and #30; external reachability; QoL remote-access
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 11 Oct 2021 13:44:01 +0200
+
+%%PKG%% (1.0.12-1) groovy; urgency=low
+
+  * daemon: some unused code cleanups
+  * daemon: trigger DynDNSUpdateJob on related config update #30
+  * daemon: backup::import_nextbox_dir - fix typo
+  * daemon: dyndnsupdatejob: less aggressive ddclient stop/disable #30
+  * daemon: added DynDNSUpdateJob, replaces ddclient for guided-dyn-dns, #30
+  * daemon: backupmetadata: bootstrap test
+  * daemon: BackupMetaData: more tests
+  * daemon: added BackupMetaData + unit-tests
+  * daemon: add nextcloud::get_version() - fix naming
+  * daemon: add nextcloud::get_version()
+  * daemon: added DockerControl cls + unit-tests
+  * daemon: make config.py utestable
+  * daemon: utests: fix system-files
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 10 Oct 2021 01:36:20 +0200
+
+%%PKG%% (1.0.11-1) groovy; urgency=low
+
+  * daemon: certs: renew reload
+  * daemon: check rtun.yaml before import
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 27 Sep 2021 22:34:30 +0200
+
+%%PKG%% (1.0.10-1) groovy; urgency=low
+
+  * daemon: templates: batchify needrestart
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 07 Sep 2021 14:44:12 +0200
+
+%%PKG%% (1.0.9-1) groovy; urgency=low
+
+  * daemon: system files handling #29
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 31 Aug 2021 15:32:13 +0200
+
+%%PKG%% (1.0.8-1) groovy; urgency=low
+
+  * daemon: be less aggressive with restarting services on startup
+  * daemon: fine-tune the auto-updater: do not stop compose
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 17 Aug 2021 13:27:40 +0200
+
+%%PKG%% (1.0.7-3) focal; urgency=low
+
+  * services: be less aggressive on restarts during startup
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 16 Aug 2021 17:07:50 +0200
+
+
+%%PKG%% (1.0.7-2) focal; urgency=low
+
+  * services: add no-stop-on-upgrade for nextbox-updater
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 16 Aug 2021 16:07:50 +0200
+
+%%PKG%% (1.0.7-1) focal; urgency=low
+
+  * daemon: use total_seconds() for job intervals #21
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 16 Aug 2021 15:07:50 +0200
+
+%%PKG%% (1.0.6-1) groovy; urgency=low
+
+  * daemon: check for proper dphys-swapfile #19
+  * allow swapping service #9
+  * pack repeating log-messages together #25
+  * add RenewCertificates job every 24h #21
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 05 Aug 2021 14:52:01 +0200
+
+%%PKG%% (1.0.5-1) groovy; urgency=low
+
+  * app: bump version 1.0.5
+  * app: added reboot/poweroff, fixes #1
+  * daemon: fix possibility that ddclient might not run on missing dir
+  * daemon: implements and fixes #6 (reboot/poweroff)
+  * daemon: board: add 'job_running'
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 12 Jul 2021 19:51:22 +0200
+
+%%PKG%% (1.0.4-1) groovy; urgency=low
+
+  * app: bump to version 1.0.4
+  * app: catch and forbid subdomain depth > 1
+  * app: ensure non-null values for domain/email
+  * daemon: use docker py-module to determine, if nextcloud container is up
+  * daemon: skip non-existing log files for export
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 25 Jun 2021 17:20:39 +0200
+
+%%PKG%% (1.0.3-1) groovy; urgency=low
+
+  * daemon: workaround for boxes running 21.0.2
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 18 Jun 2021 00:42:01 +0200
+
+%%PKG%% (1.0.2-1) groovy; urgency=low
+
+  * daemon: factor-reset-job: stop nextbox-compose before upgrade
+  * daemon: led: add docker-wait LED function
+  * daemon: unmask updater/factory-reset on startup
+  * daemon: shield: add fast-green-blink as 'docker-wait' state
+  * daemon: services: allow 'unmask'; set full-service-ctrl for nextbox-compose
+  * daemon: lock nextcloud to version 21.0.0, due to setup-bug
+  * daemon: nextcloud: include reachability; 
+  * daemon: shield: maintenance mode switch off, if active with button click
+  * daemon: led: purple == maintenance mode
+  * daemon: nextcloud: add is_maintenance property
+  * daemon: certificates: fixed logging output
+  * daemon: full refactor and robustness improvements on backup/restore
+  * daemon: show output of failed CommandRunner retry
+  * daemon: typo inverted decision for auto-retry
+  * daemon: add .retries() classmethod to auto-retry failed commands
+  * daemon: set nextbox-updater timeout to 900secs
+  * daemon: allow 'apps' to be empty for backup
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 17 Jun 2021 23:25:06 +0200
+
+%%PKG%% (1.0.1-1) groovy; urgency=low
+
+  * app: 1.0 not a valid version, updating to 1.0.0
+  * daemin: compose: revert 'dirty' sleep before nextcloud container start
+  * daemon: compose: add nextcloud startup delay via entrypoint
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 08 Jun 2021 00:05:17 +0200
+
+%%PKG%% (1.0-1) groovy; urgency=low
+
+  * app: bump version appinfo
+  * app: fixed version info; bump to version 1.0
+  * app: no need for version in Makefile anymore
+  * daemon: update Nextcloud to version 21
+  * daemon: compose, add some waittime during app startup
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 07 Jun 2021 13:46:55 +0200
+
+%%PKG%% (0.9.4-1) groovy; urgency=low
+
+  * app, daemon: bump version(s)
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 20 May 2021 15:42:41 +0200
+
+%%PKG%% (0.9.3.2-1) groovy; urgency=low
+
+  * app: update ui/ux for #8 #9
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 17 May 2021 14:27:19 +0200
+
+%%PKG%% (0.9.3.1-1) groovy; urgency=low
+
+  * app: StatusBar rework; remote access upgrades, issues: #9 #8
+  * daemon: remote access upgrades, issues: #7 #8 #9
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 13 May 2021 21:03:59 +0200
+
+%%PKG%% (0.9.3-1) groovy; urgency=low
+
+  * app: bump version to 0.9.3
+  * app: add link to docs in overview
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 19 Apr 2021 16:15:46 +0200
+
+%%PKG%% (0.9.2.12-1) groovy; urgency=low
+
+  * app: bump version to 0.9.2.12
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 12 Apr 2021 19:06:48 +0200
+
+%%PKG%% (0.9.2.11-1) groovy; urgency=low
+
+  * app: globally applied StatusBar component
+  * app: all pages: 'loading' used to v-if top-lvl div; loading cleared in mounted once
+  * app: switch icon on static-domain disable
+  * app: disable-button now with loading indication
+  * app: stylelint fixes
+  * app: eslint warning warning auto-fixes
+  * app: migrate all top-lvl comp-elems from 'class' to 'id', makes the tester happy
+  * app: increase width of tag-/statusbars to 90%
+  * app: remove anyways stale tooltips from remote overview
+  * app: fix erronous err-msg
+  * app: import and generic cleanups; reduce pack size...
+  * daemon: selenium-tests-standalone: (1st)login,backup,storage-mgnt,proxy,static-domain,tls
+  * daemon: improved LED behavior during button-press/factory-reset
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 12 Apr 2021 18:57:38 +0200
+
+%%PKG%% (0.9.2.10-1) groovy; urgency=low
+
+  * daemon: roll-back to flask-server for serving due to graceful(lest)-thread-handling
+  * daemon: actually use log_lvl from config; log-formatting; minor cleanups
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 09 Apr 2021 13:10:37 +0200
+
+%%PKG%% (0.9.2.9-1) groovy; urgency=low
+
+  * daemon: use uwsgi-py3 for daemon
+  * daemon: update sysd-service to use uwsgi for daemon
+  * daemon: added some docstrings
+  * daemon: Services() now a singleton; imported + used as instance
+  * daemon: job-mgr can now handle multiple pending jobs at once; gunicorn signaling optimized; 
+  * daemon: worker.py + start.py cleanups
+  * daemon: move BaseJob + JobManager from jobs.py to worker.py; minor cleanups
+  * daemon: use gunicorn instead of flask-builtin-server
+  * daemon: reduce max-log-size to 10mb
+  * daemon: GenericStatusUpdate: use python-apt for pkg-info
+  * daemon: use new services class features
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 09 Apr 2021 10:50:15 +0200
+
+%%PKG%% (0.9.2.8-1) groovy; urgency=low
+
+  * daemon: factory-reset as sysd-service; self-updating as sysd-service
+  * daemon: scripts: add nextbox-set-led.sh
+  * daemon: ensure system-file: '/etc/default/nextbox-updater'
+  * daemon: nextcloud: add docstrings; cleanups
+  * daemon: services: add docstrings; add services; log on check-error
+  * daemon: add Nextcloud.is_installed property
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 09 Apr 2021 04:52:49 +0200
+
+%%PKG%% (0.9.2.7-1) groovy; urgency=low
+
+  * daemon: ensure nk_token/serial persistance across factory-resets
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 07 Apr 2021 15:57:53 +0200
+
+%%PKG%% (0.9.2.6-1) groovy; urgency=low
+
+  * daemon: factory reset using hardware button
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 06 Apr 2021 18:20:58 +0200
+
+%%PKG%% (0.9.2.5-1) groovy; urgency=low
+
+  * daemon: realize 3 different LED states
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 31 Mar 2021 12:14:28 +0200
+
+%%PKG%% (0.9.2.4-1) groovy; urgency=low
+
+  * daemon: timeout for jobqueue to 1sec
+  * daemon: BackupRestoreJob: interval to None/1sec
+  * daemon: initial LED functionality: green on start
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 29 Mar 2021 15:30:29 +0200
+
+%%PKG%% (0.9.2.3-2) groovy; urgency=low
+
+  * packaging: added replaces, provides and conflicts
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 24 Mar 2021 11:42:11 +0000
+
+%%PKG%% (0.9.2.3-1) groovy; urgency=low
+
+  * daemon: increase various job intervals
+  * daemon: decrease backup job interval, while running
+  * app: remote overview, only resolve/reach if domain is set
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 22 Mar 2021 08:42:11 +0000
+
+%%PKG%% (0.9.2.2-1) groovy; urgency=low
+
+  * daemon: auto-self-update now a one-shot background job
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 22 Mar 2021 07:42:11 +0000
+
+%%PKG%% (0.9.2.1-1) groovy; urgency=low
+
+  * daemon: auto-self-update during startup
+  * daemon: HardwareStatusUpdateJob to interval: 2h
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 22 Mar 2021 02:42:11 +0000
+
+%%PKG%% (0.9.2-1) groovy; urgency=low
+
+  * daemon: cleanups
+  * daemon: improve proxy error handling
+  * daemon: TrustedDomainsJob: on fail decrease
+  * daemon: save email to config during tls-enable
+  * daemon: rollback apache-config on failed ssl activation
+  * compose: change letsencrypt local volume location
+  * app: improve UX for: proxy, static-dns, tls
+  * app: better redirect on tls on/off
+  * app: rework remote overview view
+  * app: reorder system view
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 22 Mar 2021 02:42:11 +0000
+
+%%PKG%% (0.9.1-2) groovy; urgency=low
+
+  * app: bump version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 21 Mar 2021 18:42:11 +0000
+
+%%PKG%% (0.9.1-1) groovy; urgency=low
+
+  * daemon: nextcloud-class recognizes if instance is not running
+  * daemon: removed debug flag for flask server
+  * daemon: allow only certain filesystems as backup devices
+  * app: inform user about unsupported filesystem on storage
+  * daemon: cleaned up python codebase
+  * app: removed unused imports
+  * daemon: don't allow backups on internal harddisk
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 21 Mar 2021 18:42:11 +0000
+
+%%PKG%% (0.9.0-1) groovy; urgency=low
+
+  * release candidate
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sat, 20 Mar 2021 13:22:11 +0000
+
+%%PKG%% (0.7.1-1) groovy; urgency=low
+
+  * tls
+  * static-dns
+  * proxy-class
+  * frontend ux
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sat, 20 Mar 2021 13:22:11 +0000
+
+%%PKG%% (0.7.0-1) groovy; urgency=low
+
+  * backup / restore working state
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sat, 20 Mar 2021 13:22:11 +0000
+
+%%PKG%% (0.2.8-2) groovy; urgency=low
+
+  * forgot bumping app-version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 18 Mar 2021 23:22:11 +0000
+
+%%PKG%% (0.2.8-1) groovy; urgency=low
+
+  * backend status board
+  * backend cleanups (remove old jobs, remove old storage/backup)
+  * add frontend version
+  * move token from proxy.vue to system.vue
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 18 Mar 2021 23:22:11 +0000
+
+%%PKG%% (0.2.7-1) groovy; urgency=low
+
+  * certificate/apache backend manager added
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 22:22:11 +0000
+
+%%PKG%% (0.2.6-1) groovy; urgency=low
+
+  * backend backup/restore class added
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 22:22:11 +0000
+
+%%PKG%% (0.2.5-1) groovy; urgency=low
+
+  * disabling proxy actually disables/stops reverse-tunnel
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 22:22:11 +0000
+
+
+%%PKG%% (0.2.4-1) groovy; urgency=low
+
+  * status board added for thread comms
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 22:22:11 +0000
+
+%%PKG%% (0.2.3-1) groovy; urgency=low
+
+  * locking fix for proxy
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 15:22:11 +0000
+
+%%PKG%% (0.2.2-2) groovy; urgency=low
+
+  * bump app version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 15:22:11 +0000
+
+%%PKG%% (0.2.2-1) groovy; urgency=low
+
+  * replace ssh with reverse-tunnel
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 14 Mar 2021 15:22:11 +0000
+
+%%PKG%% (0.2.1-2) groovy; urgency=low
+
+  * updated Makefile
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sat, 13 Mar 2021 23:32:11 +0000
+
+
+%%PKG%% (0.2.1-1) groovy; urgency=low
+
+  * ssh proxy disabled
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sat, 13 Mar 2021 22:32:11 +0000
+
+%%PKG%% (0.2.0-1) groovy; urgency=low
+
+  * ssh access setting; download logs
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 12 Mar 2021 20:32:11 +0000
+
+
+%%PKG%% (0.1.4-1) groovy; urgency=low
+
+  * docker image load one-shot on 1st boot
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 7 Mar 2021 23:32:11 +0000
+
+%%PKG%% (0.1.3-2) groovy; urgency=low
+
+  * restructured repos
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 7 Mar 2021 23:32:11 +0000
+
+
+%%PKG%% (0.1.3-1) groovy; urgency=low
+
+  * restartsec for compose.service; auto-password generation on first-start
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 7 Mar 2021 23:32:11 +0000
+
+%%PKG%% (0.1.2-1) groovy; urgency=low
+
+  * proxy set overwritehost and overwritecondaddr during register
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+
+%%PKG%% (0.1.1-1) groovy; urgency=low
+
+  * fix backwards-proxy-key-gen; docker-compose expose apache2-dir
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+
+%%PKG%% (0.1.0-1) groovy; urgency=low
+
+  * backup updates, version bump
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+
+%%PKG%% (0.0.2-10) groovy; urgency=low
+
+  * move app-bind-mount to nextcloud/custom_apps
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+
+%%PKG%% (0.0.2-9) groovy; urgency=low
+
+  * %%PKG%%-compose.yaml binds global %%PKG%%-app to new location
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-8) groovy; urgency=low
+
+  * update %%PKG%%-compose.yaml (nc version);
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-7) groovy; urgency=low
+
+  * update %%PKG%%-compose.yaml; db.env
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-6) groovy; urgency=low
+
+  * update %%PKG%%-compose service to use docker.socket as requirement
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-5) groovy; urgency=low
+
+  * add runtime dependencies; add python package: %%PKG%%_daemon.api
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:32:11 +0000
+
+%%PKG%% (0.0.2-4) groovy; urgency=low
+
+  * remove postinst
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 15:02:11 +0000
+
+%%PKG%% (0.0.2-3) groovy; urgency=low
+
+  * fixed postinst bug
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 5 Mar 2021 14:11:11 +0000
+
+%%PKG%% (0.0.2-2) groovy; urgency=low
+
+  * changed JS packaging
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 21 Feb 2021 14:28:48 +0000
+
+%%PKG%% (0.0.2-1) groovy; urgency=low
+
+  * source package initial package
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 21 Feb 2021 14:28:48 +0000

@@ -1,0 +1,17 @@
+app/nextbox/src/App.vue
+app/nextbox/src/Backup.vue
+app/nextbox/src/CustomDNS.vue
+app/nextbox/src/DynDNS.vue
+app/nextbox/src/Logs.vue
+app/nextbox/src/Proxy.vue
+app/nextbox/src/Remote.vue
+app/nextbox/src/StaticDNS.vue
+app/nextbox/src/StatusBar.vue
+app/nextbox/src/Storage.vue
+app/nextbox/src/System.vue
+app/nextbox/src/TLS.vue
+app/nextbox/src/Overview.vue
+app/nextbox/src/UtilsMixin.js
+app/nextbox/src/main.js
+app/nextbox/src/Overview.vue
+app/nextbox/lib/Controller/PageController.php
