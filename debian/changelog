@@ -1,3 +1,9 @@
+%%PKG%% (1.0.20-1) focal; urgency=low
+
+  * packaging empty release
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 14 Jan 2022 00:59:21 +0100
+
 %%PKG%% (1.0.19-1) focal; urgency=low
 
   * app: add NC 22 as max-version
