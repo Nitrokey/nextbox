@@ -1,3 +1,9 @@
+%%PKG%% (1.0.21-1) focal; urgency=low
+
+  * new repository structure verification release
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 14 Jan 2022 12:37:19 +0100
+
 %%PKG%% (1.0.20-1) focal; urgency=low
 
   * packaging empty release
