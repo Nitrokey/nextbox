@@ -15,17 +15,38 @@ DEB_SRC=$(PKG)_$(VERSION)_source.changes
 unstable:
 	rm -rf nextbox-unstable
 	rm -f repos/app/nextbox/js/*
-	make PKG=nextbox-unstable GIT_TAG=main main-target
+	docker run --rm --name $(IMAGE_NAME) -it \
+		-v $(HOME)/.gnupg:/root/.gnupg \
+		-v $(HOME)/.dput.cf:/root/.dput.cf \
+		-v $(shell pwd):/build \
+		-v $(shell pwd)/../app:/app \
+		-v $(shell pwd)/../daemon:/daemon \
+		-p 8080:80 \
+		$(IMAGE_NAME):stable make PKG=nextbox-unstable GIT_TAG=main main-target
 
 testing:
 	rm -rf nextbox-testing
 	rm -f repos/app/nextbox/js/*
-	make PKG=nextbox-testing GIT_TAG=main main-target
+	docker run --rm --name $(IMAGE_NAME) -it \
+		-v $(HOME)/.gnupg:/root/.gnupg \
+		-v $(HOME)/.dput.cf:/root/.dput.cf \
+		-v $(shell pwd):/build \
+		-v $(shell pwd)/../app:/app \
+		-v $(shell pwd)/../daemon:/daemon \
+		-p 8080:80 \
+		$(IMAGE_NAME):stable make PKG=nextbox-testing GIT_TAG=main main-target
 
 stable:
 	rm -rf nextbox
 	rm -f repos/app/nextbox/js/*
-	make PKG=nextbox GIT_TAG=main main-target
+	docker run --rm --name $(IMAGE_NAME) -it \
+		-v $(HOME)/.gnupg:/root/.gnupg \
+		-v $(HOME)/.dput.cf:/root/.dput.cf \
+		-v $(shell pwd):/build \
+		-v $(shell pwd)/../app:/app \
+		-v $(shell pwd)/../daemon:/daemon \
+		-p 8080:80 \
+		$(IMAGE_NAME):stable make PKG=nextbox GIT_TAG=main main-target
 
 
 clean:
@@ -50,21 +71,6 @@ $(PKG)/debian: debian
 	cp repos/daemon/services/nextbox.nextbox-factory-reset.service $(PKG)/debian/$(PKG).nextbox-factory-reset.service
 	cp repos/daemon/services/nextbox.nextbox-updater.service $(PKG)/debian/$(PKG).nextbox-updater.service
 
-#repos/app/.git/config: repos
-#	-git clone https://github.com/Nitrokey/nextbox-app.git repos/app
-
-#repos/daemon/.git/config: repos
-#	-git clone https://github.com/Nitrokey/nextbox-daemon.git repos/daemon
-
-#repos/app: repos/app/.git/config
-#	cd repos/app && \
-#		git pull && \
-#		git checkout $(GIT_TAG) 
-
-#repos/daemon: repos/daemon/.git/config
-#	cd repos/daemon && \
-#		git pull && \
-#		git checkout $(GIT_TAG)
 
 $(PKG)/app: repos/app/nextbox/js/nextbox-main.js
 	mkdir -p $(PKG)/app/nextbox
@@ -77,12 +83,10 @@ $(PKG)/app: repos/app/nextbox/js/nextbox-main.js
 	rsync -r repos/app/nextbox/appinfo $(PKG)/app/nextbox
 
 repos/app/nextbox/package-lock.json:
-	docker exec -it $(IMAGE_NAME) make -C /build/repos/app/nextbox npm-install
-	#cd repos/app/nextbox/ && \
-	#	npm install		
+	make -C /build/repos/app/nextbox npm-install
 
 repos/app/nextbox/js/nextbox-main.js: repos/app/nextbox/package-lock.json
-	docker exec -it $(IMAGE_NAME) make -C /build/repos/app/nextbox build-js-production
+	make -C /build/repos/app/nextbox build-js-production
 
 $(PKG)/nextbox-compose:
 	# nextbox-compose
@@ -154,12 +158,12 @@ deb-clean:
 	rm -f $(PKG)_$(VERSION).dsc
 	rm -f $(PKG)_$(VERSION).tar.gz
 
-deb-src: start-dev-docker $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian
-	docker exec -it $(IMAGE_NAME) make PKG=$(PKG) GIT_TAG=$(GIT_TAG) $(DEB_SRC)
-	docker exec -it $(IMAGE_NAME) make PKG=$(PKG) GIT_TAG=$(GIT_TAG) upload
+deb-src: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian
+	make PKG=$(PKG) GIT_TAG=$(GIT_TAG) $(DEB_SRC)
+	make PKG=$(PKG) GIT_TAG=$(GIT_TAG) upload
 
-deb: start-dev-docker
-	docker exec -it $(IMAGE_NAME) make PKG=$(PKG) GIT_TAG=$(GIT_TAG) $(DEB_PKG)
+deb:
+	make PKG=$(PKG) GIT_TAG=$(GIT_TAG) $(DEB_PKG)
 
 upload:
 	dput nextbox $(DEB_SRC)
