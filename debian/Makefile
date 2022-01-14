@@ -50,26 +50,23 @@ $(PKG)/debian: debian
 	cp repos/daemon/services/nextbox.nextbox-factory-reset.service $(PKG)/debian/$(PKG).nextbox-factory-reset.service
 	cp repos/daemon/services/nextbox.nextbox-updater.service $(PKG)/debian/$(PKG).nextbox-updater.service
 
-repos:
-	mkdir -p repos
+#repos/app/.git/config: repos
+#	-git clone https://github.com/Nitrokey/nextbox-app.git repos/app
 
-repos/app/.git/config: repos
-	-git clone https://github.com/Nitrokey/nextbox-app.git repos/app
+#repos/daemon/.git/config: repos
+#	-git clone https://github.com/Nitrokey/nextbox-daemon.git repos/daemon
 
-repos/daemon/.git/config: repos
-	-git clone https://github.com/Nitrokey/nextbox-daemon.git repos/daemon
+#repos/app: repos/app/.git/config
+#	cd repos/app && \
+#		git pull && \
+#		git checkout $(GIT_TAG) 
 
-repos/app: repos/app/.git/config
-	cd repos/app && \
-		git pull && \
-		git checkout $(GIT_TAG) 
+#repos/daemon: repos/daemon/.git/config
+#	cd repos/daemon && \
+#		git pull && \
+#		git checkout $(GIT_TAG)
 
-repos/daemon: repos/daemon/.git/config
-	cd repos/daemon && \
-		git pull && \
-		git checkout $(GIT_TAG)
-
-$(PKG)/app: repos/app repos/app/nextbox/js/nextbox-main.js
+$(PKG)/app: repos/app/nextbox/js/nextbox-main.js
 	mkdir -p $(PKG)/app/nextbox
 	
 	rsync -r repos/app/nextbox/lib $(PKG)/app/nextbox
@@ -80,17 +77,18 @@ $(PKG)/app: repos/app repos/app/nextbox/js/nextbox-main.js
 	rsync -r repos/app/nextbox/appinfo $(PKG)/app/nextbox
 
 repos/app/nextbox/package-lock.json:
-	cd repos/app/nextbox/ && \
-		npm install		
+	docker exec -it $(IMAGE_NAME) make -C /build/repos/app/nextbox npm-install
+	#cd repos/app/nextbox/ && \
+	#	npm install		
 
-repos/app/nextbox/js/nextbox-main.js: repos/app repos/app/nextbox/package-lock.json
+repos/app/nextbox/js/nextbox-main.js: repos/app/nextbox/package-lock.json
 	docker exec -it $(IMAGE_NAME) make -C /build/repos/app/nextbox build-js-production
 
-$(PKG)/nextbox-compose: repos/daemon
+$(PKG)/nextbox-compose:
 	# nextbox-compose
 	rsync -r repos/daemon/nextbox-compose $(PKG)
 
-$(PKG)/nextbox_daemon: repos/daemon $(PKG)/debian
+$(PKG)/nextbox_daemon: $(PKG)/debian
 	mkdir -p $(PKG)/nextbox_daemon 
 	
 	# daemon itself
@@ -122,6 +120,8 @@ start-dev-docker: dev-image
 		-v $(HOME)/.gnupg:/root/.gnupg \
 		-v $(HOME)/.dput.cf:/root/.dput.cf \
 		-v $(shell pwd):/build \
+		-v $(shell pwd)/../app:/app \
+		-v $(shell pwd)/../daemon:/daemon \
 		-p 8080:80 \
 		$(IMAGE_NAME):stable
 	

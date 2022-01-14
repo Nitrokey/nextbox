@@ -28,6 +28,9 @@ npm-init:
 npm-update:
 	npm update
 
+npm-install:
+	npm install
+
 # Building
 build-js:
 	npm run dev
