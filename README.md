@@ -5,7 +5,7 @@ The NextBox consists of different components, which are partly maintained here
 and in other seperate repositories. All of those are fully Open-Source and are
 to be found here:
 
-* [`/nextbox`](https://github.com/Nitrokey/nextbox) NextBox Repository
+* [`/`](https://github.com/Nitrokey/nextbox) NextBox Repository
 * `/daemon` - System Backend daemon
 * `/app` - Nextcloud Frontend Application
 * `/debian` - Debian Packaging 
