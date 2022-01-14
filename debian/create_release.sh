@@ -5,7 +5,6 @@ last_version=$(echo $last_full_version | cut -d "-" -f 1)
 last_release=$(echo $last_full_version | cut -d "-" -f 2)
 
 echo
-echo "[i] CURRENT DIR/REPO: $(basename `pwd`)"
 echo "[i] CURRENT VERSION:  ${last_full_version}" 
 echo
 
@@ -69,17 +68,17 @@ echo "[!] Did you change the 'appinfo/info.xml' version, if the nextcloud app wa
 echo "[!] Did you change the 'package.json' version, if the nextcloud app was updated????"
 read
 
-pushd repos/daemon > /dev/null
+#pushd repos/daemon > /dev/null
 git tag v${version}
-git push ssh --tags
+git push --tags
 echo "[i] added tag 'v${version}' for daemon repo"
-popd > /dev/null
+#popd > /dev/null
 
-pushd repos/app > /dev/null
-git tag v${version}
-git push ssh --tags
-echo "[i] added tag 'v${version}' for app repo"
-popd > /dev/null
+#pushd repos/app > /dev/null
+#git tag v${version}
+#git push ssh --tags
+#echo "[i] added tag 'v${version}' for app repo"
+#popd > /dev/null
 
 ########
 ######## sed -E 's/^.*version.*$/        "version": "4.3.5",/g' package.json
