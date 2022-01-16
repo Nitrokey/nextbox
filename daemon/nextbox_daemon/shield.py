@@ -71,6 +71,7 @@ class Shield:
 
         elif state == "updating":
             self.set_led_blink(1, 1, 0)
+            shield.button.when_held = lambda: (job_queue.put("FactoryReset"), self.set_led_state("factory-reset"))
 
         elif state == "stopped":
             self.set_led(1, 0, 0)
@@ -92,6 +93,7 @@ class Shield:
 
         elif state == "docker-wait":
             self.set_fast_blink(0, 1, 0)
+            shield.button.when_held = lambda: (job_queue.put("FactoryReset"), self.set_led_state("factory-reset")),
 
         else:
             self.set_led(0, 1, 0)
