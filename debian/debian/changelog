@@ -1,3 +1,9 @@
+%%PKG%% (1.0.22-1) focal; urgency=low
+
+  * daemon: allow factory-reset during update and docker-wait
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 16 Jan 2022 16:52:42 +0100
+
 %%PKG%% (1.0.21-1) focal; urgency=low
 
   * new repository structure verification release
