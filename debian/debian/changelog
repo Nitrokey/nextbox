@@ -1,3 +1,11 @@
+%%PKG%% (1.0.23-1) focal; urgency=low
+
+  * app: bump nextbox app version
+  * compose: bump NC to 23.0.5
+  * changelog 1.0.22
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 31 May 2022 14:56:52 +0200
+
 %%PKG%% (1.0.22-1) focal; urgency=low
 
   * daemon: allow factory-reset during update and docker-wait
