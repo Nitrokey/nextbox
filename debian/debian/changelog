@@ -1,3 +1,10 @@
+%%PKG%% (1.0.24-1) focal; urgency=low
+
+  * compose: bump version: NC 23.0.6
+  * chnagelog 1.0.23
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 21 Jun 2022 12:02:57 +0200
+
 %%PKG%% (1.0.23-1) focal; urgency=low
 
   * app: bump nextbox app version
