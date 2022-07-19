@@ -18,28 +18,16 @@ version=$1
 release=$2
 tmp_path=/tmp/changelog.tmp.debian.nextbox.txt
 
-pushd repos/daemon > /dev/null
+pushd .. > /dev/null
 if ! git diff-index --quiet HEAD --; then
-    echo "[ERR] daemon repository has changes - aborting..."
+    echo "[ERR] repository has changes - aborting..."
 		popd
 		exit 1
 else
-		echo "[+] daemon repository clean"
-		daemon_changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2-)
+		echo "[+] repository clean"
+		changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2- | sed 's/^/\t*/')
 fi
 popd > /dev/null
-
-pushd repos/app > /dev/null
-if ! git diff-index --quiet HEAD --; then
-    echo "[ERR] app repository has changes - aborting..."
-		popd
-		exit 1
-else
-		echo "[+] app repository clean"
-		app_changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2-)
-fi
-popd > /dev/null
-
 
 if [[ `vercmp ${last_version} ${version}` != "-1" ]]; then
 	echo [ERR] \"$version\" is not 'newer' compared to: \"$last_version\"
@@ -55,8 +43,7 @@ echo "[i] THIS RELEASE: ${version}-${release}"
 cat > ${tmp_path} <<EOL
 %%PKG%% (${version}-${release}) focal; urgency=low
 
-  * app: ${app_changes}
-	* daemon: ${daemon_changes}
+	* ${changes}
 
  -- Markus Meissner (Debian) <coder@safemailbox.de>  $(date -R)
 
