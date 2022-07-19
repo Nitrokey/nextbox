@@ -25,7 +25,7 @@ if ! git diff-index --quiet HEAD --; then
 		exit 1
 else
 		echo "[+] repository clean"
-		changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2- | sed 's/^/\t*/')
+		changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2- | sed 's/^/  * /')
 fi
 popd > /dev/null
 
