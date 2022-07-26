@@ -1,3 +1,10 @@
+%%PKG%% (1.0.25-1) focal; urgency=low
+  * update NC to 23.0.7
+  * update create_release script
+  * changelog 1.0.24
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 19 Jul 2022 12:48:38 +0200
+
 %%PKG%% (1.0.24-1) focal; urgency=low
 
   * compose: bump version: NC 23.0.6
