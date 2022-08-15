@@ -1,3 +1,11 @@
+%%PKG%% (1.0.26-1) focal; urgency=low
+
+  * factory-reset: also clean up docker directory
+  * minor create release fix
+  * changelog 1.0.25
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 26 Jul 2022 14:36:30 +0200
+
 %%PKG%% (1.0.25-1) focal; urgency=low
   * update NC to 23.0.7
   * update create_release script
