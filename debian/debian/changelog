@@ -1,3 +1,9 @@
+%%PKG%% (1.0.27-1) focal; urgency=low
+  * changelog 1.0.26 
+  * NC bump to 23.0.8
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 15 Aug 2022 11:07:03 +0200
+
 %%PKG%% (1.0.26-1) focal; urgency=low
 
   * factory-reset: also clean up docker directory
