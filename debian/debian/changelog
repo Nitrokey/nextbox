@@ -1,3 +1,9 @@
+%%PKG%% (1.0.29-1) focal; urgency=low
+
+  * update app version to max 24
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 26 Sep 2022 16:02:39 +0200
+
 %%PKG%% (1.0.28-1) focal; urgency=low
 
   * NC 24.0.5
