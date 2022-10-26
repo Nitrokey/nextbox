@@ -1,3 +1,10 @@
+%%PKG%% (1.0.30-1) focal; urgency=low
+
+  * bump changelog
+  * update to NC 24.0.6
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 11 Oct 2022 14:50:36 +0200
+
 %%PKG%% (1.0.29-1) focal; urgency=low
 
   * update app version to max 24
