@@ -1,0 +1,47 @@
+name: Build NextBox Image
+on: [push]
+
+jobs:
+  create-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.create-runner.outputs.label }}
+    steps:
+      - id: install-stuff
+        name: Install GCloud
+        run: |
+          curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-407.0.0-linux-x86_64.tar.gz
+          tar xf google-cloud-cli-407.0.0-linux-x86_64.tar.gz 
+          bash google-cloud-sdk/install.sh
+
+      - id: create-runner
+        name: Create ARM64 VM from image
+        uses: related-sciences/gce-github-runner@ae8bfa833d22f9fad425bb3e2aa73860736df4b4
+        with:
+          token: ${{ secrets.GH_SA_TOKEN }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          image_project: meissner-cloud
+          image: nextbox-image-build
+          machine_zone: europe-west4-a
+          machine_type: t2a-standard-2
+          actions_preinstalled: true
+          ephemeral: true
+
+  build-image:
+    needs: create-runner
+    runs-on: ${{ needs.create-runner.outputs.label }}
+    steps:
+      - id: build-image
+        name: Build NextBox Image
+        run: |
+          apt-get -y -q update 
+          apt-get -y -q --no-install-recommends install coreutils quilt parted qemu-user-static debootstrap zerofree zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git curl bc qemu-utils kpartx gpg pigz build-essential make git xxd kmod binfmt-support
+          git clone https://github.com/Nitrokey/nextbox.git
+          cd nextbox/image
+          make
+      - uses: related-sciences/gce-github-runner@ae8bfa833d22f9fad425bb3e2aa73860736df4b4
+        with:
+          command: stop
+        if: always()
+
