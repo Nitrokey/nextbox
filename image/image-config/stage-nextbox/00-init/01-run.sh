@@ -54,6 +54,9 @@ echo "LABEL=NextBoxHardDisk	/srv			ext4	defaults,noatime	0	2" >> /etc/fstab
 echo "/srv/varlog		/var/log		none	defaults,bind		0	0" >> /etc/fstab
 echo "/srv/varcache		/var/cache		none	defaults,bind		0	0" >> /etc/fstab
 
+export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_MODE=a
+
 apt-get install -y ddclient
 
 # add ppa:nitrokey/nextbox repository
