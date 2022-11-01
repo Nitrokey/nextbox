@@ -9,5 +9,5 @@ image:
 	sed -i -e 's/setarch linux32 //g' gen-image/scripts/common
 	cd gen-image && \
 		./build.sh
-	ls -la deploy
+	find . -name deploy
 
