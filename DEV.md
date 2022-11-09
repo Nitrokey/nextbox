@@ -9,7 +9,7 @@ Steps to set up a development environment:
 * inside `nextbox/debian` run `make dev-image` to create the docker image for development
 * change into the container `make enter-dev-docker`
   * inside `/build/repos/app/nextbox/` run `npm install`
-	* exit the docker
+  * exit the docker
 * modify the `DEV_DEVICE` variable inside `nextbox/debian/repos` to match your NextBox' local IP
 
 Now the environment setup is done, for development you just run (inside `nextbox/debian/repos`):
