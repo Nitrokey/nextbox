@@ -1,10 +1,10 @@
 
 Steps to set up a development environment:
 
-* you to be able to run `docker`
+* you need to be able to run `docker`
 * set up your NextBox, 
   * install your public key for ssh access
-	* ssh on the NextBox and install the same public key for `root`
+  * ssh on the NextBox and install the same public key for `root`
 * checkout the `nextbox` repository
 * inside `nextbox/debian` run `make dev-image` to create the docker image for development
 * change into the container `make enter-dev-docker`
