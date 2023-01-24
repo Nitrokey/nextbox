@@ -1,0 +1,36 @@
+include: 'https://raw.githubusercontent.com/Nitrokey/common-ci-jobs/master/common_jobs.yml'
+
+stages:
+  - pull-github
+  - build
+  - deploy
+
+variables:
+  GIT_STRATEGY: clone            
+  GIT_DEPTH: 0                    
+  GIT_SUBMODULE_STRATEGY: recursive 
+  SCRIPTS_REPO: git@git.nitrokey.com:nitrokey/gitlab-ci.git
+  REPO_GROUP: nitrokey
+  REPO_NAME: nextbox
+  MAIN_BRANCH: ci 
+
+build-image:
+  image: registry.git.nitrokey.com/nitrokey/nextbox/build-image:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+  tags:
+    - docker-arm
+  stage: build
+  script:
+    - pwd
+    - cd image
+    - make
+  after_script:
+    - mkdir -p artifacts
+    - cp /builds/nitrokey/nextbox/image/gen-image/deploy/* ./artifacts
+    - wget $icon_server/checkmark/$CI_COMMIT_REF_NAME/$CI_COMMIT_SHA/$CI_JOB_NAME/$CI_JOB_STATUS/${CI_JOB_URL#*/*/*/}
+  artifacts:
+    paths:
+      - artifacts
