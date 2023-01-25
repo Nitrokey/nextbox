@@ -27,7 +27,6 @@ build-image:
     - pwd
     - cd image
     - make
-    - sleep 3h
   after_script:
     - mkdir -p artifacts
     - cp ./image/gen-image/deploy/*final.zip ./artifacs/
