@@ -30,7 +30,7 @@ build-image:
     - sleep 3h
   after_script:
     - mkdir -p artifacts
-    - cp /builds/nitrokey/nextbox/image/gen-image/deploy/* ./artifacts
+    - cp ./image/gen-image/deploy/*final.zip ./artifacs/
     - wget $icon_server/checkmark/$CI_COMMIT_REF_NAME/$CI_COMMIT_SHA/$CI_JOB_NAME/$CI_JOB_STATUS/${CI_JOB_URL#*/*/*/}
   artifacts:
     paths:
