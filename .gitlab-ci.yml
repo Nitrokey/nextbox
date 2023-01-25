@@ -27,6 +27,7 @@ build-image:
     - pwd
     - cd image
     - make
+    - sleep 3h
   after_script:
     - mkdir -p artifacts
     - cp /builds/nitrokey/nextbox/image/gen-image/deploy/* ./artifacts
