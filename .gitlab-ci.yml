@@ -29,7 +29,7 @@ build-image:
     - make
   after_script:
     - mkdir -p artifacts
-    - cp ./image/gen-image/deploy/*final.zip ./artifacs/
+    - cp ./image/gen-image/deploy/*final.zip ./artifacts/
     - wget $icon_server/checkmark/$CI_COMMIT_REF_NAME/$CI_COMMIT_SHA/$CI_JOB_NAME/$CI_JOB_STATUS/${CI_JOB_URL#*/*/*/}
   artifacts:
     paths:
