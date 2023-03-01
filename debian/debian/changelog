@@ -1,3 +1,39 @@
+%%PKG%% (1.0.34-1) focal; urgency=low
+
+  * NC 25.0.4
+  * CI: setup auto image build
+  * changelog 1.0.33
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 24 Feb 2023 12:43:35 +0100
+
+%%PKG%% (1.0.33-1) focal; urgency=low
+
+  * app: version to 1.0.33
+  * app: accepted NC version to 25
+  * NC 25.0.3
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 23 Jan 2023 12:14:38 +0100
+
+%%PKG%% (1.0.32-1) focal; urgency=low
+
+  * NC 24.0.8
+  * updated changelog
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 02 Jan 2023 11:52:07 +0100
+
+%%PKG%% (1.0.31-1) focal; urgency=low
+
+  * NC 24.0.7
+  * doc: add DEV.md
+  * image: fix image building for ci
+  * image: list 'deploy' contents after image build
+  * image: ensure non-interactive image build
+  * image: patch pi-gen image build
+  * app: add package-lock.json; 
+  * bump changelog
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 15 Nov 2022 10:57:17 +0100
+
 %%PKG%% (1.0.30-1) focal; urgency=low
 
   * bump changelog
