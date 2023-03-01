@@ -12,7 +12,7 @@ variables:
   SCRIPTS_REPO: git@git.nitrokey.com:nitrokey/gitlab-ci.git
   REPO_GROUP: nitrokey
   REPO_NAME: nextbox
-  MAIN_BRANCH: ci 
+  MAIN_BRANCH: master
 
 build-image:
   image: registry.git.nitrokey.com/nitrokey/nextbox/build-image:latest
