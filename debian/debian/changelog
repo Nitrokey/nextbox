@@ -1,3 +1,12 @@
+%%PKG%% (1.0.35-1) focal; urgency=low
+
+  * daemon: remove auto-updating at startup (unattended-updates) does this
+  * bump NC 25.0.5
+  * ci: update MAIN_BRANCH
+  * changelog 1.0.34
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 23 Mar 2023 16:30:06 +0100
+
 %%PKG%% (1.0.34-1) focal; urgency=low
 
   * NC 25.0.4
