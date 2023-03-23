@@ -32,11 +32,11 @@ class LEDJob(BaseJob):
         nc = Nextcloud()
         if nc.is_maintenance:
             shield.set_led_state("maintenance")
-        
+
         # check reachability
         #elif nc.check_reachability()[0]:
         #    ...
-        
+
         # check if app container is up for more than 65secs
         elif not self.is_app_docker_up():
             shield.set_led_state("docker-wait")
@@ -62,7 +62,7 @@ class FactoryResetJob(BaseJob):
         super().__init__(initial_interval=None)
 
     def _run(self, cfg=None, board=None, kwargs=None):
-        
+
         # factory-reset is executed by systemd
         log.warning("Starting factory-reset operation")
         shield.set_led_state("factory-reset")
@@ -102,7 +102,7 @@ class DynDNSUpdateJob(BaseJob):
             ipv6 = dns.get_ipv6()
 
             headers = {"Authorization": f"Token {token}"}
-            
+
             params = {"hostname": domain}
             if ipv4:
                 params["myipv4"] = ipv4
@@ -145,9 +145,9 @@ class BackupRestoreJob(BaseJob):
             board.set("backup_restore", {
                 "state": "starting",
                 "percent": "0",
-                "who": "all", 
+                "who": "all",
                 "tar_path": kwargs["tar_path"],
-                "what": "export" if kwargs["mode"] == "backup" else "import", 
+                "what": "export" if kwargs["mode"] == "backup" else "import",
                 "mode": kwargs["mode"],
             })
 
@@ -173,7 +173,7 @@ class BackupRestoreJob(BaseJob):
 
 class EnableNextBoxAppJob(BaseJob):
     name = "EnableNextBoxApp"
-    
+
     def __init__(self):
         self.nc = Nextcloud()
         super().__init__(initial_interval=5)
@@ -182,8 +182,8 @@ class EnableNextBoxAppJob(BaseJob):
         # only enable, if nextcloud is installed
         if not self.nc.is_installed:
             log.debug("cannot enable nextbox-app - uninitialized nextcloud")
-            return 
-        
+            return
+
         # try to enable
         try:
             if self.nc.enable_nextbox_app():
@@ -197,7 +197,7 @@ class SelfUpdateJob(BaseJob):
 
     def __init__(self):
         super().__init__(initial_interval=1)
-        
+
     def _run(self, cfg, board, kwargs):
         self.interval = None
 
@@ -216,40 +216,40 @@ class SelfUpdateJob(BaseJob):
         # update/upgrade now
         shield.set_led_state("updating")
 
-        log.info("running 'apt-get update'")
-        cache = apt.cache.Cache()
-        cache.update()
-        cache.open()
+        #log.info("running 'apt-get update'")
+        #cache = apt.cache.Cache()
+        #cache.update()
+        #cache.open()
 
         # which debian package
-        pkg = cfg["config"]["debian_package"]
+        #pkg = cfg["config"]["debian_package"]
 
-        try:
-            pkg_obj = cache[pkg]
-        except KeyError:
-            log.error(f"self-update failed: designated package: {pkg} not found!")
-            log.error("falling back to 'nextbox' - retrying upgrade...")
-            pkg = "nextbox"
-        
-            try:
-                pkg_obj = cache[pkg]
-            except KeyError:
-                log.error("CRITICAL: failed to find 'nextbox' in apt-cache")
-                # we should never ever end here, this means that the nextbox 
-                # debian package is not available...
-                # nextbox debian (ppa) repository not available ???!!
-                return 
+        #try:
+        #    pkg_obj = cache[pkg]
+        #except KeyError:
+        #    log.error(f"self-update failed: designated package: {pkg} not found!")
+        #    log.error("falling back to 'nextbox' - retrying upgrade...")
+        #    pkg = "nextbox"
+
+        #    try:
+        #        pkg_obj = cache[pkg]
+        #    except KeyError:
+        #        log.error("CRITICAL: failed to find 'nextbox' in apt-cache")
+        #        # we should never ever end here, this means that the nextbox
+        #        # debian package is not available...
+        #        # nextbox debian (ppa) repository not available ???!!
+        #        return
 
         # install package (i.e., other nextbox package is already installed)
         # will trigger for e.g., 'nextbox' to 'nextbox-testing' switching
-        if not pkg_obj.is_installed:
-            log.info(f"installing debian package: {pkg} (start service: nextbox-updater)")
-            services.start("nextbox-updater")
-        elif pkg_obj.is_upgradable:
-            log.info(f"upgrading debian package: {pkg} (start service: nextbox-updater)")
-            services.start("nextbox-updater")
-        else:
-            log.debug(f"no need to upgrade or install debian package: {pkg}")
+        #if not pkg_obj.is_installed:
+        #    log.info(f"installing debian package: {pkg} (start service: nextbox-updater)")
+        #    services.start("nextbox-updater")
+        #elif pkg_obj.is_upgradable:
+        #    log.info(f"upgrading debian package: {pkg} (start service: nextbox-updater)")
+        #    services.start("nextbox-updater")
+        #else:
+        #    log.debug(f"no need to upgrade or install debian package: {pkg}")
 
         #job_queue.put("LED")
 
@@ -276,12 +276,12 @@ class EnableHTTPSJob(BaseJob):
         board.set("tls", {
             "what": "enable",
             "state": "running",
-        }) 
+        })
 
         certs = Certificates()
         domain = cfg.get("config", {}).get("domain")
         email = cfg.get("config", {}).get("email")
-        
+
         if not domain or not email:
             log.error(f"cannot enable tls, domain: '{domain}' email: '{email}'")
             board.set("tls", {
@@ -305,8 +305,8 @@ class EnableHTTPSJob(BaseJob):
             my_cert = certs.get_cert(domain)
 
         certs.write_apache_ssl_conf(
-            my_cert["domains"][0], 
-            my_cert["fullchain_path"], 
+            my_cert["domains"][0],
+            my_cert["fullchain_path"],
             my_cert["privkey_path"]
         )
 
@@ -319,9 +319,9 @@ class EnableHTTPSJob(BaseJob):
             return False
 
         log.info(f"activated https for apache using: {domain}")
-        
+
         cfg["config"]["https_port"] = 443
-        cfg["config"]["email"] = email    
+        cfg["config"]["email"] = email
         cfg.save()
 
         board.set("tls", {
@@ -342,7 +342,7 @@ class EnableHTTPSJob(BaseJob):
                 log.error("register at proxy-server error", exc_info=e)
             except Exception as e:
                 log.error("unexpected error during proxy setup", exc_info=e)
-                
+
             cfg["config"]["proxy_port"] = proxy_port
             cfg.save()
 
@@ -353,9 +353,9 @@ class HardwareStatusUpdateJob(BaseJob):
 
     def __init__(self):
         super().__init__(initial_interval=7200)
-    
+
     def _run(self, cfg, board, kwargs):
-    
+
         temp = Path("/sys/class/hwmon/hwmon0/temp1_input").read_text().strip()
 
         board.set("hwinfo", {"temp": temp})
@@ -363,7 +363,7 @@ class HardwareStatusUpdateJob(BaseJob):
 
 class TrustedDomainsJob(BaseJob):
     name = "TrustedDomains"
-    
+
     static_entries = ["192.168.*.*", "10.*.*.*", "172.16.*.*", "172.18.*.*", "nextbox.local"]
 
     def __init__(self):
@@ -384,7 +384,7 @@ class TrustedDomainsJob(BaseJob):
         except NextcloudError:
             log.warning("cannot get trusted_domains from nextcloud")
             self.interval = 15
-            return False        
+            return False
 
         default_entry = trusted_domains[0]
 
@@ -404,7 +404,7 @@ class TrustedDomainsJob(BaseJob):
 
 
 ACTIVE_JOBS = [
-    LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob, 
+    LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob,
     SelfUpdateJob, HardwareStatusUpdateJob,
     TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
     EnableHTTPSJob
