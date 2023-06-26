@@ -211,6 +211,13 @@ def https_enable():
         "what": "enable",
         "state": "pending",
     })
+    for key in request.form:
+        if key in ["email"]:
+            email = request.form.get(key)
+
+    cfg["config"]["email"] = email
+    cfg.save()
+    
     job_queue.put("EnableHTTPS")
 
     return success("HTTPS enabling pending")
