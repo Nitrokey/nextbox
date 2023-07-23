@@ -1,3 +1,14 @@
+%%PKG%% (1.0.36-1) focal; urgency=low
+
+  * app: bump package.json version
+  * app: bump max nc version
+  * app: remove appinfo/app.php
+  * NC 26.0.3
+  * fixed static dns mail signup
+  * changelog 1.0.35
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 26 Jun 2023 11:52:29 +0200
+
 %%PKG%% (1.0.35-1) focal; urgency=low
 
   * daemon: remove auto-updating at startup (unattended-updates) does this
