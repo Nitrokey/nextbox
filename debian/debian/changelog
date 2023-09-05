@@ -1,3 +1,9 @@
+%%PKG%% (1.0.37-1) focal; urgency=low
+
+  * NC 26.0.4
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 23 Jul 2023 14:16:08 +0200
+
 %%PKG%% (1.0.36-1) focal; urgency=low
 
   * app: bump package.json version
