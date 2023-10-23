@@ -1,3 +1,9 @@
+%%PKG%% (1.0.39-1) focal; urgency=low
+
+  * NC 26.0.7
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 25 Sep 2023 18:13:14 +0200
+
 %%PKG%% (1.0.38-1) focal; urgency=low
 
   * NC bump 26.0.5
