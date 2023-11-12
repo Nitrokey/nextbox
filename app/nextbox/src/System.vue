@@ -54,6 +54,18 @@
 			</div>
 		</div>
 
+                
+		<div class="section">
+			<h2>System Debian Update</h2>
+			<div>
+				Here you can trigger the system update script manually. Updating to the newest Debian Version might be mandatory in the future to receive any updates or support.
+			</div>
+
+			<button type="button" @click="updateDebian">
+				<span class="icon icon-history" />
+				Update
+			</button>
+		</div>
 		<div class="section">
 			<h2>System Power State</h2>
 			<div>
@@ -163,7 +175,19 @@ export default {
 			this.config = res.data.data
 			this.update.nk_token = res.data.data.nk_token
 		},
-		
+
+
+		updateDebian() {
+			this.loadingButton = true
+			let url = ''
+			url = '/apps/nextbox/forward/updateDebian'
+			const res = axios.post(generateUrl(url)).catch((e) => {
+				showError('Connection failed')
+				console.error(e)
+			})
+			this.loadingButton = false
+		},
+
 		powerop(op) {
 			this.loadingButton = true
 			let url = ''
