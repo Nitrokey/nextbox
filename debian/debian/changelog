@@ -1,3 +1,10 @@
+%%PKG%% (1.0.40-1) focal; urgency=low
+
+  * bump NC to 26.0.8
+  * changelog, ci update include path
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 01 Nov 2023 00:16:52 +0100
+
 %%PKG%% (1.0.39-1) focal; urgency=low
 
   * NC 26.0.7
