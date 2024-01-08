@@ -1,0 +1,15 @@
+# 
+# Translators:
+# Сашко Тодоров, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: Сашко Тодоров, 2020\n"
+"Language-Team: Macedonian (https://www.transifex.com/nextcloud/teams/64236/mk/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: mk\n"
+"Plural-Forms: nplurals=2; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : 1;\n"
+
+#: lib/toast.ts:187
+msgid "Undo"
+msgstr "Врати"

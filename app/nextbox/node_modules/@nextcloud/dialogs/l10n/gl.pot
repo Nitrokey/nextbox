@@ -1,0 +1,15 @@
+# 
+# Translators:
+# Miguel Anxo Bouzada <mbouzada@gmail.com>, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>, 2020\n"
+"Language-Team: Galician (https://www.transifex.com/nextcloud/teams/64236/gl/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: gl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/toast.ts:187
+msgid "Undo"
+msgstr "Desfacer"

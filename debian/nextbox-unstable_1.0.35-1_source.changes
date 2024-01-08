@@ -1,0 +1,28 @@
+Format: 1.8
+Date: Thu, 23 Mar 2023 16:30:06 +0100
+Source: nextbox-unstable
+Architecture: source
+Version: 1.0.35-1
+Distribution: focal
+Urgency: low
+Maintainer: Markus Meissner - Nitrokey <meissner@nitrokey.com>
+Changed-By: Markus Meissner (Debian) <coder@safemailbox.de>
+Changes:
+ nextbox-unstable (1.0.35-1) focal; urgency=low
+ .
+   * daemon: remove auto-updating at startup (unattended-updates) does this
+   * bump NC 25.0.5
+   * ci: update MAIN_BRANCH
+   * changelog 1.0.34
+Checksums-Sha1:
+ c4274d29bbcd92cbc5a90eeb8d827077513b6e37 650 nextbox-unstable_1.0.35-1.dsc
+ 4ba5132731a7a40afec199153ab60d9691f3068c 4899618 nextbox-unstable_1.0.35-1.tar.gz
+ ad60a245b8896951e80ce69df43b810b51e6dc93 5106 nextbox-unstable_1.0.35-1_source.buildinfo
+Checksums-Sha256:
+ 1868af176c9bee3aaf465d4a40ffd9fb897e4c684ed52a2fc40a66d8087fd43e 650 nextbox-unstable_1.0.35-1.dsc
+ 22b1f2079c696b0f8e59f372b283e548020c09fedb29a5d3e6a611dbe9eaee55 4899618 nextbox-unstable_1.0.35-1.tar.gz
+ 77f1e4f412f311d5be6ea684649896968b2b785c8b7341c86661e49b654f2ae3 5106 nextbox-unstable_1.0.35-1_source.buildinfo
+Files:
+ 8eaf83aad90fc5d66e5374d866a1e9c6 650 python optional nextbox-unstable_1.0.35-1.dsc
+ 521c204b32efced60c075cc2c7352e33 4899618 python optional nextbox-unstable_1.0.35-1.tar.gz
+ b7770f01f752f393e6b665d41d89d5a1 5106 python optional nextbox-unstable_1.0.35-1_source.buildinfo

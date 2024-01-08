@@ -1,0 +1,15 @@
+# 
+# Translators:
+# enolp <enolp@softastur.org>, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: enolp <enolp@softastur.org>, 2020\n"
+"Language-Team: Asturian (https://www.transifex.com/nextcloud/teams/64236/ast/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ast\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/toast.ts:187
+msgid "Undo"
+msgstr "Desfacer"

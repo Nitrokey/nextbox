@@ -1,0 +1,15 @@
+# 
+# Translators:
+# Quentin PAGÈS, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: Quentin PAGÈS, 2020\n"
+"Language-Team: Occitan (post 1500) (https://www.transifex.com/nextcloud/teams/64236/oc/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: oc\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: lib/toast.ts:187
+msgid "Undo"
+msgstr "Anullar"

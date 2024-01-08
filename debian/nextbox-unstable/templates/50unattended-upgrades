@@ -1,0 +1,19 @@
+Unattended-Upgrade::Origins-Pattern {
+	"origin=Debian,codename=${distro_codename},label=Debian";
+	"origin=Debian,codename=${distro_codename},label=Debian-Security";
+	"o=LP-PPA-nitrokey-nextbox, l=Nextbox, a=groovy, c=main, site=ppa.launchpad.net, n=groovy";
+	"o=LP-PPA-nitrokey-nextbox, l=Nextbox, a=focal, c=main, site=ppa.launchpad.net, n=focal";
+};
+
+Unattended-Upgrade::Allowed-Origins {
+	"${distro_id}:${distro_codename}-security";
+	"${distro_id}:${distro_codename}-updates";
+	"${distro_id}:${distro_codename}-proposed";
+	"${distro_id}:${distro_codename}-backports";
+	"LP-PPA-nitrokey-nextbox:groovy";
+	"LP-PPA-nitrokey-nextbox:focal";
+};
+
+Unattended-Upgrade::Package-Blacklist {
+};
+

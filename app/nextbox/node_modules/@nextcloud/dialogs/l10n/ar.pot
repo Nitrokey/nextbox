@@ -1,0 +1,15 @@
+# 
+# Translators:
+# S1 SYSTEMS | BP <info@s1.sa>, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: S1 SYSTEMS | BP <info@s1.sa>, 2020\n"
+"Language-Team: Arabic (https://www.transifex.com/nextcloud/teams/64236/ar/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: lib/toast.ts:191
+msgid "Undo"
+msgstr "تراجع"

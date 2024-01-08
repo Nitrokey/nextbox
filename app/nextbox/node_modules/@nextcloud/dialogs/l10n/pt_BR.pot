@@ -1,0 +1,15 @@
+# 
+# Translators:
+# Paulo Schopf, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: Paulo Schopf, 2020\n"
+"Language-Team: Portuguese (Brazil) (https://www.transifex.com/nextcloud/teams/64236/pt_BR/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: lib/toast.ts:187
+msgid "Undo"
+msgstr "Desfazer"

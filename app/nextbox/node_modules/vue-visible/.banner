@@ -1,0 +1,11 @@
+/**
+ * VueVisible plugin v%version%
+ * 
+ * v-visible directive for vue
+ *
+ * @author Javis Pérez <javisperez@gmail.com>
+ * http://www.github.com/javisperez/VueVisible
+ *
+ * Released under the MIT License.
+ */
+

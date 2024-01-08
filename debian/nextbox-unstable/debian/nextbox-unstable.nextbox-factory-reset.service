@@ -1,0 +1,11 @@
+[Unit]
+Description=Run NextBox Factory Reset
+Requires=network.target
+
+[Service]
+Type=oneshot
+
+ExecStart=/usr/bin/nextbox-factory-reset.sh
+
+[Install]
+WantedBy=multi-user.target

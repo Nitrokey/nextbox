@@ -1,0 +1,15 @@
+# 
+# Translators:
+# teemue, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: teemue, 2020\n"
+"Language-Team: Finnish (Finland) (https://www.transifex.com/nextcloud/teams/64236/fi_FI/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: fi_FI\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/toast.ts:191
+msgid "Undo"
+msgstr "Kumoa"

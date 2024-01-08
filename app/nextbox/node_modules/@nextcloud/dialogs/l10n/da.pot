@@ -1,0 +1,15 @@
+# 
+# Translators:
+# Martin Bonde <Martin@maboni.dk>, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: Martin Bonde <Martin@maboni.dk>, 2020\n"
+"Language-Team: Danish (https://www.transifex.com/nextcloud/teams/64236/da/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: da\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/toast.ts:192
+msgid "Undo"
+msgstr "Fortryd"

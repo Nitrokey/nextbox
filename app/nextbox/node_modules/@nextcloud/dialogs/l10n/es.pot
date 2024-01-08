@@ -1,0 +1,15 @@
+# 
+# Translators:
+# Gabriel Anca <gabrielancacorral@gmail.com>, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: Gabriel Anca <gabrielancacorral@gmail.com>, 2020\n"
+"Language-Team: Spanish (https://www.transifex.com/nextcloud/teams/64236/es/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/toast.ts:192
+msgid "Undo"
+msgstr "Deshacer"

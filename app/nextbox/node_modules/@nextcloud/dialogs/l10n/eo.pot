@@ -1,0 +1,15 @@
+# 
+# Translators:
+# Va Milushnikov <va.milushnikov@gmail.com>, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: Va Milushnikov <va.milushnikov@gmail.com>, 2020\n"
+"Language-Team: Esperanto (https://www.transifex.com/nextcloud/teams/64236/eo/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: eo\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/toast.ts:191
+msgid "Undo"
+msgstr "Malfari"

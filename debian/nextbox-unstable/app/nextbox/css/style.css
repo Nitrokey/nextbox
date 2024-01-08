@@ -1,0 +1,46 @@
+#app-content {
+	/*padding-left: 2em;*/
+	padding-top: 1em;
+}
+
+.grayout {
+	position: relative;
+	opacity: 0.65;
+	background-color: rgb(245, 245, 245);
+}
+
+.grayout .overlay {
+	position: absolute;
+	width: 100% !important;
+	height: 100% !important;
+	top: 0;
+	left: 0;
+	z-index: 1;
+}
+
+.log-date {
+	font-weight: 600;
+}
+
+.notify-error {
+	color: #ff4242;
+	font-weight: 400;
+}
+
+.toast-close {
+	margin-left: 5px;
+	border: 1px;
+}
+
+textarea, input.ddclient-domain, input.ddclient-email {
+	height: 10em;
+	width: -webkit-fill-available;
+	/*width: 60vw;*/
+	font-family: monospace;
+}
+
+h2 {
+	margin-left: 0.5em;
+	width: 300px;
+
+}

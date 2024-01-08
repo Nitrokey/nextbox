@@ -1,0 +1,15 @@
+# 
+# Translators:
+# ByteGet, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: ByteGet, 2020\n"
+"Language-Team: Greek (https://www.transifex.com/nextcloud/teams/64236/el/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/toast.ts:187
+msgid "Undo"
+msgstr "Αναίρεση"

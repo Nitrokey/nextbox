@@ -1,0 +1,15 @@
+# 
+# Translators:
+# Yaron Shahrabani <sh.yaron@gmail.com>, 2020
+# 
+msgid ""
+msgstr ""
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2020\n"
+"Language-Team: Hebrew (https://www.transifex.com/nextcloud/teams/64236/he/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: he\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
+
+#: lib/toast.ts:187
+msgid "Undo"
+msgstr "ביטול"
