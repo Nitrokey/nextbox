@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#first of all lets kill all docker instances
+/usr/bin/docker-compose -f docker-compose.yml down -v
+
+
 #setting locales
 
 locale-gen --purge en_US.UTF-8
