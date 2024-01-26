@@ -403,10 +403,40 @@ class TrustedDomainsJob(BaseJob):
                 self.interval = 15
 
 
+class ReIndexAllFilesJob(BaseJob):
+    """
+        Job to re-index all files once a day, so that files added
+        by different means than the web interface (eg. ssh) will be
+        visible after at most a day.
+    """
+    name = "ReIndexAllFiles"
+
+    def __init__(self):
+        self.nc = Nextcloud()
+        super().__init__(initial_interval=90)
+
+    def _run(self, cfg, board, kwargs):
+        # run once a day
+        self.interval = 86400
+
+        # only re-index files, if nextcloud is installed
+        if not self.nc.is_installed:
+            log.debug("cannot re-index all files - uninitialized nextcloud")
+            self.interval = 15
+            return False
+
+        try:
+            # re-index all files
+            self.nc.run_cmd("files:scan", "--all")
+        except NextcloudError:
+            log.warning("cannot re-index files")
+            self.interval = 15
+            return False
+
+
 ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob,
     SelfUpdateJob, HardwareStatusUpdateJob,
     TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
-    EnableHTTPSJob
+    EnableHTTPSJob, ReIndexAllFilesJob
 ]
-
