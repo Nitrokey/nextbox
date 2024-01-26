@@ -6,6 +6,7 @@ import time
 import tarfile
 
 import docker
+from distutils.version import LooseVersion
 
 from nextbox_daemon.config import log, cfg
 
@@ -39,7 +40,21 @@ def file_from_archive(archive_fd):
     info = tar.getmembers()[0]
     file_fd = tar.extractfile(info)
     return file_fd, info
-    
+
+
+# helper function to get image properties
+def get_image_type(image):
+    return image.attrs["RepoTags"][0].split(":")[0]
+
+
+def get_image_version(image):
+    version_str = image.attrs["RepoTags"][0].split(":")[1]
+    # if version checking fails, return a big version
+    try:
+        version = LooseVersion(version_str)
+    except ValueError:
+        version = LooseVersion("9999999")
+    return version
 
 
 class DockerControl:
@@ -100,3 +115,19 @@ class DockerControl:
     def exec(self, c_name, cmd):
         return self.get(c_name).exec_run(cmd)
         
+    def purge_old_images(self):
+        """Purges images of all different types, leaving the 3 with the
+        highest version number"""
+        images = self.api.images.list()
+        types = {get_image_type(x) for x in images}
+        # handle all container types independently (eg. nextcloud and mariadb)
+        images_by_type = {
+            y: [x for x in images if get_image_type(x) == y] for y in types}
+        sorted_images = {k: sorted(v, key=lambda x: get_image_version(x))
+                         for k, v in images_by_type.items()}
+        for name, images in sorted_images.items():
+            if len(images) <= 3:
+                continue
+            for image in images[:-3]:
+                log.info(f"removing image {image.short_id}")
+                self.api.images.remove(image.short_id)
