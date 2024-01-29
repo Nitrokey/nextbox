@@ -1,3 +1,9 @@
+%%PKG%% (1.0.43-1) focal; urgency=low
+
+  * update app max nc version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 17 Dec 2023 19:36:18 +0100
+
 %%PKG%% (1.0.42-1) focal; urgency=low
 
   * NC bump 27.1.5

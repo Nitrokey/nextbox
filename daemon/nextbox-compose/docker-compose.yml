@@ -15,7 +15,7 @@ services:
     restart: always
 
   app:
-    image: nextcloud:27.1.5-apache
+    image: nextcloud:27.1.6-apache
     entrypoint: "/bin/sh -c 'echo \"start delayed by 60secs...\" && sleep 60 && /entrypoint.sh apache2-foreground'"
     restart: always
     extra_hosts:
@@ -39,7 +39,7 @@ services:
       - redis
 
   cron:
-    image: nextcloud:27.1.5-apache
+    image: nextcloud:27.1.6-apache
     restart: always
     volumes:
       - nextcloud:/var/www/html
