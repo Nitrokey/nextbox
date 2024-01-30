@@ -168,7 +168,7 @@ def poweroff():
 @requires_auth
 def updateDebian():
     log.info("updateDebian - by /updateDebian    request")
-    cr = CommandRunner("nohup /usr/bin/nextbox-update-debian.sh &")
+    cr = CommandRunner("nohup /usr/bin/nextbox-update-debian.sh")
     if cr.returncode != 0:
         return error("failed executing: 'updateDebian'")
     return success(data={})
