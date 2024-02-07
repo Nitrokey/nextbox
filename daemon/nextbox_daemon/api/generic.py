@@ -164,6 +164,17 @@ def poweroff():
         return error("failed executing: 'poweroff'")
     return success(data={})
 
+
+@generic_api.route("/debianVersion", methods=["GET"])
+@requires_auth
+def debianVersion():
+    log.info("debianVersion - by /debianVersion request")
+    version_file = Path("/etc/debian_version")
+    with version_file.open() as fd:
+        version = fd.read()
+    return success(data={"version": int(version.split(".")[0])})
+
+
 @generic_api.route("/updateDebian", methods=["POST"])
 @requires_auth
 def updateDebian():
