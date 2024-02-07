@@ -58,10 +58,14 @@
 		<div class="section">
 			<h2>System Debian Update</h2>
 			<div>
-				Here you can trigger the system update script manually. Updating to the newest Debian Version might be mandatory in the future to receive any updates or support.
+				Here you can trigger the system update script manually. Updating to the newest Debian Version might be mandatory in the future to receive any updates or support. <br>
+				WARNING! <br>
+				Beware that this may cause problems and may break your system! Please back up any data you don't want to loose! <br>
+				Don't turn off your device until the status LED is green (not blinking!), this may take around an hour or two. Turning it off will break your system! <br>
+				You will need to confirm by pressing the button twice.
 			</div>
 
-			<button type="button" @click="updateDebian">
+			<button type="button" @click="updateDebian" ref="btnUpdateDebian">
 				<span class="icon icon-history" />
 				Update
 			</button>
@@ -104,6 +108,7 @@ import UtilsMixin from './UtilsMixin.js'
 // import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 
 const FileDownload = require('js-file-download')
+let updateButtonPressed = false
 
 
 
@@ -179,12 +184,17 @@ export default {
 
 		updateDebian() {
 			this.loadingButton = true
-			let url = ''
-			url = '/apps/nextbox/forward/updateDebian'
-			const res = axios.post(generateUrl(url)).catch((e) => {
-				showError('Connection failed')
-				console.error(e)
-			})
+			if (!updateButtonPressed) {
+				updateButtonPressed = true
+				this.$refs.btnUpdateDebian.innerText = 'Confirm Update (Please read warnings above!)'
+			} else {
+				let url = ''
+				url = '/apps/nextbox/forward/updateDebian'
+				const res = axios.post(generateUrl(url)).catch((e) => {
+					showError('Connection failed')
+					console.error(e)
+				})
+			}
 			this.loadingButton = false
 		},
 
