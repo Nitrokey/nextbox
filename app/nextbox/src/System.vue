@@ -55,7 +55,7 @@
 		</div>
 
                 
-		<div class="section">
+		<div class="section" v-if="canDebianUpdate">
 			<h2>System Debian Update</h2>
 			<div>
 				Here you can trigger the system update script manually. Updating to the newest Debian Version might be mandatory in the future to receive any updates or support. <br>
@@ -123,6 +123,7 @@ export default {
 		return {
 			loading: true,
 			loadingButton: true,
+			canDebianUpdate: false,
 			
 			// update-ables
 			update: {
@@ -179,6 +180,13 @@ export default {
 			})
 			this.config = res.data.data
 			this.update.nk_token = res.data.data.nk_token
+
+			try {
+				const res = await axios.get(generateUrl('/apps/nextbox/forward/debianVersion'))
+				this.canDebianUpdate = (res.data.data.version === 10)
+			} catch (e) {
+				console.error(e)
+			}
 		},
 
 
