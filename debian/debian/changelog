@@ -1,3 +1,15 @@
+%%PKG%% (1.0.45-1) focal; urgency=low
+
+  * 1.0.44 changelog
+  * daemon: add api call to get debian major version
+  * app: add warning and confirmation to update button
+  * system: add script for to upgrade Debian
+  * daemon: add Job to purge old docker images periodically
+  * daemon: add purge_old_images function to docker_control
+  * daemon: add ReIndexAllFiles Job
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 08 Feb 2024 14:16:23 +0100
+
 %%PKG%% (1.0.44-1) focal; urgency=low
 
   * update to NC 27.1.6
