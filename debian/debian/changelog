@@ -1,3 +1,9 @@
+%%PKG%% (1.0.44-1) focal; urgency=low
+
+  * update to NC 27.1.6
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 29 Jan 2024 14:35:56 +0100
+
 %%PKG%% (1.0.43-1) focal; urgency=low
 
   * update app max nc version
