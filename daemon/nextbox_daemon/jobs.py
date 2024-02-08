@@ -19,6 +19,7 @@ from nextbox_daemon.proxy_tunnel import ProxyTunnel, ProxySetupError
 from nextbox_daemon.services import services
 from nextbox_daemon.shield import shield
 from nextbox_daemon.worker import BaseJob
+from nextbox_daemon.docker_control import DockerControl
 
 
 class LEDJob(BaseJob):
@@ -434,9 +435,27 @@ class ReIndexAllFilesJob(BaseJob):
             return False
 
 
+class PurgeOldDockerImagesJob(BaseJob):
+    """
+    Job to periodically purge old images using
+    DockerControl.purge_old_images
+    """
+
+    name = "PurgeOldDockerImages"
+
+    def __init__(self):
+        super().__init__(initial_interval=600)
+
+    def _run(self, cfg, board, kwargs):
+        # run once a week
+        self.interval = 604800
+        DockerControl().purge_old_images()
+
+
 ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob,
     SelfUpdateJob, HardwareStatusUpdateJob,
     TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
-    EnableHTTPSJob, ReIndexAllFilesJob
+    EnableHTTPSJob, ReIndexAllFilesJob,
+    PurgeOldDockerImagesJob
 ]
