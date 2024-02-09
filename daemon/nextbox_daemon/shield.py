@@ -1,9 +1,24 @@
 
 import gpiozero
+from datetime import datetime, timedelta
 
 from nextbox_daemon.config import log
 from nextbox_daemon.worker import job_queue
 from nextbox_daemon.nextcloud import Nextcloud
+from nextbox_daemon.command_runner import CommandRunner
+
+
+def button_press_handler():
+    shield.set_led_state("button")
+    if not shield.last_button_press:
+        shield.last_button_press = datetime.now()
+        return
+    if shield.last_button_press + timedelta(seconds=2) > datetime.now():
+        log.info("starting soft reset")
+        CommandRunner("nohup /usr/bin/nextbox-soft-reset.sh")
+    else:
+        shield.last_button_press = datetime.now()
+
 
 class Shield:
     """
@@ -14,6 +29,7 @@ class Shield:
     def __init__(self):
         self.led = gpiozero.RGBLED(19, 20, 21, active_high=False)
         self.button = gpiozero.Button(16, hold_time=5, hold_repeat=False)
+        self.last_button_press = None
         #self.led.on()
 
     def set_led(self, r, g, b):
@@ -62,7 +78,7 @@ class Shield:
 
         if state == "ready":
             self.set_led(0, 1, 0)
-            shield.button.when_pressed = lambda: self.set_led_state("button")
+            shield.button.when_pressed = button_press_handler
             shield.button.when_released = lambda: self.set_led_state("ready")
             shield.button.when_held = lambda: (job_queue.put("FactoryReset"), self.set_led_state("factory-reset"))
 
