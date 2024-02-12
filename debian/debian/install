@@ -11,4 +11,5 @@ scripts/nextbox-set-led.sh /usr/bin
 scripts/nextbox-start-compose.sh /usr/bin
 scripts/nextbox-stop-compose.sh /usr/bin
 scripts/nextbox-desec-hook.sh /usr/bin
+scripts/nextbox-update-debian.sh /usr/bin
 templates/* /usr/lib/nextbox-templates
