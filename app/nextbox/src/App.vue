@@ -36,7 +36,7 @@
 			</ul>
 		</AppNavigation>
 			
-		<AppContent>
+		<AppContent class=app-content>
 			<Overview v-if="page === 'overview'" />
 			<Storage v-if="page === 'storage'" />
 			<Backup v-if="page === 'backup' || page === 'backup_exclusive'" @newPage="set_page" />
@@ -232,6 +232,10 @@ h3 {
 
 #app-navigation-vue > ul.app-navigation__list {
 	height: 30% !important
+}
+
+.app-content {
+	overflow: auto;
 }
 
 
