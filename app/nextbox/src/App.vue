@@ -5,19 +5,32 @@
 				<AppNavigationItem :title="t('nextbox', 'Overview')" icon="icon-home" @click="set_page('overview')" />
 				<AppNavigationItem :title="t('nextbox', 'Storage Management')" icon="icon-category-files" @click="set_page('storage')" />
 				<AppNavigationItem :title="t('nextbox', 'Backup / Restore')" icon="icon-download" @click="set_page('backup')" />
-				<AppNavigationItem :title="t('nextbox', 'Remote Access')"
-					icon="icon-timezone"
-					:allow-collapse="false"
-					:open="isRemoteOpen"
-					@click="set_page('remote')">
-					<template>
-						<AppNavigationItem :title="t('nextbox', 'Backwards Proxy')" icon="icon-star" @click="set_page('remote_proxy')" />
-						<AppNavigationItem :title="t('nextbox', 'Guided Dynamic DNS')" icon="icon-comment" @click="set_page('remote_dyndns')" />
-						<AppNavigationItem :title="t('nextbox', 'Custom Dynamic DNS')" icon="icon-settings" @click="set_page('remote_custom_dns')" />
-						<AppNavigationItem :title="t('nextbox', 'Static Domain')" icon="icon-public" @click="set_page('remote_static_dns')" />
-						<AppNavigationItem :title="t('nextbox', 'HTTPS / TLS')" icon="icon-password" @click="set_page('tls')" />
-					</template>
-				</AppNavigationItem>
+				<AppNavigationItem :title="t('nextbox', 'Remote Access')" icon="icon-timezone" @click="set_page('remote')" />
+				<AppNavigationItem
+					v-if="isRemoteOpen"
+					:title="t('nextbox', 'Backwards Proxy')"
+					icon="icon-star"
+					@click="set_page('remote_proxy')" />
+				<AppNavigationItem
+					v-if="isRemoteOpen"
+					:title="t('nextbox', 'Guided Dynamic DNS')"
+					icon="icon-comment"
+					@click="set_page('remote_dyndns')" />
+				<AppNavigationItem
+					v-if="isRemoteOpen"
+					:title="t('nextbox', 'Custom Dynamic DNS')"
+					icon="icon-settings"
+					@click="set_page('remote_custom_dns')" />
+				<AppNavigationItem
+					v-if="isRemoteOpen"
+					:title="t('nextbox', 'Static Domain')"
+					icon="icon-public"
+					@click="set_page('remote_static_dns')" />
+				<AppNavigationItem
+					v-if="isRemoteOpen"
+					:title="t('nextbox', 'HTTPS / TLS')"
+					icon="icon-password"
+					@click="set_page('tls')" />
 				
 				<AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" />
 				<!-- AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" /-->
@@ -117,7 +130,8 @@ export default {
 	methods: {
 		set_page(what) {
 			this.page = what
-			if (this.page.startsWith('remote_')) this.isRemoteOpen = true
+			if (this.page.startsWith('remote')) this.isRemoteOpen = true
+			else this.isRemoteOpen = false
 		},
 	},
 }
