@@ -1,4 +1,4 @@
-7<template>
+<template>
 	<div id="system" v-if="!loading">
 		<div class="section">
 			<h2>System Logs</h2>
