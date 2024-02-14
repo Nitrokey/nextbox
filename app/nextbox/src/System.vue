@@ -202,6 +202,8 @@ export default {
 					showError('Connection failed')
 					console.error(e)
 				})
+				this.$refs.btnUpdateDebian.innerText = 'Update Started! Don\'t turn off your device! This might take a few hours!'
+				this.$refs.btnUpdateDebian.disabled = true
 			}
 			this.loadingButton = false
 		},
