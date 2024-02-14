@@ -3,7 +3,12 @@
 		<div class="section">
 			<h2>HTTPS / TLS Status</h2>
 			<div v-if="!dns_mode.endsWith('_done')" icon="icon-close">
-				To activate TLS encryption for your NextBox, first finish a DNS Configuration.
+				To activate TLS encryption for your NextBox, first finish a DNS Configuration under:
+				<ul>
+					<li class="remote-action" @click="$emit('newPage', 'remote')">
+						Remote Access
+					</li>
+				</ul>
 			</div>
 			<div v-else>
 				<StatusBar v-if="domain" preset="resolve_ipv4" />
@@ -346,5 +351,14 @@ export default {
 	padding: 5vh;
 }
 
+.remote-action {
+	margin-top: 10px;
+	font-size: 1.1em;
+	font-weight: bold;
+	vertical-align: middle;
+	line-height: 48px;
+	cursor: pointer;
+	width: fit-content;
+}
 
 </style>
