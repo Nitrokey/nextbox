@@ -27,7 +27,6 @@
 					icon="icon-public"
 					@click="set_page('remote_static_dns')" />
 				<AppNavigationItem
-					v-if="isRemoteOpen"
 					:title="t('nextbox', 'HTTPS / TLS')"
 					icon="icon-password"
 					@click="set_page('tls')" />
