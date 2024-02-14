@@ -61,7 +61,8 @@
 				Here you can trigger the system update script manually. Updating to the newest Debian Version might be mandatory in the future to receive any updates or support. <br>
 				WARNING! <br>
 				Beware that this may cause problems and may break your system! Please back up any data you don't want to loose! <br>
-				Don't turn off your device until the status LED is green (not blinking!), this may take around an hour or two. Turning it off will break your system! <br>
+				Don't turn off your device until the status LED is green (not blinking!), this may take a few hours depending on your internet connection. <br>
+				Turning the NextBox off while updating will break your system! <br>
 				You will need to confirm by pressing the button twice.
 			</div>
 
