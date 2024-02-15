@@ -1,3 +1,10 @@
+%%PKG%% (1.0.46-1) focal; urgency=low
+
+  * fix: add install nextbox-update-debian.sh
+  * add 1.0.45 changelog
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 13 Feb 2024 10:19:27 +0100
+
 %%PKG%% (1.0.45-1) focal; urgency=low
 
   * 1.0.44 changelog
