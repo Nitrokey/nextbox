@@ -56,13 +56,14 @@
 
                 
 		<div class="section" v-if="canDebianUpdate">
-			<h2>System Debian Update</h2>
+			<h2>NextBox System Update</h2>
 			<div>
-				Here you can trigger the system update script manually. Updating to the newest Debian Version might be mandatory in the future to receive any updates or support. <br>
+				Here you can trigger the system update script. <br>
 				WARNING! <br>
 				Beware that this may cause problems and may break your system! Please back up any data you don't want to loose! <br>
-				Don't turn off your device until the status LED is green (not blinking!), this may take a few hours depending on your internet connection. <br>
-				Turning the NextBox off while updating will break your system! <br>
+				Don't turn off your device until the status LED is green (not blinking!), this may take up to an hour depending on your internet connection. <br>
+				Activated SSH might help restoring your system, if something goes wrong. <br>
+				Turning the NextBox off while updating will most likely break your system! <br>
 				You will need to confirm by pressing the button twice.
 			</div>
 
