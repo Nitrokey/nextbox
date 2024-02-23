@@ -1,3 +1,20 @@
+%%PKG%% (1.0.47-1) focal; urgency=low
+
+  * bump version in app to 1.0.47
+  * changelog 1.0.46
+  * fix debian update blocking without active user session
+  * app: add scroll bar
+  * app: change TLS navbar section change TlS navbar section to not be part of Remote Acess, but instead to redirect to Remote Acess if not configured
+  * app: change navbar remotes section change remotes section from nested sections to autonomous sections, where the subsections are not visible until one of the remotes sections is open.
+  * app: update wording on how long debian update might take
+  * app: add debian update button disable and text change on second press
+  * fix: add install nextbox-soft-reset.sh
+  * shield: add soft reset on double button press
+  * add nextbox-soft-reset script
+  * app: fix typo in System.vue
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 15 Feb 2024 23:10:52 +0100
+
 %%PKG%% (1.0.46-1) focal; urgency=low
 
   * fix: add install nextbox-update-debian.sh
