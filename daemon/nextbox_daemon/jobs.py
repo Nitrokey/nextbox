@@ -414,7 +414,7 @@ class ReIndexAllFilesJob(BaseJob):
 
     def __init__(self):
         self.nc = Nextcloud()
-        super().__init__(initial_interval=90)
+        super().__init__(initial_interval=900)
 
     def _run(self, cfg, board, kwargs):
         # run once a day
