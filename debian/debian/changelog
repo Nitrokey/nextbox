@@ -1,3 +1,11 @@
+%%PKG%% (1.1.0-1) focal; urgency=low
+
+  * changelog; bump app versions to 1.1
+  * app: change update warning text
+  * daemon: fix re-index all files job starting too early
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 23 Feb 2024 15:13:00 +0100
+
 %%PKG%% (1.0.47-1) focal; urgency=low
 
   * bump version in app to 1.0.47
