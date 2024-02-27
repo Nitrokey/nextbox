@@ -15,8 +15,9 @@ services:
     restart: always
 
   app:
-    image: nextcloud:27.1.6-apache
-    entrypoint: "/bin/sh -c 'echo \"start delayed by 120secs...\" && sleep 120 && /entrypoint.sh apache2-foreground'"
+    build: .
+    image: nextbox
+    entrypoint: "/bin/sh -c 'echo \"start delayed by 60secs...\" && sleep 60 && /entrypoint.sh apache2-foreground'"
     restart: always
     extra_hosts:
       - dockerhost:172.18.238.1
@@ -39,7 +40,7 @@ services:
       - redis
 
   cron:
-    image: nextcloud:27.1.6-apache
+    image: nextbox
     restart: always
     volumes:
       - nextcloud:/var/www/html
@@ -48,6 +49,7 @@ services:
     depends_on:
       - db
       - redis
+      - app
 
 networks:
   default:
