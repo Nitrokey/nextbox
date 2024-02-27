@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 
 services:
   db:
@@ -9,15 +9,25 @@ services:
       - db:/var/lib/mysql
     env_file:
       - /srv/nextbox/docker.env
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--password=$MYSQL_PASSWORD", "--user=$MYSQL_USER"]
+      interval: 5s
+      timeout: 20s
+      retries: 12
 
   redis:
     image: redis:5.0.11-alpine
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      timeout: 20s
+      retries: 12
 
   app:
     build: .
     image: nextbox
-    entrypoint: "/bin/sh -c 'echo \"start delayed by 60secs...\" && sleep 60 && /entrypoint.sh apache2-foreground'"
+    entrypoint: "/entrypoint.sh apache2-foreground"
     restart: always
     extra_hosts:
       - dockerhost:172.18.238.1
