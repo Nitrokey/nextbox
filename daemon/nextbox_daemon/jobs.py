@@ -452,10 +452,38 @@ class PurgeOldDockerImagesJob(BaseJob):
         DockerControl().purge_old_images()
 
 
+class OccUpgradeJob(BaseJob):
+    """
+    Job to periodically purge old images using
+    DockerControl.purge_old_images
+    """
+
+    name = "OccUpgrade"
+
+    def __init__(self):
+        self.nc = Nextcloud()
+        super().__init__(initial_interval=60)
+
+    def _run(self, cfg, board, kwargs):
+        self.interval = None
+
+        if not self.nc.is_installed:
+            log.debug("cannot occ upgrade - uninitialized nextcloud")
+            self.interval = 20
+            return False
+
+        try:
+            self.nc.run_cmd("upgrade")
+        except NextcloudError:
+            log.warning("cannot occ upgrade")
+            self.interval = 20
+            return False
+
+
 ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob,
     SelfUpdateJob, HardwareStatusUpdateJob,
     TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
     EnableHTTPSJob, ReIndexAllFilesJob,
-    PurgeOldDockerImagesJob
+    PurgeOldDockerImagesJob, OccUpgradeJob,
 ]
