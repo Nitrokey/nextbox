@@ -15,7 +15,8 @@ def button_press_handler():
         return
     if shield.last_button_press + timedelta(seconds=2) > datetime.now():
         log.info("starting soft reset")
-        CommandRunner("nohup /usr/bin/nextbox-soft-reset.sh")
+        shield.set_led_state("soft-reset")
+        CommandRunner("nohup /usr/bin/nextbox-soft-reset.sh", block=True)
     else:
         shield.last_button_press = datetime.now()
 
@@ -72,6 +73,7 @@ class Shield:
         * 'stopped'         => red
         * 'factory-reset'   => red-blinking
         * 'button'          => blue
+        * 'soft-reset'      => blue-blinking
         * 'maintenance'     => purple
         * 'docker-wait'     => green-fast-blink
         """
@@ -101,6 +103,12 @@ class Shield:
         elif state == "button":
             self.set_led(0, 0, 1)
 
+        elif state == "soft-reset":
+            self.set_led_blink(0, 0, 1)
+            shield.button.when_pressed = None
+            shield.button.when_released = None
+            shield.button.when_held = None
+
         elif state == "maintenance":
             self.set_led(0.5, 0, 1)
             shield.button.when_pressed = lambda: self.set_fast_blink(0.5, 0, 1)
@@ -113,7 +121,6 @@ class Shield:
 
         else:
             self.set_led(0, 1, 0)
-        
 
 
 shield = Shield()
