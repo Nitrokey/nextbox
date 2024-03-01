@@ -16,7 +16,7 @@ def button_press_handler():
     if shield.last_button_press + timedelta(seconds=2) > datetime.now():
         log.info("starting soft reset")
         shield.set_led_state("soft-reset")
-        CommandRunner("nohup /usr/bin/nextbox-soft-reset.sh", block=True)
+        CommandRunner("/usr/bin/nextbox-soft-reset.sh", block=True)
     else:
         shield.last_button_press = datetime.now()
 
