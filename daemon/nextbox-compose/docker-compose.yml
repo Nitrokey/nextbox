@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 
 services:
   db:
@@ -9,14 +9,22 @@ services:
       - db:/var/lib/mysql
     env_file:
       - /srv/nextbox/docker.env
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--password=$MYSQL_PASSWORD", "--user=$MYSQL_USER"]
+      interval: 5s
+      retries: 20
 
   redis:
     image: redis:5.0.11-alpine
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      retries: 20
 
   app:
     image: nextcloud:28.0.6-apache
-    entrypoint: "/bin/sh -c 'echo \"start delayed by 120secs...\" && sleep 120 && /entrypoint.sh apache2-foreground'"
+    entrypoint: "/entrypoint.sh apache2-foreground"
     restart: always
     extra_hosts:
       - dockerhost:172.18.238.1
@@ -35,8 +43,10 @@ services:
     env_file:
       - /srv/nextbox/docker.env
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   cron:
     image: nextcloud:28.0.6-apache
@@ -46,8 +56,10 @@ services:
       - /media:/media:rw,rshared
     entrypoint: /cron.sh
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 networks:
   default:
