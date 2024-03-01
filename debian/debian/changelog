@@ -1,3 +1,10 @@
+%%PKG%% (1.1.1-1) focal; urgency=low
+
+  * changelog 1.1
+  * docker-compose: change startup delay of nextcloud to 120s
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 27 Feb 2024 22:23:06 +0100
+
 %%PKG%% (1.1.0-1) focal; urgency=low
 
   * changelog; bump app versions to 1.1
