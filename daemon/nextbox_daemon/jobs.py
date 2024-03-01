@@ -454,8 +454,8 @@ class PurgeOldDockerImagesJob(BaseJob):
 
 class OccUpgradeJob(BaseJob):
     """
-    Job to periodically purge old images using
-    DockerControl.purge_old_images
+    Executes occ upgrade command on startup.
+    This removes the necessity for users to upgrade manually.
     """
 
     name = "OccUpgrade"
