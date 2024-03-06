@@ -1,3 +1,12 @@
+%%PKG%% (1.1.2-1) focal; urgency=low
+
+  * changelog v1.1.1
+  * changelog v1.1
+  * daemon: add occ upgrade job
+  * daemon: add led feedback to soft reset
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 01 Mar 2024 17:31:51 +0100
+
 %%PKG%% (1.1.1-1) focal; urgency=low
 
   * changelog 1.1
