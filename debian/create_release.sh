@@ -96,8 +96,8 @@ fi
 popd > /dev/null
 
 
-author_name=$(git config --get author.name)
-author_email=$(git config --get user.email)
+# author_name=$(git config --get author.name)
+# author_email=$(git config --get user.email)
 changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2- | sed 's/^/  * /')
 
 cat > ${tmp_path} <<EOL
@@ -105,9 +105,12 @@ cat > ${tmp_path} <<EOL
 
   ${changes}
 
- -- ${author_name} (Debian) <${author_email}>  $(date -R)
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  $(date -R)
 
 EOL
+
+
+# -- ${author_name} (Debian) <${author_email}>  $(date -R)
 
 
 #pushd repos/daemon > /dev/null
