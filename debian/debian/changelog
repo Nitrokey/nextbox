@@ -1,3 +1,9 @@
+%%PKG%% (1.1.4-1) focal; urgency=low
+
+  * update to NC 28.0.5
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 10 May 2024 13:23:35 +0200
+
 %%PKG%% (1.1.3-1) focal; urgency=low
 
   * update to NC 27.1.7
