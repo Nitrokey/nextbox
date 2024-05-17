@@ -1,3 +1,9 @@
+%%PKG%% (1.1.6-1) focal; urgency=low
+
+  * bump app version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 17 May 2024 18:30:54 +0200
+
 %%PKG%% (1.1.5-1) focal; urgency=low
 
   * app: bump max nc version to 28
