@@ -1,3 +1,9 @@
+%%PKG%% (1.1.7-1) focal; urgency=low
+
+  * bump app version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 20 May 2024 09:56:54 +0200
+
 %%PKG%% (1.1.6-1) focal; urgency=low
 
   * bump app version
