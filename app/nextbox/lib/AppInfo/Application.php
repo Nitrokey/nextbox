@@ -22,7 +22,8 @@ class Application extends App {
         parent::__construct('nextbox', $urlParams);
 
 				$container = $this->getContainer();
-				$dispatcher = \OC::$server->getEventDispatcher();
+				// $dispatcher = \OC::$server->getEventDispatcher();
+				$dispatcher = $container->query(IEventDispatcher::class);
 				$dispatcher->addListener(AddContentSecurityPolicyEvent::class, function (AddContentSecurityPolicyEvent $e) {
 
 					$csp = new ContentSecurityPolicy();

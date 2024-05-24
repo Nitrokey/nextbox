@@ -15,3 +15,4 @@ app/nextbox/src/UtilsMixin.js
 app/nextbox/src/main.js
 app/nextbox/src/Overview.vue
 app/nextbox/lib/Controller/PageController.php
+app/nextbox/lib/AppInfo/Application.php
