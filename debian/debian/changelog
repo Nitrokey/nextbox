@@ -1,3 +1,9 @@
+%%PKG%% (1.1.9-1) focal; urgency=low
+
+  * update to NC 28.0.6
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 24 Jun 2024 10:50:07 +0200
+
 %%PKG%% (1.1.8-1) focal; urgency=low
 
   * fix event dispatcher api change
