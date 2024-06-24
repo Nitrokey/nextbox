@@ -480,10 +480,80 @@ class OccUpgradeJob(BaseJob):
             return False
 
 
+class AdminNotification(BaseJob):
+    """
+    Send notifications to users part of the admin group.
+    To send a message append it to global `admin_messages` list.
+    """
+
+    name = "AdminNotification"
+
+    def __init__(self):
+        self.nc = Nextcloud()
+        self.update_notification_sent = False
+        super().__init__(initial_interval=180)
+
+    def _run(self, cfg, board, kwargs):
+        if not self.nc.is_installed:
+            log.debug("cannot send admin notifications - uninitialized nextcloud")
+            self.interval = 20,
+            return False
+
+        try:
+            if not self.update_notification_sent:
+                self._send_update_notification()
+                self.update_notification_sent = True
+            for message in admin_messages.copy():
+                message_header = "NextBox"
+                for user in self._get_admin_users():
+                    self.nc.run_cmd("notification:generate", "-l", message, user, message_header)
+                admin_messages.remove(message)
+
+            self.interval = 300
+        except NextcloudError:
+            log.warning("cannot send admin notifications")
+            self.interval = 20,
+            return False
+
+    def _get_admin_users(self):
+        groups = self.nc.run_cmd("group:list")
+        groups = ",".join(groups).replace(" ", "").replace("-", "").split(",")
+        log.debug(f"group list output: {groups}")
+        admin_group = False
+        admins = []
+        for ele in groups:
+            if ele == "admin:":
+                admin_group = True
+                continue
+            if admin_group:
+                if ele[-1] == ":":
+                    break
+                admins.append(ele)
+        return admins
+
+    def _send_update_notification(self):
+        version_file = Path("/etc/debian_version")
+        with version_file.open() as fd:
+            version = fd.read().split(".")[0]
+        if version != "10":
+            return
+
+        admins = self._get_admin_users()
+        log.debug(f"admin users: {admins}")
+
+        message_header = "NextBox Major System Update: Please read"
+        message_body = "Your NextBox is receiving a major system update. To make sure everything goes smoothly, please start the process manually as soon as possible in the NextBox App System Settings. Otherwise the update will be automatically installed within the upcoming weeks. Please refer to the Nitrokey blog post for further information."
+
+        for user in admins:
+            self.nc.run_cmd("notification:generate", "-l", message_body, user, message_header)
+
+
+admin_messages = []
+
 ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob,
     SelfUpdateJob, HardwareStatusUpdateJob,
     TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
     EnableHTTPSJob, ReIndexAllFilesJob,
-    PurgeOldDockerImagesJob, OccUpgradeJob,
+    PurgeOldDockerImagesJob, OccUpgradeJob, AdminNotification,
 ]
