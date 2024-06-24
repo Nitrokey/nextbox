@@ -34,6 +34,13 @@ def get_status():
         dns = DNSManager()
         board.set("ips", {"ipv4": dns.get_ipv4(), "ipv6": dns.get_ipv6()})
 
+    # add debian version if not yet inside status-board
+    if not board.contains_key("debian_version"):
+        version_file = Path("/etc/debian_version")
+        with version_file.open() as fd:
+            version = fd.read()
+        board.set("debian_version", {"version": version})
+
     # return all board data
     keys = board.get_keys()
     status_data = {key: board.get(key) for key in keys}
