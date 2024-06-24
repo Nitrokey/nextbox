@@ -26,6 +26,7 @@
 			<h2>NextBox System Daemon Status</h2>
 			<StatusBar :status="statusConnection" />
 			<StatusBar icon="info" :status="statusVersion" />
+			<StatusBar icon="info" :status="statusDebianVersion" />
 		</div>
 
 		<!-- div class="section">
@@ -121,6 +122,15 @@ export default {
 				text: (this.status) 
 					? `NextBox Daemon Version: ${this.status.pkginfo.version}` 
 					: 'Checking NextBox Daemon Version'
+			}
+		},
+
+		statusDebianVersion() {
+			return {
+				icon: 'info',
+				text: (this.status)
+					? `NextBox Debian Version: ${this.status.debian_version.version}`
+					: 'Checking NextBox Debian Version'
 			}
 		}
 	},
