@@ -500,9 +500,11 @@ class AdminNotification(BaseJob):
             return False
 
         try:
-            if not self.update_notification_sent:
-                self._send_update_notification()
-                self.update_notification_sent = True
+            # reactivate on release before next update (debian 12)
+
+            # if not self.update_notification_sent:
+            #     self._send_update_notification()
+            #     self.update_notification_sent = True
             for message in admin_messages.copy():
                 message_header = "NextBox"
                 for user in self._get_admin_users():
@@ -548,6 +550,44 @@ class AdminNotification(BaseJob):
             self.nc.run_cmd("notification:generate", "-l", message_body, user, message_header)
 
 
+class AutomaticDebianUpdate(BaseJob):
+    """
+    Send notification warning about update.
+    After 1 hour start update.
+    """
+
+    name = "AutomaticDebianUpdate"
+
+    def __init__(self):
+        self.nc = Nextcloud()
+        self.startup = True
+        super().__init__(initial_interval=1)
+
+    def _run(self, cfg, board, kwargs):
+        self.interval = None
+
+        # only run if debian version needs to be updated
+        version_file = Path("/etc/debian_version")
+        with version_file.open() as fd:
+            version = fd.read().split(".")[0]
+        if version != "10":
+            return
+
+        # on startup send a warning message to admins and wait 1h
+        if self.startup:
+            admin_messages.append("Warning: Automatic Debian Update in one hour! Please make sure you have sufficient backups, in case anything goes wrong!")
+            self.startup = False
+            self.interval = 3600
+            return
+
+        log.info("starting automatic debian update!")
+        shield.set_led_state("updating")
+        cr = os.system("nohup /usr/bin/nextbox-update-debian.sh")
+        if cr != 0:
+            log.error("Automatic debian update failed! Please refer to Nitrokey support!")
+            admin_messages.append("Automatic Debian Update failed! Please refer to Nitrokey support!")
+
+
 admin_messages = []
 
 ACTIVE_JOBS = [
@@ -556,4 +596,5 @@ ACTIVE_JOBS = [
     TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
     EnableHTTPSJob, ReIndexAllFilesJob,
     PurgeOldDockerImagesJob, OccUpgradeJob, AdminNotification,
+    AutomaticDebianUpdate,
 ]
