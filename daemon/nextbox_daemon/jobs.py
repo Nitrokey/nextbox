@@ -496,7 +496,7 @@ class AdminNotification(BaseJob):
     def _run(self, cfg, board, kwargs):
         if not self.nc.is_installed:
             log.debug("cannot send admin notifications - uninitialized nextcloud")
-            self.interval = 20,
+            self.interval = 20
             return False
 
         try:
@@ -512,7 +512,7 @@ class AdminNotification(BaseJob):
             self.interval = 300
         except NextcloudError:
             log.warning("cannot send admin notifications")
-            self.interval = 20,
+            self.interval = 20
             return False
 
     def _get_admin_users(self):
