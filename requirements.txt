@@ -1,0 +1,17 @@
+mypy>=1.5.1
+ruff
+black
+isort
+
+pytest
+mypy
+setuptools
+
+types-PyYAML
+types-colorama
+types-psutil
+types-requests
+types-setuptools
+types-docker
+types-selenium
+

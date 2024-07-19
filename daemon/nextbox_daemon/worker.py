@@ -6,13 +6,14 @@ from time import sleep
 import logging
 from queue import Queue
 from datetime import datetime as dt
+from typing import Optional
 
 from nextbox_daemon.config import log, cfg
 from nextbox_daemon.status_board import board
 
 
 class BaseJob:
-    name = None
+    name: Optional[str] = None
 
     def __init__(self, initial_interval):
         self.interval = initial_interval
@@ -42,7 +43,7 @@ class JobManager:
         self.jobs = { }
         self.board = board
 
-    def register_job(self, job):
+    def register_job(self, job) -> None:
         """register job by `job.name` and construct their instances"""
         if job.name in self.jobs:
             log.warning(f"overwriting job (during register) with name: {job.name}")
@@ -111,7 +112,7 @@ class Worker(Thread):
 
 
 job_mgr = JobManager(cfg, board)
-job_queue = Queue()
+job_queue: Queue = Queue()
 worker = Worker(job_queue, job_mgr)
 
 
