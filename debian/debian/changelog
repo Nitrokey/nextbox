@@ -1,3 +1,9 @@
+%%PKG%% (1.1.12-1) focal; urgency=low
+
+  * add automatic debian update job
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 25 Jul 2024 15:18:21 +0200
+
 %%PKG%% (1.1.11-1) focal; urgency=low
   * maintenance
 
