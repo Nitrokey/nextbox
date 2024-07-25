@@ -588,7 +588,7 @@ class AutomaticDebianUpdate(BaseJob):
             admin_messages.append("Automatic Debian Update failed! Please refer to Nitrokey support!")
 
 
-admin_messages = []
+admin_messages: list[str] = []
 
 ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob,

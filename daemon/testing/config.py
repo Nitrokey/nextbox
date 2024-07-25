@@ -1,8 +1,13 @@
 import sys
 
+from typing import TypedDict, Union
+from selenium.webdriver.chrome.webdriver import WebDriver
+
+Conf = TypedDict('Conf', {'active_host': str, 'active_proto': str, 'user_pass': str, 'user_login': str, 'proxy_domain': str, 'static_domain': str, 'email': str, 'dom': Union[None, WebDriver], 'lvl': int, 'max_lvl': int})
+
 host = sys.argv[1]
 
-conf = dict(
+conf: Conf = dict(
     active_host = host,
     active_proto = "http",
 

@@ -289,4 +289,4 @@ else:
     log = init_logging(LOGGER_NAME, "utest.nextbox.log")
 
     # config load
-    cfg = {}
+    cfg = Config(CONFIG_PATH)
