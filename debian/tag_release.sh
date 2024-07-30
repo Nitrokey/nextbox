@@ -4,7 +4,7 @@ vergt() {
 	[[ `python3 -c "from packaging import version; print(version.parse('$1') > version.parse('$2'))"` == *"True"* ]] && [[ "$1" != "$2" ]]
 	}
 
-last_tag=$(git tag -l --sort=taggerdate | tail -n 1)
+last_tag=$(git tag -l --sort=authordate | tail -n 1)
 last_full_version=$(head -n 1 debian/changelog | grep -Eo '[0-9\.\-]*')
 last_version=$(echo $last_full_version | cut -d "-" -f 1)
 
