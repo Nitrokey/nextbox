@@ -38,8 +38,9 @@ class LEDJob(BaseJob):
         #elif nc.check_reachability()[0]:
         #    ...
 
-        # check if app container is up for more than 65secs
-        elif not self.is_app_docker_up():
+        # check if app container is up for more than 20secs and nextcloud is initialized
+        # 20 secs because containers restart on boot (check if nextbox-updater.service is still necessary)
+        elif not (self.is_app_docker_up() and nc.is_installed):
             shield.set_led_state("docker-wait")
 
         # all seems ready
@@ -52,7 +53,7 @@ class LEDJob(BaseJob):
         for item in client.containers():
             names = item.get("Names")
             if any("app_1" in name for name in names):
-                if dt.now().timestamp() - item["Created"] > 75:
+                if dt.now().timestamp() - item["Created"] > 20:
                     return True
         return False
 
