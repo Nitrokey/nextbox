@@ -26,6 +26,7 @@ checks:
   image: registry.git.nitrokey.com/nitrokey/nextbox/build-image:latest
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $COMMAND_BOT == "nitrokey-ci" && $COMMAND == "build"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
   tags:
@@ -41,7 +42,8 @@ checks:
 build-image:
   image: registry.git.nitrokey.com/nitrokey/nextbox/build-image:latest
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $MAIN_BRANCH'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $COMMAND_BOT == "nitrokey-ci" && $COMMAND == "build"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
   tags:
