@@ -23,7 +23,8 @@ services:
       retries: 20
 
   app:
-    image: nextcloud:28.0.6-apache
+    build: .
+    image: nextbox
     entrypoint: "/entrypoint.sh apache2-foreground"
     restart: always
     extra_hosts:
@@ -49,7 +50,7 @@ services:
         condition: service_healthy
 
   cron:
-    image: nextcloud:28.0.6-apache
+    image: nextbox
     restart: always
     volumes:
       - nextcloud:/var/www/html
