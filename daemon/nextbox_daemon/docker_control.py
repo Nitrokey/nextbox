@@ -44,11 +44,23 @@ def file_from_archive(archive_fd):
 
 # helper function to get image properties
 def get_image_type(image):
-    return image.attrs["RepoTags"][0].split(":")[0]
+    tags = image.attrs["RepoTags"]
+    if not tags:
+        return None
+    return tags[0].split(":")[0]
 
 
 def get_image_version(image):
+    # if image has no tags it has no version
+    if get_image_type(image) is None:
+        return LooseVersion("0")
+
     version_str = image.attrs["RepoTags"][0].split(":")[1]
+
+    # latest is not a valid loose version, so it has to be handled separately
+    if version_str == "latest":
+        return LooseVersion("9999999")
+
     # if version checking fails, return a big version
     try:
         version = LooseVersion(version_str)
@@ -126,8 +138,12 @@ class DockerControl:
         sorted_images = {k: sorted(v, key=lambda x: get_image_version(x))
                          for k, v in images_by_type.items()}
         for name, images in sorted_images.items():
-            if len(images) <= 3:
+            # images without tags cannot be used in a sensible way anyway,
+            # so only keep 3 images per tag and delete all without tag
+            if len(images) <= 3 and name is not None:
                 continue
-            for image in images[:-3]:
+            if name is not None:
+                images = images[:-3]
+            for image in images:
                 log.info(f"removing image {image.short_id}")
                 self.api.images.remove(image.short_id)
