@@ -436,6 +436,31 @@ class ReIndexAllFilesJob(BaseJob):
             return False
 
 
+class AddMissingIndicesJob(BaseJob):
+    name = "AddMissingIndices"
+
+    def __init__(self):
+        self.nc = Nextcloud()
+        super().__init__(initial_interval=900)
+
+    def _run(self, cfg, board, kwargs):
+        # run only once
+        self.interval = None
+
+        # only add missing indices, if nextcloud is installed
+        if not self.nc.is_installed:
+            log.debug("cannot add missing indices - uninitialized nextcloud")
+            self.interval = 15
+            return False
+
+        try:
+            self.nc.run_cmd("db:add-missing-indices")
+        except NextcloudError:
+            log.warning("cannot add missing indices")
+            self.interval = 15
+            return False
+
+
 class PurgeOldDockerImagesJob(BaseJob):
     """
     Job to periodically purge old images using
@@ -595,7 +620,7 @@ ACTIVE_JOBS = [
     LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob,
     SelfUpdateJob, HardwareStatusUpdateJob,
     TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
-    EnableHTTPSJob, ReIndexAllFilesJob,
+    EnableHTTPSJob, ReIndexAllFilesJob, AddMissingIndicesJob,
     PurgeOldDockerImagesJob, OccUpgradeJob, AdminNotification,
     AutomaticDebianUpdate,
 ]
