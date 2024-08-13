@@ -1,3 +1,11 @@
+%%PKG%% (1.1.13-1) focal; urgency=low
+
+  * add smb external storage support
+  * faster startup: changed compose strategy of waiting for db
+  * add mypy checks
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 13 Aug 2024 10:00:00 +0200
+
 %%PKG%% (1.1.12-1) focal; urgency=low
 
   * add automatic debian update job
