@@ -35,7 +35,7 @@ class LEDJob(BaseJob):
             shield.set_led_state("maintenance")
 
         # check reachability
-        #elif nc.check_reachability()[0]:
+        # elif nc.check_reachability()[0]:
         #    ...
 
         # check if app container is up for more than 20secs and nextcloud is initialized
@@ -47,7 +47,6 @@ class LEDJob(BaseJob):
         else:
             shield.set_led_state("ready")
 
-
     def is_app_docker_up(self):
         client = docker.APIClient()
         for item in client.containers():
@@ -56,6 +55,7 @@ class LEDJob(BaseJob):
                 if dt.now().timestamp() - item["Created"] > 20:
                     return True
         return False
+
 
 class FactoryResetJob(BaseJob):
     name = "FactoryReset"
@@ -70,11 +70,12 @@ class FactoryResetJob(BaseJob):
         shield.set_led_state("factory-reset")
         services.start("nextbox-factory-reset")
 
+
 class DynDNSUpdateJob(BaseJob):
     name = "DynDNSUpdate"
 
     def __init__(self):
-        super().__init__(initial_interval=5*60)
+        super().__init__(initial_interval=5 * 60)
 
     def _run(self, cfg, board, kwargs):
 
@@ -111,13 +112,22 @@ class DynDNSUpdateJob(BaseJob):
             if ipv6:
                 params["myipv6"] = ipv6
 
-            res = requests.get("https://update.dedyn.io", params=params, headers=headers)
+            res = requests.get(
+                "https://update.dedyn.io", params=params, headers=headers
+            )
 
             if res.ok:
-                log.info(f"updated deSEC IPv4 ({ipv4}) and IPv6 ({ipv6}) address for '{domain}'")
+                log.info(
+                    f"updated deSEC IPv4 ({ipv4}) and IPv6 ({ipv6}) address for '{domain}'"
+                )
             else:
-                log.warning(f"failed updating IPs ({ipv4} & {ipv6}) for domain: '{domain}'")
-                log.debug(f"result: {res.text} status_code: {res.status_code} url: {res.url}")
+                log.warning(
+                    f"failed updating IPs ({ipv4} & {ipv6}) for domain: '{domain}'"
+                )
+                log.debug(
+                    f"result: {res.text} status_code: {res.status_code} url: {res.url}"
+                )
+
 
 class BackupRestoreJob(BaseJob):
     name = "BackupRestore"
@@ -129,13 +139,18 @@ class BackupRestoreJob(BaseJob):
 
     def _run(self, cfg, board, kwargs):
         # operation not running, means we start a backup: need a "tar_path" + "mode" (backup or restore)
-        if not self.iterator and ("tar_path" not in kwargs or "mode" not in kwargs):
+        if not self.iterator and (
+            "tar_path" not in kwargs or "mode" not in kwargs
+        ):
             msg = "Requested starting BackupRestore-Job without 'tar_path' and/or 'mode' arg"
             log.error(msg)
             board.messages.put(msg)
             return
 
-        if not self.iterator and kwargs.get("mode") not in ["backup", "restore"]:
+        if not self.iterator and kwargs.get("mode") not in [
+            "backup",
+            "restore",
+        ]:
             msg = "'mode' arg needs to be either 'backup' or 'restore'"
             log.error(msg)
             board.messages.put(msg)
@@ -143,15 +158,20 @@ class BackupRestoreJob(BaseJob):
 
         # ok, start backup/restore (set job-interval and return)
         if not self.iterator:
-            #if not board.contains_key("backup"):
-            board.set("backup_restore", {
-                "state": "starting",
-                "percent": "0",
-                "who": "all",
-                "tar_path": kwargs["tar_path"],
-                "what": "export" if kwargs["mode"] == "backup" else "import",
-                "mode": kwargs["mode"],
-            })
+            # if not board.contains_key("backup"):
+            board.set(
+                "backup_restore",
+                {
+                    "state": "starting",
+                    "percent": "0",
+                    "who": "all",
+                    "tar_path": kwargs["tar_path"],
+                    "what": (
+                        "export" if kwargs["mode"] == "backup" else "import"
+                    ),
+                    "mode": kwargs["mode"],
+                },
+            )
 
             if kwargs["mode"] == "backup":
                 self.iterator = self.ctrl.full_export(kwargs["tar_path"])
@@ -163,15 +183,14 @@ class BackupRestoreJob(BaseJob):
         # backup is running, update board with current state
         try:
             state, (who, what), percent = next(self.iterator)
-            board.set("backup_restore", {
-                "state": state,
-                "who": who,
-                "what": what,
-                "percent": percent
-            })
+            board.set(
+                "backup_restore",
+                {"state": state, "who": who, "what": what, "percent": percent},
+            )
         except StopIteration:
             self.iterator = None
             self.interval = None
+
 
 class EnableNextBoxAppJob(BaseJob):
     name = "EnableNextBoxApp"
@@ -194,6 +213,7 @@ class EnableNextBoxAppJob(BaseJob):
         except NextcloudError:
             pass
 
+
 class SelfUpdateJob(BaseJob):
     name = "SelfUpdate"
 
@@ -203,9 +223,10 @@ class SelfUpdateJob(BaseJob):
     def _run(self, cfg, board, kwargs):
         self.interval = None
 
-
         # if the custom-dns-config is active, ensure ddclient is up
-        if cfg["config"]["dns_mode"] == "config_done" and not services.is_active("ddclient"):
+        if cfg["config"][
+            "dns_mode"
+        ] == "config_done" and not services.is_active("ddclient"):
             services.restart("ddclient")
 
         # ensure that neither updater nor factory-reset are masked (paranoia!)
@@ -213,22 +234,24 @@ class SelfUpdateJob(BaseJob):
         services.unmask("nextbox-factory-reset")
 
         # log a welcome + version
-        log.info(f"Hello World - I am NextBox - call me: v{nextbox_version()} - let'sa gooo")
+        log.info(
+            f"Hello World - I am NextBox - call me: v{nextbox_version()} - let'sa gooo"
+        )
 
         # update/upgrade now
         shield.set_led_state("updating")
 
-        #log.info("running 'apt-get update'")
-        #cache = apt.cache.Cache()
-        #cache.update()
-        #cache.open()
+        # log.info("running 'apt-get update'")
+        # cache = apt.cache.Cache()
+        # cache.update()
+        # cache.open()
 
         # which debian package
-        #pkg = cfg["config"]["debian_package"]
+        # pkg = cfg["config"]["debian_package"]
 
-        #try:
+        # try:
         #    pkg_obj = cache[pkg]
-        #except KeyError:
+        # except KeyError:
         #    log.error(f"self-update failed: designated package: {pkg} not found!")
         #    log.error("falling back to 'nextbox' - retrying upgrade...")
         #    pkg = "nextbox"
@@ -244,29 +267,31 @@ class SelfUpdateJob(BaseJob):
 
         # install package (i.e., other nextbox package is already installed)
         # will trigger for e.g., 'nextbox' to 'nextbox-testing' switching
-        #if not pkg_obj.is_installed:
+        # if not pkg_obj.is_installed:
         #    log.info(f"installing debian package: {pkg} (start service: nextbox-updater)")
         #    services.start("nextbox-updater")
-        #elif pkg_obj.is_upgradable:
+        # elif pkg_obj.is_upgradable:
         #    log.info(f"upgrading debian package: {pkg} (start service: nextbox-updater)")
         #    services.start("nextbox-updater")
-        #else:
+        # else:
         #    log.debug(f"no need to upgrade or install debian package: {pkg}")
 
-        #job_queue.put("LED")
+        # job_queue.put("LED")
 
-        #shield.set_led_state("ready")
+        # shield.set_led_state("ready")
+
 
 class RenewCertificatesJob(BaseJob):
     name = "RenewCertificates"
 
     def __init__(self):
-        super().__init__(initial_interval=3600*24)
+        super().__init__(initial_interval=3600 * 24)
 
     def _run(self, cfg, board, kwargs):
         c = Certificates()
         c.renew_certs()
         c.reload_apache()
+
 
 class EnableHTTPSJob(BaseJob):
     name = "EnableHTTPS"
@@ -275,33 +300,46 @@ class EnableHTTPSJob(BaseJob):
         super().__init__(initial_interval=None)
 
     def _run(self, cfg, board, kwargs):
-        board.set("tls", {
-            "what": "enable",
-            "state": "running",
-        })
+        board.set(
+            "tls",
+            {
+                "what": "enable",
+                "state": "running",
+            },
+        )
 
         certs = Certificates()
         domain = cfg.get("config", {}).get("domain")
         email = cfg.get("config", {}).get("email")
 
         if not domain or not email:
-            log.error(f"cannot enable tls, domain: '{domain}' email: '{email}'")
-            board.set("tls", {
-                "what": "domain-or-email",
-                "state": "fail",
-            })
+            log.error(
+                f"cannot enable tls, domain: '{domain}' email: '{email}'"
+            )
+            board.set(
+                "tls",
+                {
+                    "what": "domain-or-email",
+                    "state": "fail",
+                },
+            )
             return False
 
         my_cert = certs.get_cert(domain)
         if not my_cert:
-            log.warning(f"could not get local certificate for: {domain}, acquiring...")
+            log.warning(
+                f"could not get local certificate for: {domain}, acquiring..."
+            )
             if not certs.acquire_cert(domain, email):
                 msg = f"Failed to acquire {domain} with {email}"
                 log.error(msg)
-                board.set("tls", {
-                    "what": "acquire",
-                    "state": "fail",
-                })
+                board.set(
+                    "tls",
+                    {
+                        "what": "acquire",
+                        "state": "fail",
+                    },
+                )
                 return False
             log.info(f"acquired certificate for: {domain} with {email}")
             my_cert = certs.get_cert(domain)
@@ -309,14 +347,17 @@ class EnableHTTPSJob(BaseJob):
         certs.write_apache_ssl_conf(
             my_cert["domains"][0],
             my_cert["fullchain_path"],
-            my_cert["privkey_path"]
+            my_cert["privkey_path"],
         )
 
         if not certs.set_apache_config(ssl=True):
-            board.set("tls", {
-                "what": "apache-config",
-                "state": "fail",
-            })
+            board.set(
+                "tls",
+                {
+                    "what": "apache-config",
+                    "state": "fail",
+                },
+            )
             log.error("failed enabling ssl configuration for apache")
             return False
 
@@ -326,10 +367,13 @@ class EnableHTTPSJob(BaseJob):
         cfg["config"]["email"] = email
         cfg.save()
 
-        board.set("tls", {
-            "what": "enable",
-            "state": "success",
-        })
+        board.set(
+            "tls",
+            {
+                "what": "enable",
+                "state": "success",
+            },
+        )
 
         # we need to "re-wire" the proxy to port 443 on activated TLS
         add_msg = ""
@@ -349,7 +393,6 @@ class EnableHTTPSJob(BaseJob):
             cfg.save()
 
 
-
 class HardwareStatusUpdateJob(BaseJob):
     name = "HardwareStatusUpdate"
 
@@ -366,7 +409,13 @@ class HardwareStatusUpdateJob(BaseJob):
 class TrustedDomainsJob(BaseJob):
     name = "TrustedDomains"
 
-    static_entries = ["192.168.*.*", "10.*.*.*", "172.16.*.*", "172.18.*.*", "nextbox.local"]
+    static_entries = [
+        "192.168.*.*",
+        "10.*.*.*",
+        "172.16.*.*",
+        "172.18.*.*",
+        "nextbox.local",
+    ]
 
     def __init__(self):
         self.nc = Nextcloud()
@@ -394,7 +443,9 @@ class TrustedDomainsJob(BaseJob):
         if cfg["config"].get("domain"):
             entries.append(cfg["config"]["domain"])
 
-        if cfg["config"].get("proxy_active") and cfg["config"].get("proxy_domain"):
+        if cfg["config"].get("proxy_active") and cfg["config"].get(
+            "proxy_domain"
+        ):
             entries.append(cfg["config"]["proxy_domain"])
 
         if any(entry not in trusted_domains for entry in entries):
@@ -407,10 +458,11 @@ class TrustedDomainsJob(BaseJob):
 
 class ReIndexAllFilesJob(BaseJob):
     """
-        Job to re-index all files once a day, so that files added
-        by different means than the web interface (eg. ssh) will be
-        visible after at most a day.
+    Job to re-index all files once a day, so that files added
+    by different means than the web interface (eg. ssh) will be
+    visible after at most a day.
     """
+
     name = "ReIndexAllFiles"
 
     def __init__(self):
@@ -429,7 +481,7 @@ class ReIndexAllFilesJob(BaseJob):
 
         try:
             # re-index all files
-            self.nc.run_cmd("files:scan", "--all")
+            self.nc.run_cmd("files:scan", "--shallow", "--all")
         except NextcloudError:
             log.warning("cannot re-index files")
             self.interval = 15
@@ -496,7 +548,9 @@ class AdminNotification(BaseJob):
 
     def _run(self, cfg, board, kwargs):
         if not self.nc.is_installed:
-            log.debug("cannot send admin notifications - uninitialized nextcloud")
+            log.debug(
+                "cannot send admin notifications - uninitialized nextcloud"
+            )
             self.interval = 20
             return False
 
@@ -509,7 +563,13 @@ class AdminNotification(BaseJob):
             for message in admin_messages.copy():
                 message_header = "NextBox"
                 for user in self._get_admin_users():
-                    self.nc.run_cmd("notification:generate", "-l", message, user, message_header)
+                    self.nc.run_cmd(
+                        "notification:generate",
+                        "-l",
+                        message,
+                        user,
+                        message_header,
+                    )
                 admin_messages.remove(message)
 
             self.interval = 300
@@ -548,7 +608,13 @@ class AdminNotification(BaseJob):
         message_body = "Your NextBox is receiving a major system update. To make sure everything goes smoothly, please start the process manually as soon as possible in the NextBox App System Settings. Otherwise the update will be automatically installed within the upcoming weeks. Please refer to the Nitrokey blog post for further information."
 
         for user in admins:
-            self.nc.run_cmd("notification:generate", "-l", message_body, user, message_header)
+            self.nc.run_cmd(
+                "notification:generate",
+                "-l",
+                message_body,
+                user,
+                message_header,
+            )
 
 
 class AutomaticDebianUpdate(BaseJob):
@@ -576,7 +642,9 @@ class AutomaticDebianUpdate(BaseJob):
 
         # on startup send a warning message to admins and wait 1h
         if self.startup:
-            admin_messages.append("Warning: Automatic Debian Update in one hour! Please make sure you have sufficient backups, in case anything goes wrong!")
+            admin_messages.append(
+                "Warning: Automatic Debian Update in one hour! Please make sure you have sufficient backups, in case anything goes wrong!"
+            )
             self.startup = False
             self.interval = 3600
             return
@@ -585,17 +653,30 @@ class AutomaticDebianUpdate(BaseJob):
         shield.set_led_state("updating")
         cr = os.system("nohup /usr/bin/nextbox-update-debian.sh")
         if cr != 0:
-            log.error("Automatic debian update failed! Please refer to Nitrokey support!")
-            admin_messages.append("Automatic Debian Update failed! Please refer to Nitrokey support!")
+            log.error(
+                "Automatic debian update failed! Please refer to Nitrokey support!"
+            )
+            admin_messages.append(
+                "Automatic Debian Update failed! Please refer to Nitrokey support!"
+            )
 
 
 admin_messages: list[str] = []
 
 ACTIVE_JOBS = [
-    LEDJob, FactoryResetJob, BackupRestoreJob, EnableNextBoxAppJob,
-    SelfUpdateJob, HardwareStatusUpdateJob,
-    TrustedDomainsJob, RenewCertificatesJob, DynDNSUpdateJob,
-    EnableHTTPSJob, ReIndexAllFilesJob,
-    PurgeOldDockerImagesJob, OccUpgradeJob, AdminNotification,
+    LEDJob,
+    FactoryResetJob,
+    BackupRestoreJob,
+    EnableNextBoxAppJob,
+    SelfUpdateJob,
+    HardwareStatusUpdateJob,
+    TrustedDomainsJob,
+    RenewCertificatesJob,
+    DynDNSUpdateJob,
+    EnableHTTPSJob,
+    ReIndexAllFilesJob,
+    PurgeOldDockerImagesJob,
+    OccUpgradeJob,
+    AdminNotification,
     AutomaticDebianUpdate,
 ]
