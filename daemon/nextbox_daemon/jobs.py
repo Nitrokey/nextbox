@@ -285,7 +285,8 @@ class RenewCertificatesJob(BaseJob):
     name = "RenewCertificates"
 
     def __init__(self):
-        super().__init__(initial_interval=3600 * 24)
+        # run every 20h
+        super().__init__(initial_interval=3600 * 20)
 
     def _run(self, cfg, board, kwargs):
         c = Certificates()
@@ -470,8 +471,8 @@ class ReIndexAllFilesJob(BaseJob):
         super().__init__(initial_interval=900)
 
     def _run(self, cfg, board, kwargs):
-        # run once a day
-        self.interval = 86400
+        # run once a day (+ 10k secs)
+        self.interval = 96400
 
         # only re-index files, if nextcloud is installed
         if not self.nc.is_installed:
