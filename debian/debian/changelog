@@ -1,3 +1,11 @@
+%%PKG%% (1.1.14-1) focal; urgency=low
+
+  * bump nc to 29.0.7
+  * mix up the job starting time to avoid overlaps; fixes #114
+  * use --shallow for file scanning
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 10 Oct 2024 13:03:14 +0200
+
 %%PKG%% (1.1.13-1) focal; urgency=low
 
   * add smb external storage support
