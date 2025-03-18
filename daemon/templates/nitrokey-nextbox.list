@@ -1,2 +1,3 @@
 deb http://ppa.launchpad.net/nitrokey/nextbox/ubuntu groovy main
 deb http://ppa.launchpad.net/nitrokey/nextbox/ubuntu focal main
+deb http://ppa.launchpad.net/nitrokey/nextbox/ubuntu noble main
