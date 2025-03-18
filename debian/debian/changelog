@@ -1,3 +1,10 @@
+%%PKG%% (1.1.17-1) focal; urgency=low
+
+    * repo setup noble
+    * update NC to 30.0.1
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 18 Mar 2025 14:27:42 +0100
+
 %%PKG%% (1.1.16-1) focal; urgency=low
 
   * bump nc to 29.0.11
