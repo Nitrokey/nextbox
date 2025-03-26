@@ -101,7 +101,7 @@ popd > /dev/null
 changes=$(git log v${last_version}..HEAD --oneline | cut -d " " -f 2- | sed 's/^/  * /')
 
 cat > ${tmp_path} <<EOL
-%%PKG%% (${version}-${release}) focal; urgency=low
+%%PKG%% (${version}-${release}) noble; urgency=low
 
   ${changes}
 
