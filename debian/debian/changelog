@@ -1,9 +1,3 @@
-%%PKG%% (1.1.18-1) noble; urgency=low
-
-    * move to noble repository
-
- -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 26 Mar 2025 18:29:37 +0100
-
 %%PKG%% (1.1.17-1) focal; urgency=low
 
     * repo setup noble
