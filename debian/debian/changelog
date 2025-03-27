@@ -1,3 +1,9 @@
+%%PKG%% (1.19.1-1) focal; urgency=low
+
+    * switch to jammy repo
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 27 Mar 2025 11:25:08 +0100
+
 %%PKG%% (1.18.1-1) jammy; urgency=low
 
     * repo change to jammy
