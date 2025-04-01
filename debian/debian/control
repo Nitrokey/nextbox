@@ -2,7 +2,7 @@ Source: %%PKG%%
 Maintainer: Markus Meissner - Nitrokey <meissner@nitrokey.com>
 Section: python
 Priority: optional
-Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 9), dh-systemd (>= 1.3)
+Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 9.20160709)
 Standards-Version: 3.9.6
 
 
