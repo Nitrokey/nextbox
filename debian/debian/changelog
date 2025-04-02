@@ -1,3 +1,9 @@
+%%PKG%% (1.22.1-1) jammy; urgency=low
+
+    * update changelog for jammy
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 02 Apr 2025 15:40:52 +0200
+
 %%PKG%% (1.21.1-1) noble; urgency=low
 
     * update debian ctrl for jammy
