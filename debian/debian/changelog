@@ -1,3 +1,11 @@
+%%PKG%% (1.23.1-1) focal; urgency=low
+
+    * bump NC to 30.0.8
+    * add jammy repo
+    * update mariadb to 11.7
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 21 Apr 2025 10:26:56 +0200
+
 %%PKG%% (1.22.1-1) jammy; urgency=low
 
     * update changelog for jammy
