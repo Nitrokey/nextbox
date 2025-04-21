@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   db:
-    image: mariadb:10.5.9
+    image: mariadb:11.7.2
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
     volumes:
