@@ -1,3 +1,9 @@
+%%PKG%% (1.25.2-1) focal; urgency=low
+
+    * compose: fix mariadb health-check
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 22 Apr 2025 12:55:40 +0200
+
 %%PKG%% (1.25.1-1) focal; urgency=low
 
     * ensure mariadb upgradability
