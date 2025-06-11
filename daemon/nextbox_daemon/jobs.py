@@ -64,7 +64,6 @@ class FactoryResetJob(BaseJob):
         super().__init__(initial_interval=None)
 
     def _run(self, cfg=None, board=None, kwargs=None):
-
         # factory-reset is executed by systemd
         log.warning("Starting factory-reset operation")
         shield.set_led_state("factory-reset")
@@ -78,7 +77,6 @@ class DynDNSUpdateJob(BaseJob):
         super().__init__(initial_interval=5 * 60)
 
     def _run(self, cfg, board, kwargs):
-
         token = cfg["config"]["desec_token"]
         dns_mode = cfg["config"]["dns_mode"]
         domain = cfg["config"]["domain"]
@@ -139,9 +137,7 @@ class BackupRestoreJob(BaseJob):
 
     def _run(self, cfg, board, kwargs):
         # operation not running, means we start a backup: need a "tar_path" + "mode" (backup or restore)
-        if not self.iterator and (
-            "tar_path" not in kwargs or "mode" not in kwargs
-        ):
+        if not self.iterator and ("tar_path" not in kwargs or "mode" not in kwargs):
             msg = "Requested starting BackupRestore-Job without 'tar_path' and/or 'mode' arg"
             log.error(msg)
             board.messages.put(msg)
@@ -166,9 +162,7 @@ class BackupRestoreJob(BaseJob):
                     "percent": "0",
                     "who": "all",
                     "tar_path": kwargs["tar_path"],
-                    "what": (
-                        "export" if kwargs["mode"] == "backup" else "import"
-                    ),
+                    "what": ("export" if kwargs["mode"] == "backup" else "import"),
                     "mode": kwargs["mode"],
                 },
             )
@@ -224,14 +218,19 @@ class SelfUpdateJob(BaseJob):
         self.interval = None
 
         # if the custom-dns-config is active, ensure ddclient is up
-        if cfg["config"][
-            "dns_mode"
-        ] == "config_done" and not services.is_active("ddclient"):
+        if cfg["config"]["dns_mode"] == "config_done" and not services.is_active(
+            "ddclient"
+        ):
             services.restart("ddclient")
 
         # ensure that neither updater nor factory-reset are masked (paranoia!)
         services.unmask("nextbox-updater")
         services.unmask("nextbox-factory-reset")
+
+        # make sure userconfig is off
+        services.stop("userconfig")
+        services.disable("userconfig")
+        services.mask("userconfig")
 
         # log a welcome + version
         log.info(
@@ -314,9 +313,7 @@ class EnableHTTPSJob(BaseJob):
         email = cfg.get("config", {}).get("email")
 
         if not domain or not email:
-            log.error(
-                f"cannot enable tls, domain: '{domain}' email: '{email}'"
-            )
+            log.error(f"cannot enable tls, domain: '{domain}' email: '{email}'")
             board.set(
                 "tls",
                 {
@@ -328,9 +325,7 @@ class EnableHTTPSJob(BaseJob):
 
         my_cert = certs.get_cert(domain)
         if not my_cert:
-            log.warning(
-                f"could not get local certificate for: {domain}, acquiring..."
-            )
+            log.warning(f"could not get local certificate for: {domain}, acquiring...")
             if not certs.acquire_cert(domain, email):
                 msg = f"Failed to acquire {domain} with {email}"
                 log.error(msg)
@@ -401,7 +396,6 @@ class HardwareStatusUpdateJob(BaseJob):
         super().__init__(initial_interval=7200)
 
     def _run(self, cfg, board, kwargs):
-
         temp = Path("/sys/class/hwmon/hwmon0/temp1_input").read_text().strip()
 
         board.set("hwinfo", {"temp": temp})
@@ -444,9 +438,7 @@ class TrustedDomainsJob(BaseJob):
         if cfg["config"].get("domain"):
             entries.append(cfg["config"]["domain"])
 
-        if cfg["config"].get("proxy_active") and cfg["config"].get(
-            "proxy_domain"
-        ):
+        if cfg["config"].get("proxy_active") and cfg["config"].get("proxy_domain"):
             entries.append(cfg["config"]["proxy_domain"])
 
         if any(entry not in trusted_domains for entry in entries):
@@ -549,9 +541,7 @@ class AdminNotification(BaseJob):
 
     def _run(self, cfg, board, kwargs):
         if not self.nc.is_installed:
-            log.debug(
-                "cannot send admin notifications - uninitialized nextcloud"
-            )
+            log.debug("cannot send admin notifications - uninitialized nextcloud")
             self.interval = 20
             return False
 
