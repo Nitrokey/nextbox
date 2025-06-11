@@ -1,3 +1,11 @@
+%%PKG%% (1.25.3-1) focal; urgency=low
+  
+    * update to NC 30.0.11
+    * daemon: fix LED behavior
+    * daemon: properly disable userconfig
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 11 Jun 2025 16:24:30 +0200
+
 %%PKG%% (1.25.2-1) focal; urgency=low
 
     * compose: fix mariadb health-check
