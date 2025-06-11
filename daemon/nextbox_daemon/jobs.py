@@ -40,7 +40,9 @@ class LEDJob(BaseJob):
 
         # check if app container is up for more than 20secs and nextcloud is initialized
         # 20 secs because containers restart on boot (check if nextbox-updater.service is still necessary)
-        elif not (self.is_app_docker_up() and nc.is_installed):
+        elif not self.is_app_docker_up():
+            log.info(f"docker up {self.is_app_docker_up()} is_inst: {nc.is_installed}")
+
             shield.set_led_state("docker-wait")
 
         # all seems ready
