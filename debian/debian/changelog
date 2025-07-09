@@ -1,3 +1,12 @@
+%%PKG%% (1.25.4-1) focal; urgency=low
+
+    * bump NC 30.0.12
+    * add cmdline.txt to templates
+    * ensure /boot/cmdline.txt has the correct conntent
+    * fix USB ID for Sata Adapter
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 09 Jul 2025 16:16:52 +0200
+
 %%PKG%% (1.25.3-1) focal; urgency=low
   
     * update to NC 30.0.11
