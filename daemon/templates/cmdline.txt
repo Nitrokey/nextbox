@@ -1,0 +1,1 @@
+console=serial0,115200 console=tty1 root=PARTUUID=d7865330-02 rootfstype=ext4 fsck.repair=yes usb-storage.quirks=0x152d:0x1561:u usb-storage.quirks=0x152d:0xa578:u rootwait
