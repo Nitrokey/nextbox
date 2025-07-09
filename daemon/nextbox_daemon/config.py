@@ -195,6 +195,7 @@ def check_filesystem_after_init(cfg):
     sys_files.safe_ensure_file("php.load")
     sys_files.ensure_symlink("../mods-available/php.load", "/srv/apache2/mods-enabled/php.load")
 
+    sys_files.safe_ensure_file("cmdline.txt")
 
 class RepeatingFilter(logging.Filter):
     def __init__(self):
