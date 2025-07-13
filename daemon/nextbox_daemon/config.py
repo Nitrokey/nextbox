@@ -212,7 +212,22 @@ def check_filesystem_after_init(cfg):
         "../mods-available/php.load", "/srv/apache2/mods-enabled/php.load"
     )
 
-    sys_files.safe_ensure_file("cmdline.txt")
+    from nextbox_daemon.command_runner import CommandRunner
+
+    # get partuuid and write cmdline.txt
+    partuuid = None
+    cr = CommandRunner("blkid -o export /dev/mmcblk0p2", block=True)
+    for line in cr.output:
+        log.debug(line)
+        if "PARTUUID" in line:
+            toks = line.split("=")
+            if len(toks) == 2:
+                partuuid = toks[1].strip()
+            break
+    if partuuid:
+        sys_files.safe_ensure_file("cmdline.txt", partuuid=partuuid)
+    else:
+        log.error("config error - couldn't find PARTUUID")
 
 
 class RepeatingFilter(logging.Filter):
