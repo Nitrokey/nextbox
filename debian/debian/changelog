@@ -1,3 +1,11 @@
+%%PKG%% (1.25.5-1) focal; urgency=low
+
+    * cmdline.txt: add usb.quirk for 152d:0576
+    * config: improved cmdline.txt replacement
+    * config.py: formatting
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Sun, 13 Jul 2025 13:30:39 +0200
+
 %%PKG%% (1.25.4-1) focal; urgency=low
 
     * bump NC 30.0.12
