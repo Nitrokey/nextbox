@@ -6,9 +6,10 @@
 #rm "${ROOTFS_DIR}/etc/localtime"
 
 # modify /boot/cmdline.txt (kernel-cmdline) to use quirks (no UAS, strict usb-storage) for SATA-USB adapter
-sed -i -e 's/rootwait quiet/usb-storage.quirks=0x152d:0x1561:u,0x152d:0xa578:u rootwait quiet/g' "${ROOTFS_DIR}/boot/cmdline.txt"
+sed -i -e 's/rootwait quiet/usb-storage.quirks=0x152d:0x1561:u,0x152d:0xa578:u,0x152d:0x0576:u rootwait quiet/g' "${ROOTFS_DIR}/boot/cmdline.txt"
 # [x] 152d:1561 => 'Sabrent' adapter using 'JMicron Chipset'
 # [x] 152d:a578 => 'Sabrent' adapter using 'JMicron Chipset' used since 2025
+# [x] 152d:0576 => 'Sabrent' adapter using 'JMicron Chipset' used since 2025
 # [ ] 174c:55aa => 'SKL' & 'Inateck' adapters using 'ASMedia Chipset'
 
 # modify /boot/config.txt to activate i2c
