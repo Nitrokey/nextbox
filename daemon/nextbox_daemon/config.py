@@ -9,10 +9,16 @@ import logging
 
 from filelock import FileLock
 
-from nextbox_daemon.consts import LOGGER_NAME, LOG_FILENAME, MAX_LOG_SIZE, CONFIG_PATH, \
-    NEXTBOX_DEBIAN_PACKAGES
+from nextbox_daemon.consts import (
+    LOGGER_NAME,
+    LOG_FILENAME,
+    MAX_LOG_SIZE,
+    CONFIG_PATH,
+    NEXTBOX_DEBIAN_PACKAGES,
+)
 
 from nextbox_daemon.system_files import SystemFiles
+
 
 class Config(dict):
     def __init__(self, config_path, *va, **kw):
@@ -26,31 +32,29 @@ class Config(dict):
         self.factory_config_lock_path = self.factory_config_path + ".lock"
         self.factory_config_lock = FileLock(self.factory_config_lock_path, timeout=10)
 
-        self.update({
-            "config":    {
-                "last_backup":  None,
-                "last_restore": None,
-                "http_port":    80,
-                "https_port":   None,
-                "hostname":     "nextbox",
-                "log_lvl":      logging.DEBUG,
-
-                "domain":       None,
-                "email":        None,
-                "desec_token":  None,
-
-                "nk_token":     None,
-                "serial":       None,
-                
-                "proxy_active": False,
-                "proxy_domain": None,
-                "proxy_port":   None,
-                "dns_mode":     "off",
-                "expert_mode":  False,
-
-                "debian_package": "nextbox"
+        self.update(
+            {
+                "config": {
+                    "last_backup": None,
+                    "last_restore": None,
+                    "http_port": 80,
+                    "https_port": None,
+                    "hostname": "nextbox",
+                    "log_lvl": logging.DEBUG,
+                    "domain": None,
+                    "email": None,
+                    "desec_token": None,
+                    "nk_token": None,
+                    "serial": None,
+                    "proxy_active": False,
+                    "proxy_domain": None,
+                    "proxy_port": None,
+                    "dns_mode": "off",
+                    "expert_mode": False,
+                    "debian_package": "nextbox",
+                }
             }
-        })
+        )
         self.load()
         self.manage_factory_config()
 
@@ -64,14 +68,15 @@ class Config(dict):
 
         # if regular config contains 'nk_token' & 'serial' write factory-config if needed
         if self["config"]["nk_token"] and self["config"]["serial"]:
-            if not "config" in factory_conf \
-                or not factory_conf.get("config", {}).get("nk_token") \
-                or not factory_conf.get("config", {}).get("serial"):
-
+            if (
+                not "config" in factory_conf
+                or not factory_conf.get("config", {}).get("nk_token")
+                or not factory_conf.get("config", {}).get("serial")
+            ):
                 factory_dct = {
                     "config": {
                         "nk_token": self["config"]["nk_token"],
-                        "serial": self["config"]["serial"]
+                        "serial": self["config"]["serial"],
                     }
                 }
 
@@ -94,8 +99,9 @@ class Config(dict):
                 self.save()
                 log.info(f"updated regular config from {self.factory_config_path}")
             else:
-                log.warning(f"need, but could not get 'nk_token' or 'serial' from {self.factory_config_path}")
-
+                log.warning(
+                    f"need, but could not get 'nk_token' or 'serial' from {self.factory_config_path}"
+                )
 
     def load(self):
         if not os.path.exists(self.config_path):
@@ -120,7 +126,7 @@ class Config(dict):
 def check_filesystem():
     """
     Check local filesystem "integrity":
-    * existance of dirs: /srv/nextcloud, /srv/nextbox, /srv/apache2, 
+    * existance of dirs: /srv/nextcloud, /srv/nextbox, /srv/apache2,
                          /srv/mariadb, /srv/logdump, /srv/letsencrypt,
                          /var/cache/ddclient/
     * existance and permissions (uid: 33 gid: 0): /srv/nextcloud/custom_apps
@@ -130,8 +136,16 @@ def check_filesystem():
     """
 
     # check/create dirs
-    dirs_exist = ["/srv/nextcloud", "/srv/nextbox", "/srv/apache2", "/srv/backups", 
-                  "/srv/mariadb", "/srv/logdump", "/srv/letsencrypt", "/var/cache/ddclient/"]
+    dirs_exist = [
+        "/srv/nextcloud",
+        "/srv/nextbox",
+        "/srv/apache2",
+        "/srv/backups",
+        "/srv/mariadb",
+        "/srv/logdump",
+        "/srv/letsencrypt",
+        "/var/cache/ddclient/",
+    ]
     for p in dirs_exist:
         if not Path(p).exists():
             os.makedirs(p)
@@ -180,6 +194,7 @@ def check_filesystem_after_init(cfg):
 
     if sys_files.safe_ensure_file("dphys-swapfile"):
         from nextbox_daemon.services import services
+
         services.restart("dphys-swapfile")
 
     sys_files.safe_ensure_not_empty_file("ddclient")
@@ -193,9 +208,12 @@ def check_filesystem_after_init(cfg):
     sys_files.ensure_deleted_file("/srv/apache2/mods-available/php7.load")
 
     sys_files.safe_ensure_file("php.load")
-    sys_files.ensure_symlink("../mods-available/php.load", "/srv/apache2/mods-enabled/php.load")
+    sys_files.ensure_symlink(
+        "../mods-available/php.load", "/srv/apache2/mods-enabled/php.load"
+    )
 
     sys_files.safe_ensure_file("cmdline.txt")
+
 
 class RepeatingFilter(logging.Filter):
     def __init__(self):
@@ -205,16 +223,16 @@ class RepeatingFilter(logging.Filter):
 
     def filter(self, record):
         if record.msg in self.msg_history:
-            self.msg_repeated += 1/self.history_length
+            self.msg_repeated += 1 / self.history_length
             return False
-        
+
         if self.msg_repeated >= 2:
             record.msg += f" (last 2 messages repeated {self.msg_repeated} times)"
             self.msg_repeated = 0
             self.msg_history = []
 
         self.msg_history.append(record.msg)
-        
+
         while len(self.msg_history) > self.history_length:
             self.msg_history.pop(0)
 
@@ -226,28 +244,38 @@ def init_logging(logger_name, log_filename):
     log = logging.getLogger(logger_name)
     log.setLevel(logging.DEBUG)
     log_handler = logging.handlers.RotatingFileHandler(
-            log_filename, maxBytes=MAX_LOG_SIZE, backupCount=5)
+        log_filename, maxBytes=MAX_LOG_SIZE, backupCount=5
+    )
     log.addHandler(log_handler)
 
     # adapt logging-record-factory for a more condensed log
     module_mapping = {
-        "command_runner"    : "cmd_run",   "status_board"      : "board",
-        "raw_backup_restore": "rbackup",   "proxy_tunnel"      : "ptun",
-        "certificates"      : "certs",     "partitions"        : "parts",
-        "system_files"      : "sysfiles",
+        "command_runner": "cmd_run",
+        "status_board": "board",
+        "raw_backup_restore": "rbackup",
+        "proxy_tunnel": "ptun",
+        "certificates": "certs",
+        "partitions": "parts",
+        "system_files": "sysfiles",
     }
 
-    level_mapping = {"CRITICAL": "[!]", "ERROR": "[E]", "WARNING": "[W]", 
-        "INFO": "[i]", "DEBUG": "[D]" 
+    level_mapping = {
+        "CRITICAL": "[!]",
+        "ERROR": "[E]",
+        "WARNING": "[W]",
+        "INFO": "[i]",
+        "DEBUG": "[D]",
     }
 
     record_factory = logging.getLogRecordFactory()
+
     def my_record_factory(*va, **kw):
         rec = record_factory(*va, **kw)
         rec.origin = module_mapping.get(rec.module, rec.module)
         rec.symlvl = level_mapping.get(rec.levelname, rec.levelname)
-            
+
         return rec
+
     # apply wrapped record factory
     logging.setLogRecordFactory(my_record_factory)
 
@@ -255,7 +283,9 @@ def init_logging(logger_name, log_filename):
     log.addFilter(RepeatingFilter())
 
     # logging format
-    log_format = logging.Formatter("{asctime} {symlvl} {origin:<9} {message}", style='{')
+    log_format = logging.Formatter(
+        "{asctime} {symlvl} {origin:<9} {message}", style="{"
+    )
     log_handler.setFormatter(log_format)
 
     # welcome banner (into log)
@@ -267,7 +297,6 @@ def init_logging(logger_name, log_filename):
 
 # non testing startup
 if "PYTEST_RUNNING" not in os.environ:
-
     # 1st filesystem integrity check
     check_filesystem()
 
