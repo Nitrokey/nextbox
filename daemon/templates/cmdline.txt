@@ -1,1 +1,1 @@
-console=serial0,115200 console=tty1 root=PARTUUID=%%partuuid%% rootfstype=ext4 fsck.repair=yes usb-storage.quirks=0x152d:0x1561:u,0x152d:0xa578:u,0x152d:0x0576:u rootwait
+console=serial0,115200 console=tty1 root=PARTUUID=%%partuuid%% rootfstype=ext4 fsck.repair=yes usb-storage.quirks=0x152d:0x1561:u,0x152d:0xa578:u,0x152d:0x0576:u,0x174c:55aa:u rootwait
