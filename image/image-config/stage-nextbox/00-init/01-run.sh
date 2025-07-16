@@ -10,7 +10,7 @@ sed -i -e 's/rootwait quiet/usb-storage.quirks=0x152d:0x1561:u,0x152d:0xa578:u,0
 # [x] 152d:1561 => 'Sabrent' adapter using 'JMicron Chipset'
 # [x] 152d:a578 => 'Sabrent' adapter using 'JMicron Chipset' used since 2025
 # [x] 152d:0576 => 'Sabrent' adapter using 'JMicron Chipset' used since 2025
-# [x] 174c:55aa => 'SKL' & 'Inateck' adapters using 'ASMedia Chipset'
+# [x] 174c:55aa => 'Sabrent' adapter using 'ASMedia Chipset' used since 2025
 
 # modify /boot/config.txt to activate i2c
 sed -i -e 's/#dtparam=i2c_arm=on/dtparam=i2c_arm=on/g' "${ROOTFS_DIR}/boot/config.txt"
