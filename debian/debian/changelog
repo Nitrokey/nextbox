@@ -1,3 +1,9 @@
+%%PKG%% (1.25.6-1) focal; urgency=low
+
+    * add usb Adapter chipset 174c:55aa ASMedia
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 21 Jul 2025 11:53:19 +0200
+
 %%PKG%% (1.25.5-1) focal; urgency=low
 
     * cmdline.txt: add usb.quirk for 152d:0576
