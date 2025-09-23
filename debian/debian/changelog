@@ -1,3 +1,9 @@
+%%PKG%% (1.25.7-1) focal; urgency=low
+
+    * bump NC to 30.0.15
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 23 Sep 2025 13:42:20 +0200
+
 %%PKG%% (1.25.6-1) focal; urgency=low
 
     * add usb Adapter chipset 174c:55aa ASMedia
