@@ -1,4 +1,3 @@
-
 from queue import Empty
 from threading import Thread
 import threading
@@ -30,7 +29,7 @@ class BaseJob:
         log.debug(f"starting worker job: {self.name}")
         self.last_run = dt.now()
         self._run(cfg, board, kwargs)
-        log.debug(f"finished worker job: {self.name}")
+        # log.debug(f"finished worker job: {self.name}")
 
     def _run(self, cfg, board, kwargs):
         """This is executed by the job-manager, where the work happens"""
@@ -40,7 +39,7 @@ class BaseJob:
 class JobManager:
     def __init__(self, config, board):
         self.cfg = config
-        self.jobs = { }
+        self.jobs = {}
         self.board = board
 
     def register_job(self, job) -> None:
@@ -67,8 +66,7 @@ class JobManager:
 
     def get_recurring_jobs(self):
         """return list-of-pairs [name, args] for due tasks"""
-        return [ (name, None) for name, job in self.jobs.items() \
-            if job.is_due() ]
+        return [(name, None) for name, job in self.jobs.items() if job.is_due()]
 
 
 class Worker(Thread):
@@ -84,7 +82,7 @@ class Worker(Thread):
             pending_jobs = []
             try:
                 job = self.my_job_queue.get(timeout=1)
-                
+
                 if isinstance(job, str):
                     # handle job w/o args, comes as `name: str`
                     pending_jobs.append((job, None))
@@ -100,7 +98,7 @@ class Worker(Thread):
             if len(pending_jobs) == 0:
                 sleep(0.5)
                 continue
-            
+
             for job_name, job_args in pending_jobs:
                 # special job "exit" will stop the worker-queue
                 if job_name == "exit":
@@ -114,5 +112,3 @@ class Worker(Thread):
 job_mgr = JobManager(cfg, board)
 job_queue: Queue = Queue()
 worker = Worker(job_queue, job_mgr)
-
-
