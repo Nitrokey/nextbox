@@ -1,3 +1,10 @@
+%%PKG%% (1.25.11-1) focal; urgency=low
+
+    * daemon: reduce job logging
+    * daemon: introduce auto maint-mode switch-off after 30-60mins
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 05 Jan 2026 13:26:15 +0100
+
 %%PKG%% (1.25.10-1) focal; urgency=low
 
     * NC 31.0.12
