@@ -528,6 +528,40 @@ class OccUpgradeJob(BaseJob):
             return False
 
 
+class OccMaintenanceJob(BaseJob):
+    """
+    Executes occ maintenance:mode --off after 30-60mins if active
+    """
+
+    name = "OccMaintenance"
+
+    def __init__(self):
+        self.nc = Nextcloud()
+        super().__init__(initial_interval=1800)
+
+        self.was_active = False
+
+    def _run(self, cfg, board, kwargs):
+        if not self.nc.is_installed:
+            log.debug("cannot occ - uninitialized nextcloud")
+            return False
+
+        if self.was_active:
+            self.was_active = False
+            try:
+                if self.nc.is_maintenance:
+                    self.nc.set_maintenance_off()
+                    log.info("switched off maintenance:mode")
+                else:
+                    log.info("no need switching off maintenance:mode - already off")
+            except NextcloudError:
+                log.warning("failed switching off maintenance:mode")
+        else:
+            self.was_active = self.nc.is_maintenance
+            if self.was_active:
+                log.warning("Maintenance mode is on - waiting 30mins to switch it off")
+
+
 class AdminNotification(BaseJob):
     """
     Send notifications to users part of the admin group.
@@ -672,4 +706,5 @@ ACTIVE_JOBS = [
     OccUpgradeJob,
     AdminNotification,
     AutomaticDebianUpdate,
+    OccMaintenanceJob,
 ]
