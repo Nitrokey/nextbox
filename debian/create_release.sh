@@ -156,7 +156,7 @@ git push --quiet -u origin ${branch_name}
 git checkout master
 
 echo [!] Create a Pull Request here: https://github.com/Nitrokey/nextbox/pull/new/${branch_name}
-echo [!] Once this is merged create a tag using release_tag.sh
+echo [!] Once this is merged create a tag using tag_release.sh
 
 
 #cat ${tmp_path}
