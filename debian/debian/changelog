@@ -1,3 +1,9 @@
+%%PKG%% (1.25.12-1) focal; urgency=low
+
+    * orga: minor typo fixed
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Tue, 06 Jan 2026 11:43:11 +0100
+
 %%PKG%% (1.25.11-1) focal; urgency=low
 
     * daemon: reduce job logging
