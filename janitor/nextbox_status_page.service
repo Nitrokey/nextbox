@@ -1,0 +1,14 @@
+[Unit]
+Description=Static HTML Device Status + HTTP Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/nextbox_status_page.py
+Restart=on-failure
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

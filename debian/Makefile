@@ -21,6 +21,7 @@ unstable:
 		-v $(shell pwd):/build \
 		-v $(shell pwd)/../app:/app \
 		-v $(shell pwd)/../daemon:/daemon \
+		-v $(shell pwd)/../janitor:/janitor \
 		-p 8080:80 \
 		$(IMAGE_NAME):stable make PKG=nextbox-unstable GIT_TAG=main main-target
 
@@ -33,6 +34,7 @@ testing:
 		-v $(shell pwd):/build \
 		-v $(shell pwd)/../app:/app \
 		-v $(shell pwd)/../daemon:/daemon \
+		-v $(shell pwd)/../janitor:/janitor \
 		-p 8080:80 \
 		$(IMAGE_NAME):stable make PKG=nextbox-testing GIT_TAG=main main-target
 
@@ -45,6 +47,7 @@ stable:
 		-v $(shell pwd):/build \
 		-v $(shell pwd)/../app:/app \
 		-v $(shell pwd)/../daemon:/daemon \
+		-v $(shell pwd)/../janitor:/janitor \
 		-p 8080:80 \
 		$(IMAGE_NAME):stable make PKG=nextbox GIT_TAG=main main-target
 
@@ -57,7 +60,7 @@ clean:
 	make PKG=nextbox GIT_TAG=main deb-clean
 
 
-main-target: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/scripts $(PKG)/templates $(PKG)/nextbox-compose $(PKG)/debian $(PKG)/rtun-linux-arm64 deb-src
+main-target: $(PKG)/janitor $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/scripts $(PKG)/templates $(PKG)/nextbox-compose $(PKG)/debian $(PKG)/rtun-linux-arm64 deb-src
 
 
 $(PKG)/debian: debian
@@ -70,7 +73,7 @@ $(PKG)/debian: debian
 	cp repos/daemon/services/nextbox.reverse-tunnel.service $(PKG)/debian/$(PKG).reverse-tunnel.service
 	cp repos/daemon/services/nextbox.nextbox-factory-reset.service $(PKG)/debian/$(PKG).nextbox-factory-reset.service
 	cp repos/daemon/services/nextbox.nextbox-updater.service $(PKG)/debian/$(PKG).nextbox-updater.service
-
+	cp janitor/nextbox_status_page.service $(PKG)/debian/$(PKG).nextbox_status_page.service
 
 $(PKG)/app: repos/app/nextbox/js/nextbox-main.js
 	mkdir -p $(PKG)/app/nextbox
@@ -107,6 +110,11 @@ $(PKG)/templates: repos/daemon/templates $(PKG)/debian
 	mkdir -p $(PKG)/templates
 	cp repos/daemon/templates/* $(PKG)/templates
 
+
+$(PKG)/janitor: repos/janitor $(PKG)/debian
+	mkdir -p $(PKG)/janitor
+	cp repos/janitor/* $(PKG)/janitor
+
 $(PKG)/rtun-linux-arm64: $(PKG)/debian
 	cd $(PKG) && \
 		wget https://github.com/snsinfu/reverse-tunnel/releases/download/v1.3.0/rtun-linux-arm64
@@ -126,6 +134,7 @@ start-dev-docker: dev-image
 		-v $(shell pwd):/build \
 		-v $(shell pwd)/../app:/app \
 		-v $(shell pwd)/../daemon:/daemon \
+		-v $(shell pwd)/../janitor:/janitor \
 		-p 8080:80 \
 		$(IMAGE_NAME):stable
 	
@@ -140,7 +149,7 @@ dev-image: Dockerfile
 ### build source package
 ###
 
-$(DEB_SRC): $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian
+$(DEB_SRC): $(PKG)/janitor $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian
 	cd $(PKG) && \
 		dpkg-buildpackage -S
 	#debsign -k CBF5C9FD2105C32B1E9CDC2C0303797FE98B51CD nextbox_$(VERSION)_source.changes
@@ -158,7 +167,7 @@ deb-clean:
 	rm -f $(PKG)_$(VERSION).dsc
 	rm -f $(PKG)_$(VERSION).tar.gz
 
-deb-src: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian
+deb-src: $(PKG)/janitor $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/nextbox-compose $(PKG)/debian
 	make PKG=$(PKG) GIT_TAG=$(GIT_TAG) $(DEB_SRC)
 	make PKG=$(PKG) GIT_TAG=$(GIT_TAG) upload
 
