@@ -50,7 +50,7 @@
 
 <script>
 
-import '@nextcloud/dialogs/styles/toast.scss'
+import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 // import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
 import { showError } from '@nextcloud/dialogs'
@@ -66,7 +66,7 @@ import qs from 'qs'
 // import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
 
 import UtilsMixin from './UtilsMixin.js'
-import StatusBar from './StatusBar'
+import StatusBar from './StatusBar.vue'
 
 
 export default {

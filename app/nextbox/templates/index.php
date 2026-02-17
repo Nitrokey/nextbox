@@ -1,6 +1,8 @@
 <?php
 
 script('nextbox', 'nextbox-main');
+style('nextbox', 'nextbox-main');
+style('nextbox', 'style');
 
 ?>
 

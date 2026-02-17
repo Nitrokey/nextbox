@@ -1,42 +1,42 @@
 <template>
 	<div id="content" class="app-nextbox">
-		<AppNavigation v-if="page !== 'backup_exclusive'">
+		<NcAppNavigation v-if="page !== 'backup_exclusive'">
 			<ul>
-				<AppNavigationItem :title="t('nextbox', 'Overview')" icon="icon-home" @click="set_page('overview')" />
-				<AppNavigationItem :title="t('nextbox', 'Storage Management')" icon="icon-category-files" @click="set_page('storage')" />
-				<AppNavigationItem :title="t('nextbox', 'Backup / Restore')" icon="icon-download" @click="set_page('backup')" />
-				<AppNavigationItem :title="t('nextbox', 'Remote Access')" icon="icon-timezone" @click="set_page('remote')" />
-				<AppNavigationItem
+				<NcAppNavigationItem :name="t('nextbox', 'Overview')" icon="icon-home" @click="set_page('overview')" />
+				<NcAppNavigationItem :name="t('nextbox', 'Storage Management')" icon="icon-category-files" @click="set_page('storage')" />
+				<NcAppNavigationItem :name="t('nextbox', 'Backup / Restore')" icon="icon-download" @click="set_page('backup')" />
+				<NcAppNavigationItem :name="t('nextbox', 'Remote Access')" icon="icon-timezone" @click="set_page('remote')" />
+				<NcAppNavigationItem
 					v-if="isRemoteOpen"
-					:title="t('nextbox', 'Backwards Proxy')"
+					:name="t('nextbox', 'Backwards Proxy')"
 					icon="icon-star"
 					@click="set_page('remote_proxy')" />
-				<AppNavigationItem
+				<NcAppNavigationItem
 					v-if="isRemoteOpen"
-					:title="t('nextbox', 'Guided Dynamic DNS')"
+					:name="t('nextbox', 'Guided Dynamic DNS')"
 					icon="icon-comment"
 					@click="set_page('remote_dyndns')" />
-				<AppNavigationItem
+				<NcAppNavigationItem
 					v-if="isRemoteOpen"
-					:title="t('nextbox', 'Custom Dynamic DNS')"
+					:name="t('nextbox', 'Custom Dynamic DNS')"
 					icon="icon-settings"
 					@click="set_page('remote_custom_dns')" />
-				<AppNavigationItem
+				<NcAppNavigationItem
 					v-if="isRemoteOpen"
-					:title="t('nextbox', 'Static Domain')"
+					:name="t('nextbox', 'Static Domain')"
 					icon="icon-public"
 					@click="set_page('remote_static_dns')" />
-				<AppNavigationItem
-					:title="t('nextbox', 'HTTPS / TLS')"
+				<NcAppNavigationItem
+					:name="t('nextbox', 'HTTPS / TLS')"
 					icon="icon-password"
 					@click="set_page('tls')" />
-				
-				<AppNavigationItem :title="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" />
-				<!-- AppNavigationItem :title="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" /-->
+
+				<NcAppNavigationItem :name="t('nextbox', 'System Settings')" icon="icon-settings" @click="set_page('system')" />
+				<!-- NcAppNavigationItem :name="t('nextbox', 'Daemon Logs')" icon="icon-info" @click="set_page('logs')" /-->
 			</ul>
-		</AppNavigation>
-			
-		<AppContent class=app-content>
+		</NcAppNavigation>
+
+		<NcAppContent class=app-content>
 			<Overview v-if="page === 'overview'" />
 			<Storage v-if="page === 'storage'" />
 			<Backup v-if="page === 'backup' || page === 'backup_exclusive'" @newPage="set_page" />
@@ -48,32 +48,32 @@
 			<StaticDNS v-if="page === 'remote_static_dns'" @newPage="set_page" />
 			<TLS v-if="page === 'tls'" @newPage="set_page" />
 			<Remote v-if="page === 'remote'" @newPage="set_page" />
-		</AppContent>
+		</NcAppContent>
 	</div>
 </template>
 
 <script>
 
-import AppContent from '@nextcloud/vue/dist/Components/AppContent'
-import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
-import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
+import NcAppContent from '@nextcloud/vue/components/NcAppContent'
+import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
+import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 
 // import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 
-import Logs from './Logs'
-import System from './System'
-import DynDNS from './DynDNS'
-import StaticDNS from './StaticDNS'
-import CustomDNS from './CustomDNS'
-import Proxy from './Proxy'
-import Backup from './Backup'
-import Storage from './Storage'
-import Overview from './Overview'
-import Remote from './Remote'
-import TLS from './TLS'
+import Logs from './Logs.vue'
+import System from './System.vue'
+import DynDNS from './DynDNS.vue'
+import StaticDNS from './StaticDNS.vue'
+import CustomDNS from './CustomDNS.vue'
+import Proxy from './Proxy.vue'
+import Backup from './Backup.vue'
+import Storage from './Storage.vue'
+import Overview from './Overview.vue'
+import Remote from './Remote.vue'
+import TLS from './TLS.vue'
 
-import '@nextcloud/dialogs/styles/toast.scss'
+import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
@@ -85,14 +85,14 @@ export default {
 	mixins: [UtilsMixin],
 
 	components: {
-		AppContent,
-		AppNavigation,
-		AppNavigationItem,
+		NcAppContent,
+		NcAppNavigation,
+		NcAppNavigationItem,
 		Overview,
 		Logs,
 		System,
-		DynDNS, 
-		StaticDNS, 
+		DynDNS,
+		StaticDNS,
 		CustomDNS,
 		Remote,
 		Backup,

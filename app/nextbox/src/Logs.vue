@@ -1,15 +1,15 @@
 <template>
 	<div id="logs" v-if="!loading">
-		<AppContentDetails v-for="line in lines" :key="line">
+		<NcAppContentDetails v-for="line in lines" :key="line">
 			{{ line }}
-		</AppContentDetails>
+		</NcAppContentDetails>
 	</div>
 </template>
 
 
 <script>
 
-import '@nextcloud/dialogs/styles/toast.scss'
+import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 // import { showError, showSuccess } from '@nextcloud/dialogs'
 import { showError } from '@nextcloud/dialogs'
@@ -17,13 +17,13 @@ import axios from '@nextcloud/axios'
 
 // import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
+import NcAppContentDetails from '@nextcloud/vue/components/NcAppContentDetails'
 
 export default {
 	name: 'Logs',
 	// props: ['items'],
 	components: {
-		AppContentDetails,
+		NcAppContentDetails,
 	},
 	data() {
 		return {

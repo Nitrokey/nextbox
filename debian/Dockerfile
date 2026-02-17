@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:trixie
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Berlin
@@ -11,12 +11,11 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 
-RUN apt-get update && apt-get install -y dh-python python3-setuptools python3-all dh-systemd \
+RUN apt-get update && apt-get install -y dh-python python3-setuptools python3-all \
 	python3 python3-flask python3-flask python3-gpiozero python3-yaml python3-psutil \
 	debhelper build-essential python3-requests docker-compose docker.io vim npm \
-	software-properties-common dput devscripts gnupg dh-make lintian \
-	php phpunit rsync wget
+	dput devscripts gnupg dh-make lintian php phpunit rsync wget
 
-RUN add-apt-repository -y ppa:nitrokey/nextbox
+#RUN add-apt-repository -y ppa:nitrokey/nextbox
 
 WORKDIR "/build"
