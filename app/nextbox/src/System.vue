@@ -95,7 +95,7 @@
 
 <script>
 
-import '@nextcloud/dialogs/styles/toast.scss'
+import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 
 import { showError } from '@nextcloud/dialogs'
@@ -103,13 +103,13 @@ import axios from '@nextcloud/axios'
 import qs from 'qs'
 
 import UtilsMixin from './UtilsMixin.js'
+import FileDownload from 'js-file-download'
 
 
 // import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 // import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
 
-const FileDownload = require('js-file-download')
 let updateButtonPressed = false
 
 

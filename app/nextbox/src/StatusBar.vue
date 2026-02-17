@@ -15,7 +15,7 @@
 
 <script>
 
-//import '@nextcloud/dialogs/styles/toast.scss'
+//import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 //import { showError, showSuccess } from '@nextcloud/dialogs'
 import { showError } from '@nextcloud/dialogs'
@@ -325,7 +325,7 @@ export default {
 	margin-left: 10%;
 	padding: 4px;
 	width: 70%;
-	background-color: #eee;
+	background-color: var(--color-main-background);
 	display: block;
 	border-left: solid 2px #bbb;
 	border-right: solid 2px #bbb;

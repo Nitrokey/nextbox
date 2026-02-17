@@ -36,22 +36,22 @@
 
 			First select a device on which the backup should reside. You can
 			only select devices mounted inside Storage Management:<br>
-			<Multiselect 
+			<NcSelect
 				v-model="selectedDevice"
 				:options="devices"
-				:disabled="!Boolean(devices)"
+				:disabled="!devices || devices.length === 0"
 				placeholder="Select Backup Device"
-				track-by="path" 
+				track-by="path"
 				label="friendly_name" /><br><br>
 
 			On the selected device you can select an existing backup:
-			<Multiselect 
+			<NcSelect
 				v-model="selectedBackup"
 				:options="device_backups(selectedDevice)"
-				:disabled="!Boolean(selectedDevice)"
+				:disabled="!selectedDevice"
 				placeholder="Select Backup Location"
 				track-by="path"
-				label="name" 
+				label="name"
 				@update="validateBackupLocation" /><br>
 			Alternatively, create a new backup:<br>
 			<input 
@@ -73,11 +73,12 @@
 			<h2>Restore System from Backup</h2>
 			Select a Backup to restore the System from this Backup. Any existing 
 			data will be replaced with the backup data!<br>
-			<Multiselect 
+			<NcSelect
 				v-model="selectedRestore"
 				:options="allBackups()"
+				:disabled="allBackups().length === 0"
 				placeholder="Select Backup to Restore"
-				track-by="path" 
+				track-by="path"
 				label="friendly_name" /><br><br><br>
 			<button type="button" :disabled="restoreDisabled" @click="start_restore()">
 				<span class="icon icon-upload" />
@@ -90,22 +91,22 @@
 
 <script>
 
-import '@nextcloud/dialogs/styles/toast.scss'
+import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 // import { showError, showMessage, showSuccess, TOAST_PERMANENT_TIMEOUT } from '@nextcloud/dialogs'
 import { showError } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import qs from 'qs'
 
-import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import NcSelect from '@nextcloud/vue/components/NcSelect'
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 // import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 // import Modal from '@nextcloud/vue/dist/Components/Modal'
 // import ProgressBar from '@nextcloud/vue/dist/Components/ProgressBar'
 
 
 import UtilsMixin from './UtilsMixin.js'
-import StatusBar from './StatusBar'
+import StatusBar from './StatusBar.vue'
 
 
 export default {
@@ -113,8 +114,8 @@ export default {
 	mixins: [UtilsMixin],
 
 	components: {
-		Multiselect, 
-		ActionButton, 
+		NcSelect,
+		NcActionButton,
 		StatusBar,
 	},
 
@@ -127,11 +128,11 @@ export default {
 			progress: false,
 			backupLocation: '',
 
-			selectedDevice: false,
-			selectedBackup: false,
+			selectedDevice: null,
+			selectedBackup: null,
 			newBackup: '',
-			selectedRestore: false,
-			
+			selectedRestore: null,
+
 			devices: [],
 			backups: {},
 
@@ -194,10 +195,10 @@ export default {
 				this.devices = res.data.data.devices
 				this.backups = res.data.data.backups
 				this.lastBackup = res.data.data.last_backup
-				this.selectedBackup = false
-				this.selectedDevice = false
+				this.selectedBackup = null
+				this.selectedDevice = null
 				this.newBackup = ''
-				this.selectedRestore = false
+				this.selectedRestore = null
 			}).catch((e) => {
 				showError('Connection failed')
 				console.error(e)

@@ -40,7 +40,7 @@
 
 <script>
 
-import '@nextcloud/dialogs/styles/toast.scss'
+import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 import axios from '@nextcloud/axios'
 
@@ -50,7 +50,7 @@ import axios from '@nextcloud/axios'
 // import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
 // import { showError, showSuccess } from '@nextcloud/dialogs'
 
-import StatusBar from './StatusBar'
+import StatusBar from './StatusBar.vue'
 import UtilsMixin from './UtilsMixin.js'
 
 export default {

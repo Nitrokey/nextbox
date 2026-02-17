@@ -46,7 +46,7 @@
 
 <script>
 
-import '@nextcloud/dialogs/styles/toast.scss'
+import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 // import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
 import { showError } from '@nextcloud/dialogs'
@@ -64,7 +64,7 @@ import axios from '@nextcloud/axios'
 
 
 import UtilsMixin from './UtilsMixin.js'
-import StatusBar from './StatusBar'
+import StatusBar from './StatusBar.vue'
 
 
 
@@ -93,7 +93,11 @@ export default {
 
 			// user messaging
 			userMessage: {},
-			
+
+			// tooltips
+			ttDesec: 'Guided setup using DeSEC service - recommended for most users',
+			ttConfig: 'Configure your own dynamic DNS provider',
+
 			// variables
 			update: {
 			},

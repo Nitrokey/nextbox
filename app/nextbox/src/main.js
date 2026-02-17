@@ -6,23 +6,21 @@
  * @license GNU AGPL version 3 or any later version
  */
 
-import Vue from 'vue'
-import App from './App'
+import { createApp } from 'vue'
+import App from './App.vue'
+import FloatingVue from 'floating-vue'
+import 'floating-vue/dist/style.css'
 
-//import { VTooltip } from '@nextcloud/vue'
-import VTooltip from '@nextcloud/vue/dist/Directives/Tooltip'
+const app = createApp(App)
 
-Vue.directive('Tooltip', VTooltip)
+// Setup floating-vue for tooltips
+app.use(FloatingVue)
 
+// Make translation functions available globally
+app.config.globalProperties.t = t
+app.config.globalProperties.n = n
 
-Vue.mixin({ 
-	methods: { t, n },
-})
-
-export default new Vue({
-	el: '#content',
-	render: h => h(App),
-})
+app.mount('#content')
 
 
 

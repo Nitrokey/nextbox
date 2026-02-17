@@ -1,69 +1,82 @@
 <template>
 	<div id="storage" v-if="!loading">
-		<AppContentList class="section storage-list" show-details>
+		<NcAppContentList class="section storage-list" show-details>
 			<h2>Mounted Storages</h2>
 
-			<ListItemIcon v-for="dev in mountedDevs" 
+			<NcListItemIcon v-for="dev in mountedDevs"
 				:key="dev.name"
 				class="list-item"
-				:title="dev.friendly_name"
-				:subtitle="getListDesc(dev)"
-				display-name="icon-add"
-				:icon-class="(loading === dev) ? 'icon-loading-small' : 'icon-add'"
-				:avatar-size="36">
-				<Actions>
-					<ActionButton v-for="menuitem in getActions(dev)"
-						:key="menuitem.name"
-						:close-after-click="true"
-						:icon="menuitem.icon" 
-						@click="action(dev, menuitem)">
-						{{ menuitem.name }}
-					</ActionButton>
-				</Actions>
-			</ListItemIcon>
-		</AppContentList>
+				:name="dev.friendly_name"
+				:subname="getListDesc(dev)">
+				<template #icon>
+					<span :class="(loading === dev) ? 'icon-loading-small' : 'icon-add'" />
+				</template>
+				<template #actions>
+					<NcActions>
+						<NcActionButton v-for="menuitem in getActions(dev)"
+							:key="menuitem.name"
+							:close-after-click="true"
+							@click="action(dev, menuitem)">
+							<template #icon>
+								<span :class="menuitem.icon" />
+							</template>
+							{{ menuitem.name }}
+						</NcActionButton>
+					</NcActions>
+				</template>
+			</NcListItemIcon>
+		</NcAppContentList>
 
-		<AppContentList class="section storage-list" show-details>
+		<NcAppContentList class="section storage-list" show-details>
 			<h2>Available Storages</h2>
-			<ListItemIcon v-for="dev in availableDevs" 
+			<NcListItemIcon v-for="dev in availableDevs"
 				:key="dev.name"
 				class="list-item"
-				:title="dev.friendly_name"
-				:subtitle="getListDesc(dev)"
-				display-name="icon-add"
-				:icon-class="(loading === dev) ? 'icon-loading-small' : 'icon-add'"
-				:avatar-size="36">
-				<Actions>
-					<ActionButton v-for="menuitem in getActions(dev)"
-						:key="menuitem.name"
-						:close-after-click="true"
-						:icon="menuitem.icon" 
-						@click="action(dev, menuitem)">
-						{{ menuitem.name }}
-					</ActionButton>
-				</Actions>
-			</ListItemIcon>
-			<EmptyContent v-if="!availableDevs" icon="icon-close">
-				No Unmounted Available
-			</EmptyContent>
-		</AppContentList>
+				:name="dev.friendly_name"
+				:subname="getListDesc(dev)">
+				<template #icon>
+					<span :class="(loading === dev) ? 'icon-loading-small' : 'icon-add'" />
+				</template>
+				<template #actions>
+					<NcActions>
+						<NcActionButton v-for="menuitem in getActions(dev)"
+							:key="menuitem.name"
+							:close-after-click="true"
+							@click="action(dev, menuitem)">
+							<template #icon>
+								<span :class="menuitem.icon" />
+							</template>
+							{{ menuitem.name }}
+						</NcActionButton>
+					</NcActions>
+				</template>
+			</NcListItemIcon>
+			<NcEmptyContent v-if="!availableDevs">
+				<template #icon>
+					<span class="icon-close" />
+				</template>
+				<template #name>
+					No Unmounted Available
+				</template>
+			</NcEmptyContent>
+		</NcAppContentList>
 	</div>
 </template>
 
 
 <script>
 
-import '@nextcloud/dialogs/styles/toast.scss'
+import '@nextcloud/dialogs/style.css'
 import { generateUrl } from '@nextcloud/router'
 // import { showError, showMessage, showSuccess } from '@nextcloud/dialogs'
 import { showError, showMessage } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
-import AppContentList from '@nextcloud/vue/dist/Components/AppContentList'
-import ListItemIcon from '@nextcloud/vue/dist/Components/ListItemIcon'
-import Actions from '@nextcloud/vue/dist/Components/Actions'
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
-import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+import NcAppContentList from '@nextcloud/vue/components/NcAppContentList'
+import NcListItemIcon from '@nextcloud/vue/components/NcListItemIcon'
+import NcActions from '@nextcloud/vue/components/NcActions'
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 
 
 import UtilsMixin from './UtilsMixin.js'
@@ -73,11 +86,11 @@ export default {
 	mixins: [UtilsMixin],
 
 	components: {
-		AppContentList, 
-		ListItemIcon, 
-		Actions, 
-		ActionButton, 
-		EmptyContent,
+		NcAppContentList,
+		NcListItemIcon,
+		NcActions,
+		NcActionButton,
+		NcEmptyContent,
 	},
 
 	data() {
