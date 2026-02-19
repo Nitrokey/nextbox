@@ -1,5 +1,4 @@
 <template>
-	<div id="content" class="app-nextbox">
 		<NcAppNavigation v-if="page !== 'backup_exclusive'">
 			<ul>
 				<NcAppNavigationItem :name="t('nextbox', 'Overview')" icon="icon-home" @click="set_page('overview')" />
@@ -36,7 +35,7 @@
 			</ul>
 		</NcAppNavigation>
 
-		<NcAppContent class=app-content>
+		<NcAppContent>
 			<Overview v-if="page === 'overview'" />
 			<Storage v-if="page === 'storage'" />
 			<Backup v-if="page === 'backup' || page === 'backup_exclusive'" @newPage="set_page" />
@@ -49,7 +48,6 @@
 			<TLS v-if="page === 'tls'" @newPage="set_page" />
 			<Remote v-if="page === 'remote'" @newPage="set_page" />
 		</NcAppContent>
-	</div>
 </template>
 
 <script>
