@@ -1,3 +1,10 @@
+%%PKG%% (1.26.5-1) focal; urgency=low
+
+    * app: avoid width adjustment for h2
+    * app: consistent nc css for main content
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 19 Feb 2026 15:07:01 +0100
+
 %%PKG%% (1.26.4-1) focal; urgency=low
 
     * debian: remove dh-systemd
