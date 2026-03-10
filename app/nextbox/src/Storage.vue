@@ -3,54 +3,52 @@
 		<NcAppContentList class="section storage-list" show-details>
 			<h2>Mounted Storages</h2>
 
-			<NcListItemIcon v-for="dev in mountedDevs"
+			<NcListItem v-for="dev in mountedDevs"
 				:key="dev.name"
 				class="list-item"
 				:name="dev.friendly_name"
-				:subname="getListDesc(dev)">
+				:force-display-actions="true">
 				<template #icon>
 					<span :class="(loading === dev) ? 'icon-loading-small' : 'icon-add'" />
 				</template>
+				<template #subname>{{ getListDesc(dev) }}</template>
 				<template #actions>
-					<NcActions>
-						<NcActionButton v-for="menuitem in getActions(dev)"
-							:key="menuitem.name"
-							:close-after-click="true"
-							@click="action(dev, menuitem)">
-							<template #icon>
-								<span :class="menuitem.icon" />
-							</template>
-							{{ menuitem.name }}
-						</NcActionButton>
-					</NcActions>
+					<NcActionButton v-for="menuitem in getActions(dev)"
+						:key="menuitem.name"
+						:close-after-click="true"
+						@click="action(dev, menuitem)">
+						<template #icon>
+							<span :class="menuitem.icon" />
+						</template>
+						{{ menuitem.name }}
+					</NcActionButton>
 				</template>
-			</NcListItemIcon>
+			</NcListItem>
 		</NcAppContentList>
 
 		<NcAppContentList class="section storage-list" show-details>
 			<h2>Available Storages</h2>
-			<NcListItemIcon v-for="dev in availableDevs"
+			<NcListItem v-for="dev in availableDevs"
 				:key="dev.name"
 				class="list-item"
 				:name="dev.friendly_name"
-				:subname="getListDesc(dev)">
+				:force-display-actions="true">
 				<template #icon>
 					<span :class="(loading === dev) ? 'icon-loading-small' : 'icon-add'" />
 				</template>
+				<template #subname>{{ getListDesc(dev) }}</template>
 				<template #actions>
-					<NcActions>
-						<NcActionButton v-for="menuitem in getActions(dev)"
-							:key="menuitem.name"
-							:close-after-click="true"
-							@click="action(dev, menuitem)">
-							<template #icon>
-								<span :class="menuitem.icon" />
-							</template>
-							{{ menuitem.name }}
-						</NcActionButton>
-					</NcActions>
+					<NcActionButton v-for="menuitem in getActions(dev)"
+						:key="menuitem.name"
+						:close-after-click="true"
+						@click="action(dev, menuitem)">
+						<template #icon>
+							<span :class="menuitem.icon" />
+						</template>
+						{{ menuitem.name }}
+					</NcActionButton>
 				</template>
-			</NcListItemIcon>
+			</NcListItem>
 			<NcEmptyContent v-if="!availableDevs">
 				<template #icon>
 					<span class="icon-close" />
@@ -73,8 +71,7 @@ import { showError, showMessage } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 
 import NcAppContentList from '@nextcloud/vue/components/NcAppContentList'
-import NcListItemIcon from '@nextcloud/vue/components/NcListItemIcon'
-import NcActions from '@nextcloud/vue/components/NcActions'
+import NcListItem from '@nextcloud/vue/components/NcListItem'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 
@@ -87,8 +84,7 @@ export default {
 
 	components: {
 		NcAppContentList,
-		NcListItemIcon,
-		NcActions,
+		NcListItem,
 		NcActionButton,
 		NcEmptyContent,
 	},
