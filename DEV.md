@@ -7,12 +7,14 @@ Steps to set up a development environment:
   * ssh on the NextBox and install the same public key for `root`
 * checkout the `nextbox` repository
 * inside `nextbox/debian` run `make dev-image` to create the docker image for development
-* change into the container `make enter-dev-docker`
-  * inside `/build/repos/app/nextbox/` run `npm install`
-  * exit the docker
 * modify the `DEV_DEVICE` variable inside `nextbox/debian/repos` to match your NextBox' local IP
 
-Now the environment setup is done, for development you just run (inside `nextbox/debian/repos`):
+Update the app or the daemon on the NextBox:
+
+* `make update-app`
+* `make update-daemon`
+
+For a permanent "watching" behavior, you run (inside `nextbox/debian/repos`):
 
 * `make watch-update-app`
 * `make watch-update-daemon`
