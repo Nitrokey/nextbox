@@ -1,3 +1,10 @@
+%%PKG%% (1.26.6-1) focal; urgency=low
+
+    * app: fix storage mounting
+    * dev.md: minor update
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 12 Mar 2026 15:25:28 +0100
+
 %%PKG%% (1.26.5-1) focal; urgency=low
 
     * app: avoid width adjustment for h2
