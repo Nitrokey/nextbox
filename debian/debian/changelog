@@ -1,3 +1,9 @@
+%%PKG%% (1.26.7-1) focal; urgency=low
+
+    * NC 32.0.6
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 13 Mar 2026 11:10:10 +0100
+
 %%PKG%% (1.26.6-1) focal; urgency=low
 
     * app: fix storage mounting
