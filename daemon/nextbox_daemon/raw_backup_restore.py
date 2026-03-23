@@ -126,6 +126,9 @@ class RawBackupRestore:
                 # otherwise, just check for `.parsed` and return parsed-state
                 if self.rsync_proc.parsed:
                     return "active", self.activity_desc, self.rsync_proc.parsed.get("ratio", 0)
+                # Process runnig but did not produce output yet
+                # We count this as active with no progress
+                return "active", self.activity_desc, 0
                 
         return "inactive", self.activity_desc, 0
 
