@@ -2,6 +2,8 @@ VERSION=$(shell head -n 1 debian/changelog | grep -Eo '[0-9\.\-]*')
 
 IMAGE_NAME=nextbox-build
 
+DOCKER_CMD ?= docker
+
 #PKG=nextbox
 #PKG=nextbox-testing
 PKG=nextbox-unstable
@@ -15,7 +17,7 @@ DEB_SRC=$(PKG)_$(VERSION)_source.changes
 unstable:
 	rm -rf nextbox-unstable
 	rm -f repos/app/nextbox/js/*
-	docker run --rm --name $(IMAGE_NAME) -it \
+	${DOCKER_CMD} run --rm --name $(IMAGE_NAME) -it \
 		-v $(HOME)/.gnupg:/root/.gnupg \
 		-v $(HOME)/.dput.cf:/root/.dput.cf \
 		-v $(shell pwd):/build \
@@ -27,7 +29,7 @@ unstable:
 testing:
 	rm -rf nextbox-testing
 	rm -f repos/app/nextbox/js/*
-	docker run --rm --name $(IMAGE_NAME) -it \
+	${DOCKER_CMD} run --rm --name $(IMAGE_NAME) -it \
 		-v $(HOME)/.gnupg:/root/.gnupg \
 		-v $(HOME)/.dput.cf:/root/.dput.cf \
 		-v $(shell pwd):/build \
@@ -39,7 +41,7 @@ testing:
 stable:
 	rm -rf nextbox
 	rm -f repos/app/nextbox/js/*
-	docker run --rm --name $(IMAGE_NAME) -it \
+	${DOCKER_CMD} run --rm --name $(IMAGE_NAME) -it \
 		-v $(HOME)/.gnupg:/root/.gnupg \
 		-v $(HOME)/.dput.cf:/root/.dput.cf \
 		-v $(shell pwd):/build \
@@ -117,12 +119,10 @@ $(PKG)/rtun-linux-arm64: $(PKG)/debian
 ###
 
 start-dev-docker: dev-image
-	-docker stop $(IMAGE_NAME)
-	-docker rm $(IMAGE_NAME)
+	-${DOCKER_CMD} stop $(IMAGE_NAME)
+	-${DOCKER_CMD} rm $(IMAGE_NAME)
 	sleep 5
-	docker run --rm --name $(IMAGE_NAME) -d -it \
-		-v $(HOME)/.gnupg:/root/.gnupg \
-		-v $(HOME)/.dput.cf:/root/.dput.cf \
+	${DOCKER_CMD} run --rm --name $(IMAGE_NAME) -d -it \
 		-v $(shell pwd):/build \
 		-v $(shell pwd)/../app:/app \
 		-v $(shell pwd)/../daemon:/daemon \
@@ -130,10 +130,10 @@ start-dev-docker: dev-image
 		$(IMAGE_NAME):stable
 	
 enter-dev-docker: start-dev-docker
-	docker exec -it $(IMAGE_NAME) bash
+	${DOCKER_CMD} exec -it $(IMAGE_NAME) bash
 
 dev-image: Dockerfile
-	docker build --label $(IMAGE_NAME) --tag $(IMAGE_NAME):stable --network host .
+	${DOCKER_CMD} build --label $(IMAGE_NAME) --tag $(IMAGE_NAME):stable --network host .
 	touch $@
 
 ###
