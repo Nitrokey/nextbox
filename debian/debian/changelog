@@ -1,3 +1,11 @@
+%%PKG%% (1.26.8-1) focal; urgency=low
+
+  * daemon: fix race condition in check progress
+  * feat: select target via env varibale
+  * feat: select docker command via env varibale
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 25 Mar 2026 11:26:10 +0100
+
 %%PKG%% (1.26.7-1) focal; urgency=low
 
     * NC 32.0.6
