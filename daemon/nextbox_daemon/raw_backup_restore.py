@@ -148,7 +148,7 @@ class RawBackupRestore:
         key_path = Path(self.dirs[key])
         src_path = src_dir / key_path.name
         tar_path = key_path.parent
-        self.rsync_dir("data", src_path.as_posix(), tar_path.as_posix(), block_main=block)
+        self.rsync_dir(key, src_path.as_posix(), tar_path.as_posix(), block_main=block)
         log.info(f"starting {key} import")
         
     def get_env_data(self, docker_env_path=None):
