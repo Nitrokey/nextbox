@@ -1,3 +1,9 @@
+%%PKG%% (1.26.10-1) focal; urgency=low
+
+  * Makefile/debian: cleaner 'clean'
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 30 Mar 2026 19:21:05 +0200
+
 %%PKG%% (1.26.9-1) focal; urgency=low
 
   * fix: change ip check urls to desec/dedyns own check urls
