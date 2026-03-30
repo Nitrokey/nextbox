@@ -10,8 +10,8 @@ NEXTBOX_HDD_LABEL = "NextBoxHardDisk"
 NEXTBOX_DEBIAN_PACKAGES = ["nextbox", "nextbox-testing", "nextbox-unstable"]
 
 
-GET_EXT_IP4_URL = "http://v4.ipv6-test.com/api/myip.php"
-GET_EXT_IP6_URL = "http://v6.ipv6-test.com/api/myip.php"
+GET_EXT_IP4_URL = "https://checkipv4.dedyn.io"
+GET_EXT_IP6_URL = "https://checkipv6.dedyn.io"
 
 PROXY_REGISTER_URL = "https://nextbox.link/register"
 
