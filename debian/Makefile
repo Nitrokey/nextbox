@@ -54,9 +54,11 @@ stable:
 clean:
 	#rm -rf $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/setup.py $(PKG)/nextbox-compose
 	rm -rf nextbox nextbox-testing nextbox-unstable
+	rm -rf repos/app/nextbox/js/*
 	make PKG=nextbox-unstable GIT_TAG=main deb-clean
 	make PKG=nextbox-testing GIT_TAG=main deb-clean
 	make PKG=nextbox GIT_TAG=main deb-clean
+	
 
 
 main-target: $(PKG)/app $(PKG)/nextbox_daemon $(PKG)/scripts $(PKG)/templates $(PKG)/nextbox-compose $(PKG)/debian $(PKG)/rtun-linux-arm64 deb-src
