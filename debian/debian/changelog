@@ -1,3 +1,9 @@
+%%PKG%% (1.26.9-1) focal; urgency=low
+
+  * fix: change ip check urls to desec/dedyns own check urls
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 30 Mar 2026 12:35:49 +0200
+
 %%PKG%% (1.26.8-1) focal; urgency=low
 
   * daemon: fix race condition in check progress
