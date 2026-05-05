@@ -27,7 +27,7 @@ update-daemon:
 	rsync daemon/templates/* $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-templates/
 
 	### docker-compose.yml
-	rsync daemon/nextbox-compose/docker-compose.yml $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-compose/docker-compose.yml
+	rsync daemon/nextbox-compose/* $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-compose/
 
 
 	### restart nextbox-daemon
