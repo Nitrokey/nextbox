@@ -1,4 +1,4 @@
-FROM --platform=linux/aarch64 nextcloud:32.0.6-apache
+FROM --platform=linux/aarch64 nextcloud:32.0.9-apache
 
 ENV DEBIAN_FRONTEND noninteractive
 
