@@ -65,6 +65,7 @@ apt-get install -y ddclient
 echo "deb http://ppa.launchpad.net/nitrokey/nextbox/ubuntu focal main" > /etc/apt/sources.list.d/nitrokey-nextbox.list
 
 # add repository key
+# TODO: apt-key is deprecated, we should replace this!
 apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv-keys 19F7C7BFE72D7141
 
 # update and then install nextbox
