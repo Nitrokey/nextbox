@@ -1,3 +1,11 @@
+%%PKG%% (1.26.11-1) focal; urgency=low
+
+  * NC 32.0.9
+  * fix: include complete compose template dir in update-daemon
+  * fix: fix hardcoded directory key in import_dir
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 11 May 2026 11:18:32 +0200
+
 %%PKG%% (1.26.10-1) focal; urgency=low
 
   * Makefile/debian: cleaner 'clean'
