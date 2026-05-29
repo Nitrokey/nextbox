@@ -57,7 +57,7 @@ sudo mkdir -p tmp/nextbox
 echo "create nextcloud, mariadb, apache2 directories"
 # ensure custom_apps has the correct owner
 sudo mkdir -p tmp/nextcloud/custom_apps
-sudo chown 33.0 tmp/nextcloud/custom_apps
+sudo chown 33:0 tmp/nextcloud/custom_apps
 
 # mariadb
 sudo mkdir -p tmp/mariadb
