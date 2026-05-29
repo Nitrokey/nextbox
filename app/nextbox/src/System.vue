@@ -185,7 +185,7 @@ export default {
 
 			try {
 				const res = await axios.get(generateUrl('/apps/nextbox/forward/debianVersion'))
-				this.canDebianUpdate = (res.data.data.version === 10)
+				this.canDebianUpdate = (res.data.data.version === 11)
 			} catch (e) {
 				console.error(e)
 			}
