@@ -29,6 +29,8 @@ update-daemon:
 	### docker-compose.yml
 	rsync daemon/nextbox-compose/* $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/lib/nextbox-compose/
 
+	### scripts
+	rsync daemon/scripts/* $(DEV_ROOT_USER)@$(DEV_DEVICE):/usr/bin/
 
 	### restart nextbox-daemon
 	ssh $(DEV_ROOT_USER)@$(DEV_DEVICE) -- systemctl daemon-reload
