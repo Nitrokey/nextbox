@@ -1,3 +1,14 @@
+%%PKG%% (1.26.12-1) focal; urgency=low
+
+  * app: bump version
+  * fix: make update-app do npm-install for first time builds in build container
+  * fix: make update-daemon update scripts
+  * chore: fix chmod options in prepare_harddrive
+  * feat: update ui version to to enable manual bookworm update option
+  * feat: prepare update script for debian bookworm update
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Mon, 01 Jun 2026 14:11:18 +0200
+
 %%PKG%% (1.26.11-1) focal; urgency=low
 
   * NC 32.0.9
