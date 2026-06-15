@@ -374,7 +374,7 @@ class RawBackupRestore:
         """Read and return meta-data-dict"""
         tar_meta_path = Path(tar_path) / "info.yaml"
         with open(tar_meta_path, "r") as fd:
-            info = yaml.load(fd)
+            info = yaml.safe_load(fd)
         return info
 
     def write_meta(self, tar_path, info):

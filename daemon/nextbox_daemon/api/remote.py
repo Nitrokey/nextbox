@@ -165,7 +165,7 @@ def test_resolve4():
 def test_http():
     nc = Nextcloud()
     res, req = nc.check_reachability()
-    data = yaml.load(res.text)
+    data = yaml.safe_load(res.text)
     data["data"]["ipv4"] = [req["ipv4"], req["domain"]]
     data["data"]["ipv6"] = ["[" + req["ipv6"] + "]" if req["ipv6"] else "", req["domain"]]
     return success(data["msg"][0], data=data["data"])
