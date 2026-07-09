@@ -41,6 +41,6 @@ DYNDNS_DESEC_CAPTCHA = "https://desec.io/api/v1/captcha/"
 DYNDNS_DESEC_REGISTER = "https://desec.io/api/v1/auth/"
 
 
-SYSTEMD_RESOLVE_BIN = "/usr/bin/systemd-resolve"
+SYSTEMD_RESOLVECTL_BIN = "/usr/bin/resolvectl"
 SYSTEMCTL_BIN = "/usr/bin/systemctl"
 
