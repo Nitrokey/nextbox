@@ -7,15 +7,24 @@ import ssl
 
 from nextbox_daemon.config import log
 from nextbox_daemon.command_runner import CommandRunner
-from nextbox_daemon.consts import GET_EXT_IP4_URL, GET_EXT_IP6_URL, SYSTEMD_RESOLVE_BIN
+from nextbox_daemon.consts import GET_EXT_IP4_URL, GET_EXT_IP6_URL, SYSTEMD_RESOLVE_BIN, SYSTEMD_RESOLVECTL_BIN
 
 class DNSManager:
     def __init__(self):
         pass
 
     def clear_dns_caches(self):
-        CommandRunner([SYSTEMD_RESOLVE_BIN, "--flush-cache"], block=True)
-        CommandRunner([SYSTEMD_RESOLVE_BIN, "--reset-server-features"], block=True)
+        version_file = Path("/etc/debian_version")
+        with version_file.open() as fd:
+            version = fd.read().split(".")[0]
+
+        # resolvectl was moved into separate binary with debian 12
+        if version == "12":
+            CommandRunner([SYSTEMD_RESOLVECTL_BIN, "flush-caches"], block=True)
+            CommandRunner([SYSTEMD_RESOLVECTL_BIN, "reset-server-features"], block=True)
+        else:
+            CommandRunner([SYSTEMD_RESOLVE_BIN, "--flush-cache"], block=True)
+            CommandRunner([SYSTEMD_RESOLVE_BIN, "--reset-server-features"], block=True)
 
     def get_ipv6(self):
         try:
