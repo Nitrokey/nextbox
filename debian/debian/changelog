@@ -1,3 +1,11 @@
+%%PKG%% (1.26.14-1) focal; urgency=low
+
+  * bump app
+  * fix: disable debian 12 updates for now
+  * NC 32.0.12
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 10 Jul 2026 14:39:13 +0200
+
 %%PKG%% (1.26.13-1) focal; urgency=low
 
   * NC 32.0.11
