@@ -165,7 +165,17 @@ def test_resolve4():
 def test_http():
     nc = Nextcloud()
     res, req = nc.check_reachability()
-    data = yaml.safe_load(res.text)
+    if not res.ok: # this fails if e.g. token is not valid
+        return error("Could not test reachability")
+
+    try: # check if response is valid yaml
+        data = yaml.safe_load(res.text)
+    except:
+        return error("Could not parse reachability response")
+
+    if not isinstance(data, dict) or data.get("result") == "error":
+        return error("Could not test reachability")
+
     data["data"]["ipv4"] = [req["ipv4"], req["domain"]]
     data["data"]["ipv6"] = ["[" + req["ipv6"] + "]" if req["ipv6"] else "", req["domain"]]
     return success(data["msg"][0], data=data["data"])
