@@ -8,6 +8,7 @@ software-properties-common
 
 #ddclient don't install here, prefer apt-get
 
+systemd-resolved
 
 # certbot
 certbot
