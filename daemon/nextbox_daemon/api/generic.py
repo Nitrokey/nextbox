@@ -117,7 +117,7 @@ def get_logs():
             fd.write(path, path.name)
     
     with open(zip_path, "rb") as fd:
-        return success(data={"zip": b64encode(fd.read())})
+        return success(data={"zip": b64encode(fd.read()).decode('utf-8')})
 
 
 @generic_api.route("/ssh", methods=["POST", "GET"])

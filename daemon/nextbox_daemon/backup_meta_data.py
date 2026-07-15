@@ -100,7 +100,7 @@ class BackupMetaData:
             raise BackupMetaDataFileNotFound(file_path.as_posix())
 
         with file_path.open() as fd:
-            loaded = yaml.load(fd)
+            loaded = yaml.safe_load(fd)
 
         version = loaded["version"] if "version" in loaded else 1
         if version == 1:
