@@ -1,6 +1,6 @@
 .PHONY: ensure-checkout build-image clean clean-docker
 
-COMMIT_HASH := 850ee74bdd025e44975581efbbe8623bdd17bd1d
+COMMIT_HASH := 1f6508fd12d0045da34eef37f140af8509b3886d
 
 gen-image:
 	git clone https://github.com/RPi-Distro/pi-gen.git gen-image
@@ -9,6 +9,7 @@ ensure-checkout: gen-image
 	git -C gen-image fetch --all
 	git -C gen-image reset --hard $(COMMIT_HASH)
 	git -C gen-image clean -fdx
+	git -C gen-image apply ../gen-image_export-image.patch
 
 build-image: ensure-checkout
 	cp -r image-config/config gen-image
