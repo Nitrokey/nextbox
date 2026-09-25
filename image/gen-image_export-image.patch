@@ -1,0 +1,13 @@
+diff --git a/export-image/prerun.sh b/export-image/prerun.sh
+index 06ca90a..0b0b78d 100755
+--- a/export-image/prerun.sh
++++ b/export-image/prerun.sh
+@@ -50,7 +50,7 @@ if [ "${NO_PRERUN_QCOW2}" = "0" ]; then
+ 	BOOT_DEV="${LOOP_DEV}p1"
+ 	ROOT_DEV="${LOOP_DEV}p2"
+ 
+-	ROOT_FEATURES="^huge_file,^orphan_file"
++	ROOT_FEATURES=""
+ 	for FEATURE in 64bit; do
+ 	if grep -q "$FEATURE" /etc/mke2fs.conf; then
+ 		ROOT_FEATURES="^$FEATURE,$ROOT_FEATURES"
