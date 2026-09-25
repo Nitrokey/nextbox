@@ -1,6 +1,6 @@
 .PHONY: ensure-checkout build-image clean clean-docker
 
-COMMIT_HASH := 67262a4ad0959aab2a9d84a6392b1967999e8f50
+COMMIT_HASH := 850ee74bdd025e44975581efbbe8623bdd17bd1d
 
 gen-image:
 	git clone https://github.com/RPi-Distro/pi-gen.git gen-image
