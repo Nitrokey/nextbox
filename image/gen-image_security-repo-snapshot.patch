@@ -1,0 +1,11 @@
+diff --git a/stage0/00-configure-apt/files/sources.list b/stage0/00-configure-apt/files/sources.list
+index 51290f6..a43423b 100644
+--- a/stage0/00-configure-apt/files/sources.list
++++ b/stage0/00-configure-apt/files/sources.list
+@@ -1,5 +1,5 @@
+ deb http://deb.debian.org/debian RELEASE main contrib non-free
+-deb http://security.debian.org/debian-security RELEASE-security main contrib non-free
++deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260903T220410Z RELEASE-security main contrib non-free
+ deb http://deb.debian.org/debian RELEASE-updates main contrib non-free
+ # Uncomment deb-src lines below then 'apt-get update' to enable 'apt-get source'
+ #deb-src http://deb.debian.org/debian RELEASE main contrib non-free
