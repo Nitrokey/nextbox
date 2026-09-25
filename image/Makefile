@@ -10,6 +10,7 @@ ensure-checkout: gen-image
 	git -C gen-image reset --hard $(COMMIT_HASH)
 	git -C gen-image clean -fdx
 	git -C gen-image apply ../gen-image_export-image.patch
+	git -C gen-image apply ../gen-image_security-repo-snapshot.patch
 
 build-image: ensure-checkout
 	cp -r image-config/config gen-image
