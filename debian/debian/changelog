@@ -1,3 +1,13 @@
+%%PKG%% (1.26.16-1) focal; urgency=low
+
+  * fix: add conditional usage of systemd-resolve or resolvectl depending on debian version
+  * NC 32.0.15
+  * fix: add error handling to reachability check
+  * fix: yaml.load replaced with yaml.safe_load
+  * fix: decode logfile as utf-8
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Fri, 25 Sep 2026 11:05:07 +0200
+
 %%PKG%% (1.26.15-1) focal; urgency=low
 
   * NC 32.0.13
