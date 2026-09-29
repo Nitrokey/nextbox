@@ -40,6 +40,11 @@ apt update 2>&1 >> /var/log/nextbox-update-debian.log
 apt  -o Dpkg::Options::="--force-confnew"  -o Dpkg::Options::="--force-confdef" -fuy upgrade 2>&1 >> /var/log/nextbox-update-debian.log
 apt  -o Dpkg::Options::="--force-confnew"  -o Dpkg::Options::="--force-confdef" -fuy dist-upgrade 2>&1 >> /var/log/nextbox-update-debian.log
 
+# Add systemd-resolved, which is required after debian 12 upadte
+# this depency can currently not be accounted for with the current package architecture
+# this will be fixed when the systems are on debian 12
+apt  -o Dpkg::Options::="--force-confnew"  -o Dpkg::Options::="--force-confdef" -fuy install systemd-resolved 2>&1 >> /var/log/nextbox-update-debian.log
+
 echo "cleanup" >> /var/log/nextbox-update-debian.log
 
 apt -fuy autoremove 2>&1 >> /var/log/nextbox-update-debian.log
