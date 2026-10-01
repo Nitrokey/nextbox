@@ -1,3 +1,14 @@
+%%PKG%% (1.26.17-1) focal; urgency=low
+
+  * chore: bump package and app version for release
+  * feat: enable manual debian 12 updates in nextbox app
+  * fix: add systemd-resolved install to debian update script
+  * feat: update to latest bookworm base gen-image
+  * feat: include image build update and use latest bookworm-arm64 pi-gen
+  * fix: include systemd-resolved as dependecy and in image generation
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 01 Oct 2026 17:03:44 +0200
+
 %%PKG%% (1.26.16-1) focal; urgency=low
 
   * fix: add conditional usage of systemd-resolve or resolvectl depending on debian version
