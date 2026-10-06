@@ -596,6 +596,7 @@ class RawBackupRestore:
             log.info("finalized import - all seems good!")
             log.info(".... restarting daemon")
             services.restart("nextbox-daemon")
+            services.restart("nextbox-compose")
 
             yield ("completed", ("all", "import"), 100)
 
