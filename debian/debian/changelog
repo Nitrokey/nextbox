@@ -1,3 +1,10 @@
+%%PKG%% (1.26.18-1) focal; urgency=low
+
+  * NC 33.0.9
+  * fix: restart compose service after backup restore
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 08 Oct 2026 12:20:05 +0200
+
 %%PKG%% (1.26.17-1) focal; urgency=low
 
   * chore: bump package and app version for release
