@@ -1,3 +1,9 @@
+%%PKG%% (1.26.20-1) focal; urgency=low
+
+  * NC 33.0.10 - pin to safe php version
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Wed, 21 Oct 2026 22:14:29 +0200
+
 %%PKG%% (1.26.19-1) focal; urgency=low
 
   * NC 33.0.10
