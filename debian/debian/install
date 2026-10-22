@@ -14,3 +14,4 @@ scripts/nextbox-desec-hook.sh /usr/bin
 scripts/nextbox-update-debian.sh /usr/bin
 scripts/nextbox-soft-reset.sh /usr/bin
 templates/* /usr/lib/nextbox-templates
+janitor/nextbox_status_page.py /usr/bin/
