@@ -11,6 +11,7 @@ ensure-checkout: gen-image
 	git -C gen-image clean -fdx
 	git -C gen-image apply ../gen-image_export-image.patch
 	git -C gen-image apply ../gen-image_security-repo-snapshot.patch
+	git -C gen-image apply ../gen-image_debian-bookworm.patch
 
 build-image: ensure-checkout
 	cp -r image-config/config gen-image

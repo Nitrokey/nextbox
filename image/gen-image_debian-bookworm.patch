@@ -1,0 +1,23 @@
+diff --git a/Dockerfile b/Dockerfile
+index 2a5d8fe..78009b8 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -1,4 +1,4 @@
+-ARG BASE_IMAGE=debian:bullseye
++ARG BASE_IMAGE=debian:bookworm
+ FROM ${BASE_IMAGE}
+ 
+ ENV DEBIAN_FRONTEND noninteractive
+diff --git a/build-docker.sh b/build-docker.sh
+index 38ae9ca..f8ab0a3 100755
+--- a/build-docker.sh
++++ b/build-docker.sh
+@@ -80,7 +80,7 @@ fi
+ # Modify original build-options to allow config file to be mounted in the docker container
+ BUILD_OPTS="$(echo "${BUILD_OPTS:-}" | sed -E 's@\-c\s?([^ ]+)@-c /config@')"
+ 
+-${DOCKER} build --build-arg BASE_IMAGE=debian:bullseye -t pi-gen "${DIR}"
++${DOCKER} build --build-arg BASE_IMAGE=debian:bookworm -t pi-gen "${DIR}"
+ 
+ if [ "${CONTAINER_EXISTS}" != "" ]; then
+   DOCKER_CMDLINE_NAME="${CONTAINER_NAME}_cont"
