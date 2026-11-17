@@ -7,3 +7,5 @@ RUN apt-get -y update && \
         smbclient
 RUN docker-php-ext-install \
     mysqli
+# Temporarily disble opcache.jit, as upstream fix seems to be delayed > https://github.com/nextcloud/docker/issues/2576
+RUN echo 'opcache.jit=disable' >> /usr/local/etc/php/conf.d/opcache-recommended.ini
