@@ -1,4 +1,4 @@
-FROM --platform=linux/aarch64 nextcloud:33.0.10@sha256:15531d894b5267cba3d0e001c3329c70b4e31ca5f4f0ae14c0a8c0cb57b1956d
+FROM --platform=linux/aarch64 nextcloud:33.0.11@sha256:504714d8dac82e8ceabd0cd9ede179a92b0db3a5ae4f85e26ec13e8d36ac7739
 
 ENV DEBIAN_FRONTEND noninteractive
 
