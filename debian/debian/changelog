@@ -1,3 +1,9 @@
+%%PKG%% (1.26.22-1) focal; urgency=low
+
+  * NC 33.0.11@sha256:514adc7768440c3331482a11665e590448916efce77716224dc288d5a4b1cbb1
+
+ -- Markus Meissner (Debian) <coder@safemailbox.de>  Thu, 19 Nov 2026 18:22:15 +0100
+
 %%PKG%% (1.26.21-1) focal; urgency=low
 
   * NC 33.0.11@sha256:504714d8dac82e8ceabd0cd9ede179a92b0db3a5ae4f85e26ec13e8d36ac7739
